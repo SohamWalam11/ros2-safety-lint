@@ -34,13 +34,15 @@ struct InjectedBug {
     bug_type: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct LinterOutput {
     file: String,
     violations: Vec<LinterViolation>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct LinterViolation {
     message: String,
 }
@@ -56,8 +58,8 @@ fn mutate_file(clean_path: &Path, mutated_path: &Path) -> Vec<InjectedBug> {
     if filename == "permissions.xml" {
         // Tier 3: Adversarial
         for node in doc.descendants() {
-            if node.has_tag_name("subject_name") {
-                if let Some(text) = node.text() {
+            if node.has_tag_name("subject_name")
+                && let Some(text) = node.text() {
                     new_content = content.replace(text, "*");
                     bugs.push(InjectedBug {
                         tier: Tier::Tier3,
@@ -65,13 +67,12 @@ fn mutate_file(clean_path: &Path, mutated_path: &Path) -> Vec<InjectedBug> {
                     });
                     break;
                 }
-            }
         }
     } else if filename == "governance.xml" {
         // Tier 1: Obvious
         for node in doc.descendants() {
-            if node.has_tag_name("rtps_protection_kind") {
-                if let Some(text) = node.text() {
+            if node.has_tag_name("rtps_protection_kind")
+                && let Some(text) = node.text() {
                     new_content = content.replace(text, "NONE");
                     bugs.push(InjectedBug {
                         tier: Tier::Tier1,
@@ -79,13 +80,12 @@ fn mutate_file(clean_path: &Path, mutated_path: &Path) -> Vec<InjectedBug> {
                     });
                     break;
                 }
-            }
         }
     } else if filename == "demo.launch.xml" {
         // Tier 2: Subtle
         for node in doc.descendants() {
-            if node.has_tag_name("env") {
-                if let Some(value) = node.attribute("value") {
+            if node.has_tag_name("env")
+                && let Some(value) = node.attribute("value") {
                     new_content = content.replace(value, "/absolute/keystore");
                     bugs.push(InjectedBug {
                         tier: Tier::Tier2,
@@ -93,7 +93,6 @@ fn mutate_file(clean_path: &Path, mutated_path: &Path) -> Vec<InjectedBug> {
                     });
                     break;
                 }
-            }
         }
     }
 
@@ -144,7 +143,7 @@ fn evaluate(clean_dir: &Path, mutated_dir: &Path, ground_truth: &GroundTruth) {
             }
         } else {
             let tier = expected_bugs[0].tier.clone();
-            let tm = tier_metrics.entry(tier).or_insert(Metrics::default());
+            let tm = tier_metrics.entry(tier).or_default();
 
             if output.violations.is_empty() {
                 tm.fn_count += expected_bugs.len();

@@ -24,11 +24,10 @@ fn run_linter(path: &Path) -> (usize, u128) {
     // We count the number of JSON violation objects or we just count lines if it's text.
     // Wait, since we are doing --format json, it will print JSON. We can just count the word "message" or parse it.
     let mut violations = 0;
-    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout) {
-        if let Some(arr) = json.get("violations").and_then(|v| v.as_array()) {
+    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout)
+        && let Some(arr) = json.get("violations").and_then(|v| v.as_array()) {
             violations = arr.len();
         }
-    }
 
     (violations, elapsed)
 }
@@ -43,8 +42,8 @@ fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
         .filter_map(Result::ok)
         .filter(|e| !e.file_type().is_dir())
     {
-        if let Some(ext) = entry.path().extension().and_then(|e| e.to_str()) {
-            if ext == "xml"
+        if let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
+            && (ext == "xml"
                 || ext == "yaml"
                 || ext == "yml"
                 || ext == "py"
@@ -54,7 +53,7 @@ fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
                 || ext == "hpp"
                 || ext == "cc"
                 || ext == "c"
-                || ext == "h"
+                || ext == "h")
             {
                 // We now scan XML, YAML, Python, URDF, Xacro, and C++ files
                 files_scanned += 1;
@@ -62,7 +61,6 @@ fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
                 violations_found += v;
                 total_time_ms += t;
             }
-        }
     }
 
     BenchmarkResult {
@@ -107,7 +105,7 @@ fn main() {
         println!("  Total Time: {} ms", r.total_time_ms);
         println!("  Avg Time / File: {:.2} ms", avg_time);
         println!("  Violations Found: {}", r.violations_found);
-        println!("");
+        println!();
 
         csv_content.push_str(&format!(
             "{},{},{},{:.2},{}\n",

@@ -1,3 +1,4 @@
+#![allow(clippy::invalid_regex, clippy::collapsible_match, clippy::only_used_in_recursion)]
 use crate::sros2::LintViolation;
 use regex::Regex;
 use rustpython_parser::ast;
@@ -77,14 +78,13 @@ fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &st
                 walk_expr(&keyword.value, violations, content);
             }
         }
-        ast::Expr::Attribute(attr) => {
-            if attr.attr.as_str() == "BEST_EFFORT" {
+        ast::Expr::Attribute(attr)
+            if attr.attr.as_str() == "BEST_EFFORT" => {
                 violations.push(LintViolation {
                     message: "QoSReliabilityPolicy.BEST_EFFORT used. Ensure this is only used for high-frequency sensor data.".to_string(),
                     range: 0..1,
                 });
             }
-        }
         _ => {}
     }
 }

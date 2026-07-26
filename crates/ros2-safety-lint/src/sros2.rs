@@ -1,4 +1,3 @@
-use crate::parser::Spanning;
 use roxmltree::Document;
 
 #[derive(Debug, PartialEq)]

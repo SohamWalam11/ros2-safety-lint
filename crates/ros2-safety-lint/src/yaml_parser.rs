@@ -1,3 +1,4 @@
+#![allow(clippy::only_used_in_recursion)]
 use crate::sros2::LintViolation;
 use serde::Deserialize;
 use serde_yaml::Value;

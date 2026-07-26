@@ -51,7 +51,7 @@ fn main() {
         }
     };
 
-    let doc = match parse_xml(&content) {
+    let _doc = match parse_xml(&content) {
         Ok(d) => d,
         Err(e) => {
             eprintln!("Error parsing XML in {}: {}", cli.path.display(), e);
