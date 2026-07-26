@@ -72,3 +72,54 @@ pub fn lint_keystore_paths(doc: &Document<'_>) -> Vec<LintViolation> {
 
     violations
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use roxmltree::Document;
+
+    #[test]
+    fn test_lint_permissions_wildcard() {
+        let xml = "<permissions><subject_name>*</subject_name></permissions>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_permissions(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Wildcard subject"));
+    }
+
+    #[test]
+    fn test_lint_permissions_valid() {
+        let xml = "<permissions><subject_name>/robot_node</subject_name></permissions>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_permissions(&doc);
+        assert_eq!(violations.len(), 0);
+    }
+
+    #[test]
+    fn test_lint_governance_insecure() {
+        let xml = "<governance><rtps_protection_kind>NONE</rtps_protection_kind></governance>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_governance(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0]
+            .message
+            .contains("Insecure rtps_protection_kind"));
+    }
+
+    #[test]
+    fn test_lint_governance_secure() {
+        let xml = "<governance><rtps_protection_kind>ENCRYPT</rtps_protection_kind></governance>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_governance(&doc);
+        assert_eq!(violations.len(), 0);
+    }
+
+    #[test]
+    fn test_lint_keystore_paths_absolute() {
+        let xml = "<launch><env name=\"ROS_SECURITY_KEYSTORE\" value=\"/etc/ros/keys\"/></launch>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_keystore_paths(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Hardcoded absolute path"));
+    }
+}

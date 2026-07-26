@@ -58,3 +58,31 @@ fn walk_yaml(root_value: &Value, violations: &mut Vec<LintViolation>, _content: 
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_yaml_domain_id_zero() {
+        let yaml = "ros__parameters:\n  domain_id: 0\n";
+        let violations = lint_yaml(yaml);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("ROS_DOMAIN_ID 0"));
+    }
+
+    #[test]
+    fn test_yaml_reliability_best_effort() {
+        let yaml = "ros__parameters:\n  reliability: best_effort\n";
+        let violations = lint_yaml(yaml);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("best_effort"));
+    }
+
+    #[test]
+    fn test_yaml_clean() {
+        let yaml = "ros__parameters:\n  domain_id: 42\n  reliability: reliable\n";
+        let violations = lint_yaml(yaml);
+        assert_eq!(violations.len(), 0);
+    }
+}

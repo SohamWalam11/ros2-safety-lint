@@ -36,3 +36,37 @@ pub fn lint_urdf(doc: &Document<'_>) -> Vec<LintViolation> {
 
     violations
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use roxmltree::Document;
+
+    #[test]
+    fn test_urdf_missing_limit() {
+        let xml = "<robot><joint name=\"arm_joint\" type=\"revolute\"></joint></robot>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_urdf(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("missing <limit> tag"));
+    }
+
+    #[test]
+    fn test_urdf_missing_collision() {
+        let xml = "<robot><link name=\"base_link\"><visual><geometry><box size=\"1 1 1\"/></geometry></visual></link></robot>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_urdf(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0]
+            .message
+            .contains("missing <collision> geometry"));
+    }
+
+    #[test]
+    fn test_urdf_valid() {
+        let xml = "<robot><link name=\"base_link\"><visual/><collision/></link><joint name=\"j1\" type=\"revolute\"><limit effort=\"10\" velocity=\"1\"/></joint></robot>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_urdf(&doc);
+        assert_eq!(violations.len(), 0);
+    }
+}

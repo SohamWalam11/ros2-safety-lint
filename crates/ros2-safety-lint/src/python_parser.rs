@@ -90,3 +90,39 @@ fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &st
         _ => {}
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_python_hardcoded_ip() {
+        let code = "ip = '192.168.1.50'\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Hardcoded local IP"));
+    }
+
+    #[test]
+    fn test_python_sudo_usage() {
+        let code = "cmd = 'sudo' + ' reboot'\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("sudo"));
+    }
+
+    #[test]
+    fn test_python_qos_best_effort() {
+        let code = "qos = QoSReliabilityPolicy.BEST_EFFORT\n";
+        let violations = lint_python(code);
+        assert!(!violations.is_empty());
+        assert!(violations.iter().any(|v| v.message.contains("BEST_EFFORT")));
+    }
+
+    #[test]
+    fn test_python_clean() {
+        let code = "def launch():\n    pass\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 0);
+    }
+}

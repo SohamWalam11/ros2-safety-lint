@@ -33,3 +33,37 @@ pub fn lint_package_xml(doc: &Document<'_>) -> Vec<LintViolation> {
 
     violations
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use roxmltree::Document;
+
+    #[test]
+    fn test_package_legacy_format() {
+        let xml =
+            "<package format=\"2\"><name>my_pkg</name><license>Apache-2.0</license></package>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_package_xml(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Legacy package.xml format"));
+    }
+
+    #[test]
+    fn test_package_missing_license() {
+        let xml = "<package format=\"3\"><name>my_pkg</name></package>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_package_xml(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Missing <license> tag"));
+    }
+
+    #[test]
+    fn test_package_valid() {
+        let xml =
+            "<package format=\"3\"><name>my_pkg</name><license>Apache-2.0</license></package>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_package_xml(&doc);
+        assert_eq!(violations.len(), 0);
+    }
+}

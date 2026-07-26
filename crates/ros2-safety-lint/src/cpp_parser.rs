@@ -65,3 +65,23 @@ fn walk_node(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cpp_best_effort_detection() {
+        let code = "auto qos = rclcpp::QoS(10).best_effort();\n";
+        let violations = lint_cpp(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("BEST_EFFORT"));
+    }
+
+    #[test]
+    fn test_cpp_clean_code() {
+        let code = "auto qos = rclcpp::QoS(10).reliable();\n";
+        let violations = lint_cpp(code);
+        assert_eq!(violations.len(), 0);
+    }
+}

@@ -22,3 +22,27 @@ pub fn lint_launch_xml(doc: &Document<'_>) -> Vec<LintViolation> {
 
     violations
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use roxmltree::Document;
+
+    #[test]
+    fn test_launch_xml_missing_respawn() {
+        let xml =
+            "<launch><node name=\"controller\" pkg=\"my_pkg\" exec=\"control_node\"/></launch>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_launch_xml(&doc);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("missing `respawn=\"true\"`"));
+    }
+
+    #[test]
+    fn test_launch_xml_valid_respawn() {
+        let xml = "<launch><node name=\"controller\" pkg=\"my_pkg\" exec=\"control_node\" respawn=\"true\"/></launch>";
+        let doc = Document::parse(xml).unwrap();
+        let violations = lint_launch_xml(&doc);
+        assert_eq!(violations.len(), 0);
+    }
+}
