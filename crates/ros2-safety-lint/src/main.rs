@@ -63,9 +63,6 @@ fn main() {
 
     for file_path in files_to_scan {
         if let Some(filename) = file_path.file_name().and_then(|n| n.to_str()) {
-            println!("Scanning file: {}", file_path.display());
-            use std::io::Write;
-            let _ = std::io::stdout().flush();
             let content = match fs::read_to_string(&file_path) {
                 Ok(c) => c,
                 Err(_) => continue, // Skip binary files or unreadable files
@@ -157,10 +154,10 @@ fn main() {
                 .into_iter()
                 .map(|(file_str, v, content_str)| {
                     // Calculate line number from byte offset
-                    let start_line = content_str
-                        [0..std::cmp::min(v.range.start, content_str.len())]
-                        .chars()
-                        .filter(|&c| c == '\n')
+                    let start_line = content_str.as_bytes()
+                        [..std::cmp::min(v.range.start, content_str.len())]
+                        .iter()
+                        .filter(|&&c| c == b'\n')
                         .count()
                         + 1;
 

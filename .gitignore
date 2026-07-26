@@ -3,3 +3,7 @@
 .results/
 **/*.rs.bk
 Cargo.lock
+crash_log*.txt
+test*.sarif
+test*.json
+test_final.txt

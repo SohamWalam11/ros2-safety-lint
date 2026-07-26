@@ -16,7 +16,7 @@ pub fn lint_yaml(content: &str) -> Vec<LintViolation> {
     violations
 }
 
-fn walk_yaml(root_value: &Value, violations: &mut Vec<LintViolation>, content: &str) {
+fn walk_yaml(root_value: &Value, violations: &mut Vec<LintViolation>, _content: &str) {
     let mut stack = vec![root_value];
 
     while let Some(value) = stack.pop() {
