@@ -63,6 +63,9 @@ fn main() {
 
     for file_path in files_to_scan {
         if let Some(filename) = file_path.file_name().and_then(|n| n.to_str()) {
+            println!("Scanning file: {}", file_path.display());
+            use std::io::Write;
+            let _ = std::io::stdout().flush();
             let content = match fs::read_to_string(&file_path) {
                 Ok(c) => c,
                 Err(_) => continue, // Skip binary files or unreadable files
