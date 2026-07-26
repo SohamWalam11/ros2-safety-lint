@@ -1,0 +1,21 @@
+[package]
+name = "ros2-safety-lint"
+version = "0.1.0"
+edition = "2021"
+description = "A static verification linter for ROS 2 QoS, SROS2, and Physical Safety"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ros-security/ros2-safety-lint"
+keywords = ["ros2", "robotics", "security", "linter", "static-analysis"]
+categories = ["development-tools::testing"]
+
+[dependencies]
+roxmltree = "0.20"
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9.34"
+rustpython-parser = "0.4.0"
+regex = "1.13.1"
+tree-sitter = "0.20"
+tree-sitter-cpp = "0.20"
+toml = "0.8"

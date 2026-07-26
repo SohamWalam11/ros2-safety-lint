@@ -1,0 +1,15 @@
+[package]
+name = "ros2-safety-mutate"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+roxmltree = "0.20"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+walkdir = "2.4.0" # To recursively scan directories
+
+[[bin]]
+name = "real_world_bench"
+path = "src/real_world_bench.rs"

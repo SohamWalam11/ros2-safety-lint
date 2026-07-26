@@ -1,0 +1,4 @@
+LIBRARY
+EXPORTS
+  __rustc_proc_macro_decls_b48cf20f3395f50c__ DATA
+  rust_metadata_paste_b48cf20f3395f50c DATA

@@ -1,0 +1,22 @@
+{
+  "injected_bugs": {
+    "permissions.xml": [
+      {
+        "tier": "Tier3",
+        "bug_type": "WildcardSubject"
+      }
+    ],
+    "governance.xml": [
+      {
+        "tier": "Tier1",
+        "bug_type": "DowngradedRtps"
+      }
+    ],
+    "demo.launch.xml": [
+      {
+        "tier": "Tier2",
+        "bug_type": "AbsoluteKeystorePath"
+      }
+    ]
+  }
+}

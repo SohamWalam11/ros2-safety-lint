@@ -1,0 +1,5 @@
+Repository,FilesScanned,TotalTimeMs,AvgTimePerFileMs,ViolationsFound
+navigation2,1333,26798,20.10,3
+turtlebot3,88,1814,20.61,0
+autoware,8074,143962,17.83,33
+moveit2,1567,29664,18.93,4

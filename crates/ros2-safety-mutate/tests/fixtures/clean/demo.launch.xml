@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="demo_nodes_cpp" exec="talker" name="talker">
+    <env name="ROS_SECURITY_KEYSTORE" value="keystore"/>
+  </node>
+</launch>
