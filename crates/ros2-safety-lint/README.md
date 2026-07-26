@@ -1,4 +1,4 @@
-# ros2-safety-lint 🚀🛡️
+# ros2-safety-lint
 
 The ultimate static analysis and vulnerability verification tool for ROS 2. 
 `ros2-safety-lint` scans your entire robotics workspace (XML, YAML, Python, C++, URDF) for security flaws, missing encryptions, reliability downgrades, and architectural bypasses.
