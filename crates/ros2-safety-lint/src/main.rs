@@ -161,6 +161,7 @@ fn main() {
                         .count()
                         + 1;
 
+                    let clean_uri = file_str.replace('\\', "/");
                     serde_json::json!({
                         "ruleId": "ros2-safety",
                         "level": "error",
@@ -170,7 +171,7 @@ fn main() {
                         "locations": [{
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": file_str
+                                    "uri": clean_uri
                                 },
                                 "region": {
                                     "startLine": start_line
@@ -189,7 +190,17 @@ fn main() {
                         "driver": {
                             "name": "ros2-safety-lint",
                             "informationUri": "https://github.com/ros-security/ros2-safety-lint",
-                            "version": "0.1.0"
+                            "version": "0.1.0",
+                            "rules": [{
+                                "id": "ros2-safety",
+                                "name": "ROS2SafetyRule",
+                                "shortDescription": {
+                                    "text": "ROS 2 Static Safety Violation"
+                                },
+                                "fullDescription": {
+                                    "text": "Detects QoS incompatibilities, SROS2 security flaws, and physical safety risks."
+                                }
+                            }]
                         }
                     },
                     "results": results

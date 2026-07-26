@@ -27,8 +27,15 @@ jobs:
           ros2-safety-lint --path . --format sarif > .results/ros2-safety-lint.sarif
         continue-on-error: true
 
+      - name: Upload SARIF report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ros2-safety-lint-sarif
+          path: .results/ros2-safety-lint.sarif
+
       - name: Upload SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
+        continue-on-error: true
         with:
           sarif_file: .results/ros2-safety-lint.sarif
           category: ros2-safety-lint
