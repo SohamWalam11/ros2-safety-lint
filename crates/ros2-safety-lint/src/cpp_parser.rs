@@ -16,13 +16,23 @@ pub fn lint_cpp(content: &str) -> Vec<LintViolation> {
 
     if let Some(tree) = parser.parse(content, None) {
         let root_node = tree.root_node();
-        walk_node(&root_node, content.as_bytes(), &mut violations, &mut tainted_vars);
+        walk_node(
+            &root_node,
+            content.as_bytes(),
+            &mut violations,
+            &mut tainted_vars,
+        );
     }
 
     violations
 }
 
-fn walk_node(node: &Node, source: &[u8], violations: &mut Vec<LintViolation>, tainted_vars: &mut HashSet<String>) {
+fn walk_node(
+    node: &Node,
+    source: &[u8],
+    violations: &mut Vec<LintViolation>,
+    tainted_vars: &mut HashSet<String>,
+) {
     // Taint Tracking: If we see a variable initialized with QoS, taint it
     if node.kind() == "declaration" {
         if let Ok(text) = node.utf8_text(source) {

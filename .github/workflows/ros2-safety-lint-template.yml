@@ -17,7 +17,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install ros2-safety-lint
-        run: cargo install ros2-safety-lint
+        run: cargo install --path crates/ros2-safety-lint
 
       - name: Run Linter and generate SARIF
         run: |

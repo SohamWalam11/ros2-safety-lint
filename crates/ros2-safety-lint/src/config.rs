@@ -21,7 +21,7 @@ impl Default for SafetyConfig {
                 require_encryption: Some(true),
                 max_qos_history: Some(10),
                 allow_best_effort: Some(false),
-            }
+            },
         }
     }
 }
