@@ -44,9 +44,13 @@ fn main() {
 
     let mut files_to_scan = Vec::new();
     if cli.path.is_dir() {
-        for entry in walkdir::WalkDir::new(&cli.path).into_iter().filter_map(|e| e.ok()) {
+        for entry in walkdir::WalkDir::new(&cli.path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
             let path_str = entry.path().to_string_lossy();
-            if entry.path().is_file() && !path_str.contains("target") && !path_str.contains(".git") {
+            if entry.path().is_file() && !path_str.contains("target") && !path_str.contains(".git")
+            {
                 files_to_scan.push(entry.path().to_path_buf());
             }
         }

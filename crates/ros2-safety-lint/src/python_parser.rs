@@ -11,8 +11,9 @@ pub fn lint_python(content: &str) -> Vec<LintViolation> {
     let ip_regex = Regex::new(r#"(['"])(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(['"])"#).unwrap();
     if ip_regex.is_match(content) {
         violations.push(LintViolation {
-            message: "Hardcoded local IP address found. Use ROS parameters or environment variables."
-                .to_string(),
+            message:
+                "Hardcoded local IP address found. Use ROS parameters or environment variables."
+                    .to_string(),
             range: 0..1, // In a real parser we'd find the AST node
         });
     }
