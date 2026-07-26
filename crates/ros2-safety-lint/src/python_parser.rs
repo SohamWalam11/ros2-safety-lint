@@ -1,4 +1,4 @@
-#![allow(clippy::invalid_regex, clippy::collapsible_match, clippy::only_used_in_recursion)]
+#![allow(clippy::collapsible_match, clippy::only_used_in_recursion)]
 use crate::sros2::LintViolation;
 use regex::Regex;
 use rustpython_parser::ast;
@@ -7,16 +7,18 @@ use rustpython_parser::{parse, Mode};
 pub fn lint_python(content: &str) -> Vec<LintViolation> {
     let mut violations = Vec::new();
 
-    // 1. Regex checks for IPs and sudo (simulating secrets scanning)
-    let ip_regex = Regex::new(r#"(['"])(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)\1"#).unwrap();
-    for mat in ip_regex.find_iter(content) {
+    // Check for hardcoded IPs in strings
+    let ip_regex = Regex::new(r#"(['"])(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(['"])"#).unwrap();
+    if ip_regex.is_match(content) {
         violations.push(LintViolation {
-            message: format!("Hardcoded Private IP address detected: {}. This is a critical security and cross-talk risk.", mat.as_str()),
-            range: mat.range(),
+            message: "Hardcoded local IP address found. Use ROS parameters or environment variables."
+                .to_string(),
+            range: 0..1, // In a real parser we'd find the AST node
         });
     }
 
-    let sudo_regex = Regex::new(r#"(['"])sudo\1"#).unwrap();
+    // Check for sudo usage
+    let sudo_regex = Regex::new(r#"(['"])sudo(['"])"#).unwrap();
     for mat in sudo_regex.find_iter(content) {
         violations.push(LintViolation {
             message: "Privilege Escalation Risk: 'sudo' detected in launch script. Running ROS 2 nodes as root is highly discouraged.".to_string(),
@@ -78,13 +80,12 @@ fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &st
                 walk_expr(&keyword.value, violations, content);
             }
         }
-        ast::Expr::Attribute(attr)
-            if attr.attr.as_str() == "BEST_EFFORT" => {
-                violations.push(LintViolation {
+        ast::Expr::Attribute(attr) if attr.attr.as_str() == "BEST_EFFORT" => {
+            violations.push(LintViolation {
                     message: "QoSReliabilityPolicy.BEST_EFFORT used. Ensure this is only used for high-frequency sensor data.".to_string(),
                     range: 0..1,
                 });
-            }
+        }
         _ => {}
     }
 }

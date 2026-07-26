@@ -59,40 +59,43 @@ fn mutate_file(clean_path: &Path, mutated_path: &Path) -> Vec<InjectedBug> {
         // Tier 3: Adversarial
         for node in doc.descendants() {
             if node.has_tag_name("subject_name")
-                && let Some(text) = node.text() {
-                    new_content = content.replace(text, "*");
-                    bugs.push(InjectedBug {
-                        tier: Tier::Tier3,
-                        bug_type: "WildcardSubject".to_string(),
-                    });
-                    break;
-                }
+                && let Some(text) = node.text()
+            {
+                new_content = content.replace(text, "*");
+                bugs.push(InjectedBug {
+                    tier: Tier::Tier3,
+                    bug_type: "WildcardSubject".to_string(),
+                });
+                break;
+            }
         }
     } else if filename == "governance.xml" {
         // Tier 1: Obvious
         for node in doc.descendants() {
             if node.has_tag_name("rtps_protection_kind")
-                && let Some(text) = node.text() {
-                    new_content = content.replace(text, "NONE");
-                    bugs.push(InjectedBug {
-                        tier: Tier::Tier1,
-                        bug_type: "DowngradedRtps".to_string(),
-                    });
-                    break;
-                }
+                && let Some(text) = node.text()
+            {
+                new_content = content.replace(text, "NONE");
+                bugs.push(InjectedBug {
+                    tier: Tier::Tier1,
+                    bug_type: "DowngradedRtps".to_string(),
+                });
+                break;
+            }
         }
     } else if filename == "demo.launch.xml" {
         // Tier 2: Subtle
         for node in doc.descendants() {
             if node.has_tag_name("env")
-                && let Some(value) = node.attribute("value") {
-                    new_content = content.replace(value, "/absolute/keystore");
-                    bugs.push(InjectedBug {
-                        tier: Tier::Tier2,
-                        bug_type: "AbsoluteKeystorePath".to_string(),
-                    });
-                    break;
-                }
+                && let Some(value) = node.attribute("value")
+            {
+                new_content = content.replace(value, "/absolute/keystore");
+                bugs.push(InjectedBug {
+                    tier: Tier::Tier2,
+                    bug_type: "AbsoluteKeystorePath".to_string(),
+                });
+                break;
+            }
         }
     }
 

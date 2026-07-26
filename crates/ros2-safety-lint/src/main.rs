@@ -1,5 +1,4 @@
 use clap::{Parser, ValueEnum};
-use ros2_safety_lint::parser::parse_xml;
 use ros2_safety_lint::sros2::{lint_governance, lint_keystore_paths, lint_permissions};
 use serde::Serialize;
 use std::fs;
@@ -43,98 +42,113 @@ struct JsonViolation {
 fn main() {
     let cli = Cli::parse();
 
-    let content = match fs::read_to_string(&cli.path) {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("Error reading file {}: {}", cli.path.display(), e);
-            std::process::exit(1);
-        }
-    };
-
-    let _doc = match parse_xml(&content) {
-        Ok(d) => d,
-        Err(e) => {
-            eprintln!("Error parsing XML in {}: {}", cli.path.display(), e);
-            std::process::exit(1);
-        }
-    };
-
-    let mut violations = Vec::new();
-    if let Some(filename) = cli.path.file_name().and_then(|n| n.to_str()) {
-        if filename.ends_with(".xml") || filename.ends_with(".urdf") || filename.ends_with(".xacro")
-        {
-            let content = fs::read_to_string(&cli.path).unwrap_or_default();
-            if let Ok(doc) = ros2_safety_lint::parser::parse_xml(&content) {
-                if filename == "permissions.xml" {
-                    violations.extend(lint_permissions(&doc));
-                } else if filename == "governance.xml" {
-                    violations.extend(lint_governance(&doc));
-                } else if filename == "package.xml" {
-                    violations.extend(ros2_safety_lint::package_xml_parser::lint_package_xml(&doc));
-                } else if filename.ends_with(".urdf") || filename.ends_with(".xacro") {
-                    violations.extend(ros2_safety_lint::urdf_parser::lint_urdf(&doc));
-                } else if filename.ends_with(".launch.xml") {
-                    violations.extend(ros2_safety_lint::launch_xml_parser::lint_launch_xml(&doc));
-                } else {
-                    violations.extend(lint_permissions(&doc));
-                    violations.extend(lint_governance(&doc));
-                }
-                violations.extend(lint_keystore_paths(&doc));
+    let mut files_to_scan = Vec::new();
+    if cli.path.is_dir() {
+        for entry in walkdir::WalkDir::new(&cli.path).into_iter().filter_map(|e| e.ok()) {
+            let path_str = entry.path().to_string_lossy();
+            if entry.path().is_file() && !path_str.contains("target") && !path_str.contains(".git") {
+                files_to_scan.push(entry.path().to_path_buf());
             }
-        } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
-            let content = fs::read_to_string(&cli.path).unwrap_or_default();
-            violations.extend(ros2_safety_lint::yaml_parser::lint_yaml(&content));
-        } else if filename.ends_with(".py") {
-            let content = fs::read_to_string(&cli.path).unwrap_or_default();
-            violations.extend(ros2_safety_lint::python_parser::lint_python(&content));
-        } else if filename.ends_with(".cpp")
-            || filename.ends_with(".hpp")
-            || filename.ends_with(".cc")
-            || filename.ends_with(".c")
-            || filename.ends_with(".h")
-        {
-            let content = fs::read_to_string(&cli.path).unwrap_or_default();
-            violations.extend(ros2_safety_lint::cpp_parser::lint_cpp(&content));
+        }
+    } else {
+        files_to_scan.push(cli.path.clone());
+    }
+
+    // A tuple of (file_path_string, LintViolation)
+    let mut all_violations = Vec::new();
+
+    for file_path in files_to_scan {
+        if let Some(filename) = file_path.file_name().and_then(|n| n.to_str()) {
+            let content = match fs::read_to_string(&file_path) {
+                Ok(c) => c,
+                Err(_) => continue, // Skip binary files or unreadable files
+            };
+
+            let mut file_violations = Vec::new();
+            let file_path_str = file_path.display().to_string();
+
+            if filename.ends_with(".xml")
+                || filename.ends_with(".urdf")
+                || filename.ends_with(".xacro")
+            {
+                if let Ok(doc) = ros2_safety_lint::parser::parse_xml(&content) {
+                    if filename == "permissions.xml" {
+                        file_violations.extend(lint_permissions(&doc));
+                    } else if filename == "governance.xml" {
+                        file_violations.extend(lint_governance(&doc));
+                    } else if filename == "package.xml" {
+                        file_violations
+                            .extend(ros2_safety_lint::package_xml_parser::lint_package_xml(&doc));
+                    } else if filename.ends_with(".urdf") || filename.ends_with(".xacro") {
+                        file_violations.extend(ros2_safety_lint::urdf_parser::lint_urdf(&doc));
+                    } else if filename.ends_with(".launch.xml") {
+                        file_violations
+                            .extend(ros2_safety_lint::launch_xml_parser::lint_launch_xml(&doc));
+                    } else {
+                        file_violations.extend(lint_permissions(&doc));
+                        file_violations.extend(lint_governance(&doc));
+                    }
+                    file_violations.extend(lint_keystore_paths(&doc));
+                }
+            } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
+                file_violations.extend(ros2_safety_lint::yaml_parser::lint_yaml(&content));
+            } else if filename.ends_with(".py") {
+                file_violations.extend(ros2_safety_lint::python_parser::lint_python(&content));
+            } else if filename.ends_with(".cpp")
+                || filename.ends_with(".hpp")
+                || filename.ends_with(".cc")
+                || filename.ends_with(".c")
+                || filename.ends_with(".h")
+            {
+                file_violations.extend(ros2_safety_lint::cpp_parser::lint_cpp(&content));
+            }
+
+            for v in file_violations {
+                all_violations.push((file_path_str.clone(), v, content.clone()));
+            }
         }
     }
 
     match cli.format {
         Format::Text => {
-            if violations.is_empty() {
+            if all_violations.is_empty() {
                 println!("No violations found in {}", cli.path.display());
             } else {
-                for v in &violations {
-                    println!("{}: {}", cli.path.display(), v.message);
+                for (file_str, v, _) in &all_violations {
+                    println!("{}: {}", file_str, v.message);
                     println!("  at bytes {}..{}", v.range.start, v.range.end);
                 }
             }
         }
         Format::Json => {
-            let json_violations: Vec<JsonViolation> = violations
-                .into_iter()
-                .map(|v| JsonViolation {
-                    message: v.message,
-                    start_byte: v.range.start,
-                    end_byte: v.range.end,
-                })
-                .collect();
+            // Group by file
+            use std::collections::HashMap;
+            let mut grouped: HashMap<String, Vec<JsonViolation>> = HashMap::new();
+            for (file_str, v, _) in &all_violations {
+                grouped
+                    .entry(file_str.clone())
+                    .or_default()
+                    .push(JsonViolation {
+                        message: v.message.clone(),
+                        start_byte: v.range.start,
+                        end_byte: v.range.end,
+                    });
+            }
 
-            let output = JsonOutput {
-                file: cli.path.display().to_string(),
-                violations: json_violations,
-            };
+            let mut outputs = Vec::new();
+            for (file, violations) in grouped {
+                outputs.push(JsonOutput { file, violations });
+            }
 
-            match serde_json::to_string_pretty(&output) {
+            match serde_json::to_string_pretty(&outputs) {
                 Ok(json) => println!("{}", json),
                 Err(e) => eprintln!("Error serializing JSON: {}", e),
             }
         }
         Format::Sarif => {
-            let content_str = fs::read_to_string(&cli.path).unwrap_or_default();
-
-            let results: Vec<serde_json::Value> = violations
+            let results: Vec<serde_json::Value> = all_violations
                 .into_iter()
-                .map(|v| {
+                .map(|(file_str, v, content_str)| {
                     // Calculate line number from byte offset
                     let start_line = content_str
                         [0..std::cmp::min(v.range.start, content_str.len())]
@@ -152,7 +166,7 @@ fn main() {
                         "locations": [{
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": cli.path.display().to_string()
+                                    "uri": file_str
                                 },
                                 "region": {
                                     "startLine": start_line

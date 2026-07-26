@@ -25,9 +25,10 @@ fn run_linter(path: &Path) -> (usize, u128) {
     // Wait, since we are doing --format json, it will print JSON. We can just count the word "message" or parse it.
     let mut violations = 0;
     if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout)
-        && let Some(arr) = json.get("violations").and_then(|v| v.as_array()) {
-            violations = arr.len();
-        }
+        && let Some(arr) = json.get("violations").and_then(|v| v.as_array())
+    {
+        violations = arr.len();
+    }
 
     (violations, elapsed)
 }
@@ -54,13 +55,13 @@ fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
                 || ext == "cc"
                 || ext == "c"
                 || ext == "h")
-            {
-                // We now scan XML, YAML, Python, URDF, Xacro, and C++ files
-                files_scanned += 1;
-                let (v, t) = run_linter(entry.path());
-                violations_found += v;
-                total_time_ms += t;
-            }
+        {
+            // We now scan XML, YAML, Python, URDF, Xacro, and C++ files
+            files_scanned += 1;
+            let (v, t) = run_linter(entry.path());
+            violations_found += v;
+            total_time_ms += t;
+        }
     }
 
     BenchmarkResult {
