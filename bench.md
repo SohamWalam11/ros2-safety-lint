@@ -4,12 +4,12 @@ This document analyzes the existing state-of-the-art research regarding ROS 2 st
 
 | Repository | Files Scanned | Total Time (ms) | Avg Time / File (ms) | Violations Found |
 | :--- | :--- | :--- | :--- | :--- |
-| **autoware** | 8074 | 143962 | 17.83 | **33** 🚨 |
-| **navigation2** | 1333 | 26798 | 20.10 | **3** 🚨 |
-| **moveit2** | 1567 | 29664 | 18.93 | **4** 🚨 |
+| **autoware** | 8074 | 143962 | 17.83 | **33**  |
+| **navigation2** | 1333 | 26798 | 20.10 | **3**  |
+| **moveit2** | 1567 | 29664 | 18.93 | **4**  |
 | **turtlebot3** | 88 | 1814 | 20.61 | 0 |
 
-### 🚀 Milestone 4 Conclusion
+###  Milestone 4 Conclusion
 By compiling the heavy `tree-sitter` C-grammar using the MSVC toolchain, the static analysis engine successfully parsed **11,000+ files** across the ROS 2 ecosystem.
 
 We proved that while launch files and XML configurations appear safe, developers frequently hardcode `BEST_EFFORT` QoS degradations directly into the C++ Source Code (`.cpp`, `.hpp`) to bypass architectural constraints! `ros2-safety-lint` is now capable of catching all of them.
