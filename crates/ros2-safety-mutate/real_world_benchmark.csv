@@ -1,5 +1,13 @@
 Repository,FilesScanned,TotalTimeMs,AvgTimePerFileMs,ViolationsFound
-navigation2,1333,26798,20.10,3
-turtlebot3,88,1814,20.61,0
-autoware,8074,143962,17.83,33
-moveit2,1567,29664,18.93,4
+navigation2,1333,29368,22.03,0
+turtlebot3,88,1671,18.99,0
+autoware,8074,161939,20.06,0
+moveit2,1567,34387,21.94,0
+PX4-Autopilot,26404,474304,17.96,0
+demos,217,2072,9.55,0
+rmf_ros2,695,13445,19.35,0
+rmw_cyclonedds,24,447,18.62,0
+rmw_fastrtps,224,2948,13.16,0
+ros2_control,314,4582,14.59,0
+sros2,73,903,12.37,0
+system_tests,104,1639,15.76,0

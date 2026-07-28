@@ -74,7 +74,20 @@ fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
 
 fn main() {
     let base_dir = Path::new("tests/fixtures/real_world_datasets");
-    let repos = vec!["navigation2", "turtlebot3", "autoware", "moveit2"];
+    let repos = vec![
+        "navigation2",
+        "turtlebot3",
+        "autoware",
+        "moveit2",
+        "PX4-Autopilot",
+        "demos",
+        "rmf_ros2",
+        "rmw_cyclonedds",
+        "rmw_fastrtps",
+        "ros2_control",
+        "sros2",
+        "system_tests",
+    ];
 
     let mut results = Vec::new();
 

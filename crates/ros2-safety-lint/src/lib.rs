@@ -1,6 +1,7 @@
 pub mod config;
 pub mod cpp_parser;
 pub mod launch_xml_parser;
+pub mod lifecycle_parser;
 pub mod package_xml_parser;
 pub mod parser;
 pub mod python_parser;
@@ -8,3 +9,4 @@ pub mod qos;
 pub mod sros2;
 pub mod urdf_parser;
 pub mod yaml_parser;
+

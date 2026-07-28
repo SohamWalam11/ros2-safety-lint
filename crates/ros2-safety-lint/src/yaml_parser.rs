@@ -44,6 +44,44 @@ fn walk_yaml(root_value: &Value, violations: &mut Vec<LintViolation>, _content: 
                                     });
                                 }
                             }
+                        } else if key_lower == "robot_radius" {
+                            if let Value::Number(num) = v {
+                                if let Some(r) = num.as_f64() {
+                                    if r <= 0.0 {
+                                        violations.push(LintViolation {
+                                            message: "Nav2 Physical Safety Hazard: 'robot_radius' set to <= 0.0. Robot will collide with obstacles.".to_string(),
+                                            range: 0..1,
+                                        });
+                                    }
+                                }
+                            }
+                        } else if key_lower == "inflation_radius" {
+                            if let Value::Number(num) = v {
+                                if let Some(r) = num.as_f64() {
+                                    if r < 0.05 {
+                                        violations.push(LintViolation {
+                                            message: "Nav2 Physical Safety Hazard: 'inflation_radius' set dangerously low (< 0.05m).".to_string(),
+                                            range: 0..1,
+                                        });
+                                    }
+                                }
+                            }
+                        } else if key_lower == "footprint" {
+                            if let Value::Sequence(seq) = v {
+                                if seq.is_empty() {
+                                    violations.push(LintViolation {
+                                        message: "Nav2 Physical Safety Hazard: 'footprint' is empty []. Costmap will fail to compute physical collision bounds.".to_string(),
+                                        range: 0..1,
+                                    });
+                                }
+                            } else if let Value::String(s) = v {
+                                if s.trim() == "[]" || s.trim().is_empty() {
+                                    violations.push(LintViolation {
+                                        message: "Nav2 Physical Safety Hazard: 'footprint' is empty []. Costmap will fail to compute physical collision bounds.".to_string(),
+                                        range: 0..1,
+                                    });
+                                }
+                            }
                         }
                     }
                     stack.push(v);
@@ -80,9 +118,18 @@ mod tests {
     }
 
     #[test]
+    fn test_yaml_nav2_robot_radius_zero() {
+        let yaml = "local_costmap:\n  ros__parameters:\n    robot_radius: 0.0\n";
+        let violations = lint_yaml(yaml);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("robot_radius"));
+    }
+
+    #[test]
     fn test_yaml_clean() {
         let yaml = "ros__parameters:\n  domain_id: 42\n  reliability: reliable\n";
         let violations = lint_yaml(yaml);
         assert_eq!(violations.len(), 0);
     }
 }
+

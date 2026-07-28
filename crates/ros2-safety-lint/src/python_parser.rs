@@ -52,11 +52,11 @@ fn walk_stmt(stmt: &ast::Stmt, violations: &mut Vec<LintViolation>, content: &st
             }
         }
         ast::Stmt::Expr(expr) => {
-            walk_expr(&expr.value, violations, content);
+            walk_expr(&expr.value, violations, content, false);
         }
         ast::Stmt::FunctionDef(func) => {
             for s in &func.body {
-                walk_stmt(s, violations, content);
+                walk_stmt_in_func(s, violations, content);
             }
         }
         ast::Stmt::If(if_stmt) => {
@@ -71,21 +71,58 @@ fn walk_stmt(stmt: &ast::Stmt, violations: &mut Vec<LintViolation>, content: &st
     }
 }
 
-fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &str) {
+fn walk_stmt_in_func(stmt: &ast::Stmt, violations: &mut Vec<LintViolation>, content: &str) {
+    match stmt {
+        ast::Stmt::Expr(expr) => {
+            walk_expr(&expr.value, violations, content, true);
+        }
+        ast::Stmt::Assign(assign) => {
+            walk_expr(&assign.value, violations, content, true);
+        }
+        ast::Stmt::If(if_stmt) => {
+            for s in &if_stmt.body {
+                walk_stmt_in_func(s, violations, content);
+            }
+            for s in &if_stmt.orelse {
+                walk_stmt_in_func(s, violations, content);
+            }
+        }
+        _ => {}
+    }
+}
+
+
+fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &str, in_func: bool) {
     match expr {
         ast::Expr::Call(call) => {
+            // Check for spin_until_future_complete
+            if let ast::Expr::Attribute(attr) = &*call.func {
+                let func_name = attr.attr.as_str();
+                if func_name == "spin_until_future_complete" {
+                    violations.push(LintViolation {
+                        message: "Executor Deadlock Risk: 'spin_until_future_complete' called inside Python node. Avoid nested spinning on single-threaded executors.".to_string(),
+                        range: 0..1,
+                    });
+                } else if in_func && (func_name == "sleep" || func_name == "result") {
+                    violations.push(LintViolation {
+                        message: "Executor Deadlock Risk: Blocking wait/sleep call detected inside Python callback. Avoid blocking calls in single-threaded ROS 2 callbacks.".to_string(),
+                        range: 0..1,
+                    });
+                }
+            }
+
             for arg in &call.args {
-                walk_expr(arg, violations, content);
+                walk_expr(arg, violations, content, in_func);
             }
             for keyword in &call.keywords {
-                walk_expr(&keyword.value, violations, content);
+                walk_expr(&keyword.value, violations, content, in_func);
             }
         }
         ast::Expr::Attribute(attr) if attr.attr.as_str() == "BEST_EFFORT" => {
             violations.push(LintViolation {
-                    message: "QoSReliabilityPolicy.BEST_EFFORT used. Ensure this is only used for high-frequency sensor data.".to_string(),
-                    range: 0..1,
-                });
+                message: "QoSReliabilityPolicy.BEST_EFFORT used. Ensure this is only used for high-frequency sensor data.".to_string(),
+                range: 0..1,
+            });
         }
         _ => {}
     }
@@ -120,9 +157,43 @@ mod tests {
     }
 
     #[test]
+    fn test_python_executor_deadlock() {
+        let code = "def callback(msg):\n    time.sleep(1.0)\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
     fn test_python_clean() {
         let code = "def launch():\n    pass\n";
         let violations = lint_python(code);
         assert_eq!(violations.len(), 0);
     }
+
+    #[test]
+    fn test_python_future_result_deadlock() {
+        let code = "def callback(msg):\n    res = future.result()\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
+    fn test_python_spin_until_future_complete() {
+        let code = "def callback(msg):\n    rclpy.spin_until_future_complete(node, future)\n";
+        let violations = lint_python(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
+    fn test_python_combined_threats() {
+        let code = "def callback(msg):\n    time.sleep(1.0)\n    ip = '192.168.1.10'\n";
+        let violations = lint_python(code);
+        assert!(!violations.is_empty());
+    }
+
 }
+
+

@@ -33,14 +33,17 @@ fn walk_node(
     violations: &mut Vec<LintViolation>,
     tainted_vars: &mut HashSet<String>,
 ) {
-    let mut stack = vec![*root_node];
+    let mut stack = vec![(*root_node, false)];
 
-    while let Some(node) = stack.pop() {
+    while let Some((node, inside_callback)) = stack.pop() {
+        let is_lambda_or_cb = inside_callback
+            || node.kind() == "lambda_expression"
+            || node.kind() == "arrow_field_expression";
+
         // Taint Tracking: If we see a variable initialized with QoS, taint it
         if node.kind() == "declaration" {
             if let Ok(text) = node.utf8_text(source) {
                 if text.contains("rclcpp::QoS") {
-                    // Simplified taint: track the whole declaration text
                     tainted_vars.insert(text.to_string());
                 }
             }
@@ -58,11 +61,41 @@ fn walk_node(
             }
         }
 
+        // Real-Time Control Loop Heap Allocation Taint Tracking
+        if node.kind() == "call_expression" || node.kind() == "new_expression" {
+            if let Ok(text) = node.utf8_text(source) {
+                if is_lambda_or_cb && (text.contains("make_shared") || text.contains("make_unique") || text.contains("malloc") || text.contains("new ") || text.contains("push_back")) {
+                    violations.push(LintViolation {
+                        message: "Real-Time Hazard: Dynamic heap memory allocation (make_shared/malloc/new/push_back) detected inside high-frequency callback/control loop. This breaks non-deterministic real-time guarantees.".to_string(),
+                        range: node.start_byte()..node.end_byte(),
+                    });
+                }
+            }
+        }
+
+        // Executor Deadlock Detection in C++
+        if node.kind() == "call_expression" {
+            if let Ok(text) = node.utf8_text(source) {
+                if text.contains("spin_until_future_complete") {
+                    violations.push(LintViolation {
+                        message: "Executor Deadlock Risk: 'spin_until_future_complete' called inside ROS 2 node. Avoid nested spinning on single-threaded executors.".to_string(),
+                        range: node.start_byte()..node.end_byte(),
+                    });
+                } else if is_lambda_or_cb && (text.contains(".get()") || text.contains("sleep_for") || text.contains(".wait_for(")) {
+                    violations.push(LintViolation {
+                        message: "Executor Deadlock Risk: Blocking wait/sleep call detected inside callback scope. This will freeze single-threaded ROS 2 executors.".to_string(),
+                        range: node.start_byte()..node.end_byte(),
+                    });
+                }
+            }
+        }
+
         // Push children to stack
         let mut cursor = node.walk();
         for child in node.children(&mut cursor) {
-            stack.push(child);
+            stack.push((child, is_lambda_or_cb));
         }
+
     }
 }
 
@@ -79,9 +112,59 @@ mod tests {
     }
 
     #[test]
+    fn test_cpp_executor_deadlock_spin() {
+        let code = "rclcpp::spin_until_future_complete(node, future);\n";
+        let violations = lint_cpp(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
+    fn test_cpp_executor_deadlock_lambda_get() {
+        let code = "auto sub = node->create_subscription<std_msgs::msg::String>(\"topic\", 10, [](std_msgs::msg::String::SharedPtr msg) { auto res = future.get(); });\n";
+        let violations = lint_cpp(code);
+        assert_eq!(violations.len(), 1);
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
     fn test_cpp_clean_code() {
         let code = "auto qos = rclcpp::QoS(10).reliable();\n";
         let violations = lint_cpp(code);
         assert_eq!(violations.len(), 0);
     }
+
+    #[test]
+    fn test_cpp_executor_deadlock_wait_for() {
+        let code = "auto sub = node->create_subscription<std_msgs::msg::String>(\"topic\", 10, [](auto msg) { future.wait_for(std::chrono::seconds(1)); });\n";
+        let violations = lint_cpp(code);
+        assert!(!violations.is_empty());
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
+    fn test_cpp_executor_deadlock_sleep_for() {
+        let code = "auto sub = node->create_subscription<std_msgs::msg::String>(\"topic\", 10, [](auto msg) { std::this_thread::sleep_for(std::chrono::seconds(2)); });\n";
+        let violations = lint_cpp(code);
+        assert!(!violations.is_empty());
+        assert!(violations[0].message.contains("Executor Deadlock Risk"));
+    }
+
+    #[test]
+    fn test_cpp_multiple_callback_violations() {
+        let code = "auto qos = rclcpp::QoS(10).best_effort();\nrclcpp::spin_until_future_complete(node, future);\n";
+        let violations = lint_cpp(code);
+        assert_eq!(violations.len(), 2);
+    }
+
+    #[test]
+    fn test_cpp_realtime_heap_allocation() {
+        let code = "auto sub = node->create_subscription<std_msgs::msg::String>(\"topic\", 10, [](auto msg) { auto data = std::make_shared<std::string>(\"alloc\"); });\n";
+        let violations = lint_cpp(code);
+        assert!(!violations.is_empty());
+        assert!(violations[0].message.contains("Real-Time Hazard"));
+    }
 }
+
+
+

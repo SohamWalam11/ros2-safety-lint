@@ -1,12 +1,22 @@
 [package]
-name = "ros2-safety-lint"
+name = "rosfix"
 version = "0.1.0"
 edition = "2021"
-description = "A static verification linter for ROS 2 QoS, SROS2, and Physical Safety"
+description = "High-Performance Multi-Language Static Verification and Active Remediation Engine for ROS 2"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ros-security/ros2-safety-lint"
+repository = "https://github.com/SohamWalam11/ros2-safety-lint"
+homepage = "https://github.com/SohamWalam11/ros2-safety-lint"
+documentation = "https://docs.rs/rosfix"
 keywords = ["ros2", "robotics", "security", "linter", "static-analysis"]
-categories = ["development-tools::testing"]
+categories = ["development-tools::testing", "command-line-utilities"]
+
+[[bin]]
+name = "rosfix"
+path = "src/main.rs"
+
+[[bin]]
+name = "cargo-rosfix"
+path = "src/main.rs"
 
 [dependencies]
 roxmltree = "0.20"
@@ -20,3 +30,5 @@ tree-sitter = "0.20"
 tree-sitter-cpp = "0.20"
 toml = "0.8"
 walkdir = "2.5.0"
+miette = { version = "7.6.0", features = ["fancy"] }
+rayon = "1.10"
