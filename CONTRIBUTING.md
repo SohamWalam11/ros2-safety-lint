@@ -1,8 +1,8 @@
 # Contributing to rosfix
 
-Thank you for your interest in contributing to `rosfix`! We welcome contributions from robotics engineers, static analysis researchers, and open-source developers worldwide.
+We welcome contributions from robotics engineers, static analysis researchers, and open-source developers.
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Fork and Clone the Repository**:
    ```bash
@@ -15,7 +15,7 @@ Thank you for your interest in contributing to `rosfix`! We welcome contribution
    cargo test
    ```
 
-## 🛠️ Adding New Safety Rules
+## Adding New Safety Rules
 
 Rules are located in `crates/ros2-safety-lint/src/`:
 - `cpp_parser.rs`: C++ Tree-Sitter AST rules (deadlocks, heap allocations, QoS overrides).

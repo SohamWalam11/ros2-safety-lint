@@ -1,7 +1,9 @@
 [package]
 name = "rosfix"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
+rust-version = "1.75"
+readme = "../../README.md"
 description = "High-Performance Multi-Language Static Verification and Active Remediation Engine for ROS 2"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/SohamWalam11/ros2-safety-lint"
