@@ -1,6 +1,6 @@
 [package]
 name = "rosfix"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.75"
 readme = "../../README.md"
@@ -34,3 +34,7 @@ toml = "0.8"
 walkdir = "2.5.0"
 miette = { version = "7.6.0", features = ["fancy"] }
 rayon = "1.10"
+tokio = { version = "1.36", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+async-trait = "0.1"
+indicatif = "0.17.8"

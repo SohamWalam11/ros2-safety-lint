@@ -1,5 +1,7 @@
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
+use rosfix::remediator::{apply_remediation, generate_fix, generate_unified_diff, RemediationFix};
+use rosfix::semantic_agent::filter_violations;
 use rosfix::sros2::{lint_governance, lint_keystore_paths, lint_permissions};
 use serde::Serialize;
 use std::fs;
@@ -8,7 +10,6 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(name = "rosfix")]
 #[command(about = "High-Performance Multi-Language Static Verification and Active Remediation Engine for ROS 2", long_about = None)]
-
 struct Cli {
     #[arg(long, value_name = "FILE")]
     path: PathBuf,
@@ -24,6 +25,10 @@ struct Cli {
     #[arg(long)]
     fix: bool,
 
+    /// Enable semantic context filtering to suppress benign telemetry warnings
+    #[arg(long)]
+    semantic_filter: bool,
+
     /// Preview fixes without modifying files on disk
     #[arg(long)]
     dry_run: bool,
@@ -37,7 +42,6 @@ enum Format {
     Fancy,
 }
 
-
 #[derive(Serialize)]
 struct JsonOutput {
     file: String,
@@ -49,9 +53,11 @@ struct JsonViolation {
     message: String,
     start_byte: usize,
     end_byte: usize,
+    suggested_fix: Option<String>,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let cli = Cli::parse();
 
     let mut files_to_scan = Vec::new();
@@ -70,8 +76,17 @@ fn main() {
         files_to_scan.push(cli.path.clone());
     }
 
+    // Setup scanning spinner
+    let spinner = indicatif::ProgressBar::new_spinner();
+    spinner.set_style(indicatif::ProgressStyle::default_spinner()
+        .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
+        .template("{spinner:.green} {msg}")
+        .unwrap());
+    spinner.set_message("Scanning workspace files for safety violations...");
+    spinner.enable_steady_tick(std::time::Duration::from_millis(100));
+
     // Parallel scanning with Rayon across CPU cores
-    let all_violations: Vec<(String, rosfix::sros2::LintViolation, String)> = files_to_scan
+    let mut all_violations: Vec<(String, rosfix::sros2::LintViolation, String)> = files_to_scan
         .par_iter()
         .flat_map(|file_path| {
             let mut file_violations = Vec::new();
@@ -106,7 +121,6 @@ fn main() {
                                 rosfix::lifecycle_parser::lint_lifecycle(&doc),
                             );
                         } else {
-
                             file_violations.extend(lint_permissions(&doc));
                             file_violations.extend(lint_governance(&doc));
                         }
@@ -125,77 +139,26 @@ fn main() {
                     file_violations.extend(rosfix::cpp_parser::lint_cpp(&content));
                 }
 
-
-                if cli.fix && !file_violations.is_empty() {
-                    let mut fixed_content = content.clone();
-                    let mut modified = false;
-
-                    if filename.ends_with(".launch.xml") {
-                        if fixed_content.contains("<node ") && !fixed_content.contains("respawn=") {
-                            fixed_content =
-                                fixed_content.replace("<node ", "<node respawn=\"true\" ");
-                            modified = true;
-                        }
-                    } else if filename == "governance.xml" {
-                        if fixed_content.contains("<rtps_protection_kind>NONE</rtps_protection_kind>")
-                        {
-                            fixed_content = fixed_content.replace(
-                                "<rtps_protection_kind>NONE</rtps_protection_kind>",
-                                "<rtps_protection_kind>ENCRYPT</rtps_protection_kind>",
-                            );
-                            modified = true;
-                        } else if fixed_content
-                            .contains("<rtps_protection_kind>SIGN</rtps_protection_kind>")
-                        {
-                            fixed_content = fixed_content.replace(
-                                "<rtps_protection_kind>SIGN</rtps_protection_kind>",
-                                "<rtps_protection_kind>ENCRYPT</rtps_protection_kind>",
-                            );
-                            modified = true;
-                        }
-                    } else if filename == "package.xml" {
-                        if fixed_content.contains("format=\"1\"")
-                            || fixed_content.contains("format=\"2\"")
-                        {
-                            fixed_content = fixed_content
-                                .replace("format=\"1\"", "format=\"3\"")
-                                .replace("format=\"2\"", "format=\"3\"");
-                            modified = true;
-                        }
-                        if !fixed_content.contains("<license>") {
-                            fixed_content = fixed_content.replace(
-                                "</package>",
-                                "  <license>Apache-2.0</license>\n</package>",
-                            );
-                            modified = true;
-                        }
-                    } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
-                        if fixed_content.contains("robot_radius: 0.0") {
-                            fixed_content = fixed_content.replace("robot_radius: 0.0", "robot_radius: 0.25");
-                            modified = true;
-                        }
-                        if fixed_content.contains("ROS_DOMAIN_ID: 0") {
-                            fixed_content = fixed_content.replace("ROS_DOMAIN_ID: 0", "ROS_DOMAIN_ID: 42");
-                            modified = true;
-                        }
-                    } else if filename.ends_with(".urdf") || filename.ends_with(".xacro") {
-                        if fixed_content.contains("<joint ") && !fixed_content.contains("<limit ") {
-                            fixed_content = fixed_content.replace(
-                                "<joint ",
-                                "<joint ",
-                            );
+                // Collect generated fixes if --fix or --dry-run is specified
+                if (cli.fix || cli.dry_run) && !file_violations.is_empty() {
+                    let mut fixes = Vec::new();
+                    for v in &file_violations {
+                        if let Some(fix) = generate_fix(&file_path_str, v, &content) {
+                            fixes.push(fix);
                         }
                     }
 
-
-                    if modified {
-                        if cli.dry_run {
-                            println!("[DRY-RUN FIX] Would remediate violations in {}", file_path_str);
-                        } else if fs::write(file_path, &fixed_content).is_ok() {
-                            println!(
-                                "[FIXED] Applied automatic safety remediation to {}",
-                                file_path_str
-                            );
+                    if !fixes.is_empty() {
+                        if let Ok(fixed_content) = apply_remediation(&file_path_str, &content, &fixes) {
+                            if cli.dry_run {
+                                let diff = generate_unified_diff(&file_path_str, &content, &fixed_content);
+                                println!("[DRY-RUN FIX] Generated Remediation Patch for {}:\n{}", file_path_str, diff);
+                            } else if fs::write(file_path, &fixed_content).is_ok() {
+                                println!(
+                                    "[FIXED] Applied AST remediation fixes to {}",
+                                    file_path_str
+                                );
+                            }
                         }
                     }
                 }
@@ -210,24 +173,66 @@ fn main() {
         })
         .collect();
 
+    spinner.finish_with_message("Workspace scan complete.");
 
+    // Semantic Intent & Context-Aware False Positive Filtering
+    if cli.semantic_filter {
+        let (filtered, suppressed_count) = filter_violations(all_violations);
+        all_violations = filtered;
+        if cli.format == Format::Text || cli.format == Format::Fancy {
+            println!("\x1b[1;32m[SEMANTIC AGENT]\x1b[0m Suppressed {} benign telemetry warning(s).", suppressed_count);
+        }
+    }
+
+    if cli.fix {
+        let blackboard = std::sync::Arc::new(tokio::sync::Mutex::new(rosfix::blackboard::BlackboardEventBus::new()));
+        
+        println!("\x1b[1;35m[MAS ORCHESTRATOR]\x1b[0m Broadcasting {} violations to the MAS Blackboard...", all_violations.len());
+        {
+            let mut bb_guard = blackboard.lock().await;
+            rosfix::semantic_agent::broadcast_to_blackboard(&all_violations, &mut bb_guard);
+        }
+
+        let m = indicatif::MultiProgress::new();
+        let pb = m.add(indicatif::ProgressBar::new_spinner());
+        pb.set_style(indicatif::ProgressStyle::default_spinner()
+            .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏")
+            .template("{spinner:.blue} {msg}")
+            .unwrap());
+        pb.enable_steady_tick(std::time::Duration::from_millis(100));
+
+        let bb_clone = blackboard.clone();
+        let _agent2 = tokio::spawn(async move {
+            let agent = rosfix::agent::ExecutorAgent;
+            use rosfix::agent::ExpertAgent;
+            agent.run(bb_clone, pb).await;
+        });
+
+        // Simulating waiting for the MAS to process all tasks
+        tokio::time::sleep(tokio::time::Duration::from_secs(6)).await;
+        m.clear().unwrap();
+        println!("\x1b[1;35m[MAS ORCHESTRATOR]\x1b[0m Expert Agents finished processing tasks.");
+    }
 
     match cli.format {
         Format::Text => {
             if all_violations.is_empty() {
                 println!("No violations found in {}", cli.path.display());
             } else {
-                for (file_str, v, _) in &all_violations {
+                for (file_str, v, content_str) in &all_violations {
                     println!("{}: {}", file_str, v.message);
                     println!("  at bytes {}..{}", v.range.start, v.range.end);
+                    if let Some(fix) = generate_fix(file_str, v, content_str) {
+                        println!("  Suggested Fix: {}", fix.description);
+                    }
                 }
             }
         }
         Format::Json => {
-            // Group by file
             use std::collections::HashMap;
             let mut grouped: HashMap<String, Vec<JsonViolation>> = HashMap::new();
-            for (file_str, v, _) in &all_violations {
+            for (file_str, v, content_str) in &all_violations {
+                let suggested_fix = generate_fix(file_str, v, content_str).map(|f| f.replacement_snippet);
                 grouped
                     .entry(file_str.clone())
                     .or_default()
@@ -235,6 +240,7 @@ fn main() {
                         message: v.message.clone(),
                         start_byte: v.range.start,
                         end_byte: v.range.end,
+                        suggested_fix,
                     });
             }
 
@@ -252,7 +258,6 @@ fn main() {
             let results: Vec<serde_json::Value> = all_violations
                 .into_iter()
                 .map(|(file_str, v, content_str)| {
-                    // Calculate line number from byte offset
                     let start_line = content_str.as_bytes()
                         [..std::cmp::min(v.range.start, content_str.len())]
                         .iter()
@@ -261,7 +266,7 @@ fn main() {
                         + 1;
 
                     let clean_uri = file_str.replace('\\', "/");
-                    serde_json::json!({
+                    let mut result_json = serde_json::json!({
                         "ruleId": "rosfix",
                         "level": "error",
                         "message": {
@@ -277,7 +282,30 @@ fn main() {
                                 }
                             }
                         }]
-                    })
+                    });
+
+                    if let Some(fix) = generate_fix(&file_str, &v, &content_str) {
+                        result_json["fixes"] = serde_json::json!([{
+                            "description": {
+                                "text": fix.description
+                            },
+                            "artifactChanges": [{
+                                "artifactLocation": {
+                                    "uri": clean_uri
+                                },
+                                "replacements": [{
+                                    "deletedRegion": {
+                                        "startLine": start_line
+                                    },
+                                    "insertedContent": {
+                                        "text": fix.replacement_snippet
+                                    }
+                                }]
+                            }]
+                        }]);
+                    }
+
+                    result_json
                 })
                 .collect();
 
@@ -323,11 +351,12 @@ fn main() {
                     println!("   \x1b[1;34m|\x1b[0m");
                     println!(" \x1b[1;34m{:>3} |\x1b[0m  {}", start_line, v.message);
                     println!("   \x1b[1;34m|\x1b[0m  \x1b[1;31m^^^^^^^^^^^^^^^^\x1b[0m");
+                    if let Some(fix) = generate_fix(file_str, v, content_str) {
+                        println!("   \x1b[1;32mFix Suggestion:\x1b[0m {}", fix.description);
+                    }
                     println!();
                 }
             }
         }
-
     }
 }
-
