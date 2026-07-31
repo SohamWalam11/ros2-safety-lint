@@ -11,7 +11,8 @@ use std::path::PathBuf;
 #[command(name = "rosfix")]
 #[command(about = "High-Performance Multi-Language Static Verification and Active Remediation Engine for ROS 2", long_about = None)]
 struct Cli {
-    #[arg(long, value_name = "FILE")]
+    /// Path to scan (defaults to current directory)
+    #[arg(long, default_value = ".")]
     path: PathBuf,
 
     #[arg(long, value_enum, default_value_t = Format::Text)]
@@ -219,13 +220,67 @@ async fn main() {
             if all_violations.is_empty() {
                 println!("No violations found in {}", cli.path.display());
             } else {
-                for (file_str, v, content_str) in &all_violations {
-                    println!("{}: {}", file_str, v.message);
-                    println!("  at bytes {}..{}", v.range.start, v.range.end);
-                    if let Some(fix) = generate_fix(file_str, v, content_str) {
-                        println!("  Suggested Fix: {}", fix.description);
+                #[derive(Default)]
+                struct DirNode<'a> {
+                    files: std::collections::BTreeMap<String, Vec<&'a (String, rosfix::sros2::LintViolation, String)>>,
+                    dirs: std::collections::BTreeMap<String, DirNode<'a>>,
+                }
+                
+                let mut root_node = DirNode::default();
+                for violation in &all_violations {
+                    let path = std::path::Path::new(&violation.0);
+                    let mut current = &mut root_node;
+                    let components: Vec<_> = path.components().collect();
+                    for (i, comp) in components.iter().enumerate() {
+                        let name = comp.as_os_str().to_string_lossy().to_string();
+                        if i == components.len() - 1 {
+                            current.files.entry(name).or_default().push(violation);
+                        } else {
+                            current = current.dirs.entry(name).or_default();
+                        }
                     }
                 }
+
+                fn get_line_col(content: &str, start_byte: usize, end_byte: usize) -> (usize, usize, usize) {
+                    let mut line = 1;
+                    let mut col = 0;
+                    let mut start_col = 0;
+                    let mut end_col = 0;
+                    for (i, c) in content.char_indices() {
+                        if i == start_byte { start_col = col; }
+                        if i == end_byte { end_col = col; break; }
+                        if c == '\n' { line += 1; col = 0; } else { col += 1; }
+                    }
+                    if end_col == 0 && end_byte >= content.len() { end_col = col; }
+                    (line, start_col, end_col)
+                }
+                
+                fn build_tree(name: &str, node: &DirNode, is_root: bool) -> termtree::Tree<String> {
+                    let label = if is_root { format!("📦 {}", name) } else { format!("📂 {}", name) };
+                    let mut tree = termtree::Tree::new(label);
+                    for (dir_name, dir_node) in &node.dirs {
+                        tree.push(build_tree(dir_name, dir_node, false));
+                    }
+                    for (file_name, violations) in &node.files {
+                        let mut file_tree = termtree::Tree::new(format!("📄 {}", file_name));
+                        for (full_path, v, content) in violations {
+                            let (line, start_col, end_col) = get_line_col(content, v.range.start, v.range.end);
+                            let icon = if v.message.contains("Hazard") || v.message.contains("Risk") || v.message.contains("Error") || v.message.contains("Safety") { "🛑 [Error]" } else { "⚠️ [Warning]" };
+                            let mut v_tree = termtree::Tree::new(format!("{} {}", icon, v.message));
+                            v_tree.push(termtree::Tree::new(format!("at line {}, cols {}..{}", line, start_col, end_col)));
+                            if let Some(fix) = generate_fix(full_path, v, content) {
+                                v_tree.push(termtree::Tree::new(format!("\x1b[1;32mSuggested Fix:\x1b[0m {}", fix.description)));
+                            }
+                            file_tree.push(v_tree);
+                        }
+                        tree.push(file_tree);
+                    }
+                    tree
+                }
+
+                let root_name = cli.path.display().to_string();
+                let tree = build_tree(&root_name, &root_node, true);
+                println!("{}", tree);
             }
         }
         Format::Json => {
