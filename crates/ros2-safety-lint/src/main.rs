@@ -256,16 +256,16 @@ async fn main() {
                 }
                 
                 fn build_tree(name: &str, node: &DirNode, is_root: bool) -> termtree::Tree<String> {
-                    let label = if is_root { format!("📦 {}", name) } else { format!("📂 {}", name) };
+                    let label = if is_root { format!("{}", name) } else { format!("{}/", name) };
                     let mut tree = termtree::Tree::new(label);
                     for (dir_name, dir_node) in &node.dirs {
                         tree.push(build_tree(dir_name, dir_node, false));
                     }
                     for (file_name, violations) in &node.files {
-                        let mut file_tree = termtree::Tree::new(format!("📄 {}", file_name));
+                        let mut file_tree = termtree::Tree::new(format!("{}", file_name));
                         for (full_path, v, content) in violations {
                             let (line, start_col, end_col) = get_line_col(content, v.range.start, v.range.end);
-                            let icon = if v.message.contains("Hazard") || v.message.contains("Risk") || v.message.contains("Error") || v.message.contains("Safety") { "🛑 [Error]" } else { "⚠️ [Warning]" };
+                            let icon = if v.message.contains("Hazard") || v.message.contains("Risk") || v.message.contains("Error") || v.message.contains("Safety") { "[Error]" } else { "[Warning]" };
                             let mut v_tree = termtree::Tree::new(format!("{} {}", icon, v.message));
                             v_tree.push(termtree::Tree::new(format!("at line {}, cols {}..{}", line, start_col, end_col)));
                             if let Some(fix) = generate_fix(full_path, v, content) {
