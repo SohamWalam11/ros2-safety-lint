@@ -4,22 +4,22 @@
 [![Crates.io](https://img.shields.io/crates/v/rosfix.svg)](https://crates.io/crates/rosfix)
 [![License: MIT/Apache-2.0](https://img.shields.io/badge/License-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 
-Static analysis and Multi-Agent Auto-Remediation Engine for ROS 2 codebases.
+A fast, multi-language static analysis and auto-remediation tool for ROS 2 codebases.
 
-ROS 2 configurations are often split across launch files, YAML parameter manifests, Python nodes, and C++ source code. Architects set QoS and security rules in configuration manifests, but developers frequently override them directly inside C++ or Python code (creating "Shadow Code" drift) or introduce callback deadlocks and real-time heap allocations.
+ROS 2 configurations are usually scattered across launch files, YAML parameters, Python nodes, and C++ code. Often, architects set strict QoS and security rules in the configuration files, but developers accidentally override them by hardcoding bad settings directly into their C++ or Python code. We call this "Shadow Code."
 
-`rosfix` aggressively scans C++, Python, XML, YAML, and URDF files using Rayon data-parallelism to catch these issues. When run with `--fix`, it spawns a highly concurrent **7-Agent AI System** running on a `tokio` async runtime to automatically synthesize and apply safety patches to your codebase.
+`rosfix` scans your entire workspace across C++, Python, XML, YAML, and URDF files to catch these issues. When run with `--fix`, it acts as a concurrent 7-Agent system (built on `tokio`) that automatically finds and fixes these errors in place.
 
 ---
 
 ## What It Catches
 
-- **Shadow Code Overrides**: Detects hardcoded `.best_effort()` or unreliable QoS calls in C++ and Python nodes that bypass global YAML/XML configs.
-- **Executor Deadlocks**: Identifies blocking `.get()`, `wait_for()`, `sleep_for()`, and `spin_until_future_complete()` calls inside single-threaded subscriber callbacks.
-- **Real-Time Heap Allocations**: Flags dynamic memory allocations (`malloc`, `new`, `make_shared`, `push_back`) inside high-frequency control loops.
-- **Managed Lifecycle Violations**: Checks that safety-critical actuator nodes use proper lifecycle state machine transitions (`on_configure`, `on_activate`).
+- **Shadow Code Overrides**: Finds hardcoded `.best_effort()` or bad QoS calls in C++ and Python that bypass global YAML/XML configs.
+- **Executor Deadlocks**: Finds blocking `.get()`, `wait_for()`, `sleep_for()`, and `spin_until_future_complete()` calls inside single-threaded subscriber callbacks.
+- **Real-Time Heap Allocations**: Flags dynamic memory allocations (`malloc`, `new`, `make_shared`, `push_back`) inside fast control loops.
+- **Managed Lifecycle Violations**: Checks that safety-critical actuator nodes use proper lifecycle state transitions (`on_configure`, `on_activate`).
 - **Physical Kinematic & Costmap Hazards**: Flags URDF joints missing velocity/effort limits and Nav2 costmaps configured with zero robot radius.
-- **SROS2 & Manifest Risks**: Detects wildcard permissions (`<subject>*</subject>`), unencrypted RTPS protection modes, missing crash respawn policies, and legacy ROS package formats.
+- **SROS2 & Manifest Risks**: Detects wildcard permissions (`<subject>*</subject>`), unencrypted RTPS modes, missing crash policies, and legacy ROS package formats.
 
 ---
 
@@ -46,30 +46,35 @@ cargo build --release
 ### Scanning a Workspace
 
 ```bash
-# Scan a directory with colorized terminal output
-rosfix --path src/ --format fancy
+# Scan the current directory with colorized terminal output
+rosfix
 
-# Or via Cargo subcommand
-cargo rosfix --path src/ --format fancy
+# Scan a specific directory
+rosfix --path src/
 ```
-
-### Automatic In-Place Fixes (`--fix`)
 
 ### Automatic In-Place Fixes (`--fix` & Multi-Agent System)
 
-When the `--fix` flag is passed, `rosfix` transitions from a static analyzer into a fully concurrent **Multi-Agent System (MAS)**:
+Instead of just reporting errors, running `rosfix` with the `--fix` flag turns it into an automated repair tool using a Multi-Agent System (MAS). 
 
-1. **The Blackboard Event Bus**: Detected safety violations are pushed to a thread-safe, mutex-locked event bus.
-2. **Concurrent Expert Agents**: 7 specialized async agents (e.g., *ExecutorAgent*, *KinematicsAgent*, *BuildSystemAgent*) are spawned via `tokio::spawn`.
-3. **Task Claiming**: Agents poll the blackboard, claiming tasks that fall strictly within their domain expertise.
-4. **4-Stage Verification Loop**: Every agent executes a rigorous autonomous loop: `Patch Generation` $\to$ `Colcon Build Verification` $\to$ `Automated Testing` $\to$ `Disk Apply`.
+When you run `--fix`:
+1. **The Blackboard**: Detected errors are posted to a shared, thread-safe "Blackboard."
+2. **Expert Agents**: 7 specialized agents (like a *KinematicsAgent* or a *BuildSystemAgent*) run concurrently. They constantly check the blackboard and grab tasks they know how to fix.
+3. **The 4-Stage Fix Loop**: When an agent takes a task, it goes through four steps: generate a patch, verify it builds with Colcon, run automated tests, and finally apply the fix to the disk.
 
 ```bash
-# Automatically scan the current directory and spawn the MAS to fix violations
+# Preview changes without modifying files on disk
+rosfix --fix --dry-run
+
+# Automatically scan and apply fixes in-place
 rosfix --fix
 ```
 
-During execution, `rosfix` displays **live concurrent progress spinners** using `indicatif`, allowing you to watch the agents compile patches and synthesize solutions in real-time.
+While these agents run, you'll see live progress spinners, and they will safely rewrite files on disk to fix:
+- **Launch XMLs:** Adding missing `respawn="true"` crash policies.
+- **SROS2 Governance:** Upgrading weak security to `ENCRYPT`.
+- **Package Manifests:** Updating legacy `package.xml` formats and adding open-source licenses.
+- **Parameter YAMLs:** Fixing unisolated ROS domains and zero-radius footprints.
 
 ---
 
@@ -81,17 +86,17 @@ rosfix
 rosfix --format text
 
 # JSON output for custom tools
-rosfix --path src/ --format json
+rosfix --format json
 
 # SARIF v2.1.0 output for CI/CD integration
-rosfix --path src/ --format sarif > results.sarif
+rosfix --format sarif > results.sarif
 ```
 
 ---
 
 ## Configuration (`rosfix.toml`)
 
-Place a `rosfix.toml` file in your workspace root to configure path ignores and custom rules:
+Drop a `rosfix.toml` file in your workspace root to configure path ignores and custom rules:
 
 ```toml
 ignore_paths = ["build/*", "install/*", "vendor/*", "target/*"]
@@ -124,7 +129,7 @@ jobs:
         run: cargo install rosfix
 
       - name: Run Audit
-        run: rosfix --path src/ --format sarif > rosfix.sarif
+        run: rosfix --format sarif > rosfix.sarif
 
       - name: Upload SARIF Results
         uses: github/codeql-action/upload-sarif@v3
@@ -136,7 +141,7 @@ jobs:
 
 ## Benchmark Metrics
 
-Evaluated across 12 open-source ROS 2 repositories using Rayon data-parallelism:
+Tested across 12 open-source ROS 2 repositories using Rayon multi-threading:
 
 | Repository | Focus Domain | Files Scanned | Total Time (ms) | Avg Time / File |
 | :--- | :--- | :--- | :--- | :--- |
