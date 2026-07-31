@@ -69,6 +69,27 @@ When you run `--fix`:
    - **SemanticAgent:** Analyzes AST logic flow and enforces crash recovery policies like `respawn="true"`.
 3. **The 4-Stage Fix Loop**: When an agent takes a task, it goes through four steps: generate a patch, verify it builds with Colcon, run automated tests, and finally apply the fix to the disk.
 
+```mermaid
+graph TD
+    A[AST & YAML Parsers] -->|Pushes Violations| B(Blackboard Event Bus)
+    B <--> C[ExecutorAgent]
+    B <--> D[KinematicsAgent]
+    B <--> E[SecurityAgent]
+    B <--> F[QoSAgent]
+    B <--> G[LifecycleAgent]
+    B <--> H[BuildSystemAgent]
+    
+    subgraph 4-Stage Autonomous Loop
+    I(Synthesize Patch) --> J(Colcon Build Verify)
+    J --> K(Automated Testing)
+    K --> L(Atomic Disk Apply)
+    end
+    
+    C -.->|Claims Task| I
+    D -.->|Claims Task| I
+    E -.->|Claims Task| I
+```
+
 ```bash
 # Preview changes without modifying files on disk
 rosfix --fix --dry-run
