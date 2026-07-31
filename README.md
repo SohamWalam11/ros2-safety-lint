@@ -59,7 +59,14 @@ Instead of just reporting errors, running `rosfix` with the `--fix` flag turns i
 
 When you run `--fix`:
 1. **The Blackboard**: Detected errors are posted to a shared, thread-safe "Blackboard."
-2. **Expert Agents**: 7 specialized agents (like a *KinematicsAgent* or a *BuildSystemAgent*) run concurrently. They constantly check the blackboard and grab tasks they know how to fix.
+2. **Expert Agents**: 7 specialized agents run concurrently. They constantly check the blackboard and grab tasks they know how to fix. The ecosystem includes:
+   - **KinematicsAgent:** Fixes physical geometry issues in URDF files and Nav2 YAML footprints.
+   - **ExecutorAgent:** Repairs C++ and Python callback deadlocks (e.g., removing blocking `sleep` calls).
+   - **SecurityAgent:** Hardens SROS2 profiles, upgrading weak governance to `ENCRYPT`.
+   - **QoSAgent:** Strips out hardcoded `best_effort()` overrides to restore `RELIABLE` compliance.
+   - **LifecycleAgent:** Injects missing Managed Lifecycle Node state transitions into launch configurations.
+   - **BuildSystemAgent:** Modernizes `package.xml` formats and inserts missing open-source licenses.
+   - **SemanticAgent:** Analyzes AST logic flow and enforces crash recovery policies like `respawn="true"`.
 3. **The 4-Stage Fix Loop**: When an agent takes a task, it goes through four steps: generate a patch, verify it builds with Colcon, run automated tests, and finally apply the fix to the disk.
 
 ```bash
