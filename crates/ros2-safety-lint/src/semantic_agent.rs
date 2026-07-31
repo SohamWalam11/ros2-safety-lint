@@ -142,15 +142,19 @@ pub fn broadcast_to_blackboard(
         
         // Very basic routing logic just for groundwork demonstration
         let domain = if violation.message.contains("BEST_EFFORT") || violation.message.contains("QoS") {
-            AgentDomain::NetworkAndTopology
-        } else if violation.message.contains("malloc") || violation.message.contains("new") {
-            AgentDomain::RealTimeAndMCU
-        } else if violation.message.contains("get()") || violation.message.contains("wait_for") {
-            AgentDomain::ExecutorAndDeadlock
-        } else if violation.message.contains("wildcard") || violation.message.contains("permission") {
+            AgentDomain::QoS
+        } else if violation.message.contains("malloc") || violation.message.contains("new") || violation.message.contains("spin") || violation.message.contains("get()") || violation.message.contains("wait_for") || violation.message.contains("sleep") {
+            AgentDomain::Executor
+        } else if violation.message.contains("wildcard") || violation.message.contains("permission") || violation.message.contains("rtps_protection_kind") {
             AgentDomain::Security
+        } else if violation.message.contains("package.xml") || violation.message.contains("CMake") {
+            AgentDomain::BuildSystem
+        } else if violation.message.contains("URDF") || violation.message.contains("footprint") {
+            AgentDomain::Kinematics
+        } else if violation.message.contains("Lifecycle") {
+            AgentDomain::Lifecycle
         } else {
-            AgentDomain::RuntimeArchitecture
+            AgentDomain::Semantic
         };
 
         let mut metadata = HashMap::new();
@@ -163,6 +167,8 @@ pub fn broadcast_to_blackboard(
             file_path: file_path.clone(),
             violation_context: content.clone(),
             diagnostic_message: violation.message.clone(),
+            start_byte: violation.range.start,
+            end_byte: violation.range.end,
             semantic_metadata: metadata,
         };
 

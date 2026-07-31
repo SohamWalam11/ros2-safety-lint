@@ -154,11 +154,8 @@ async fn main() {
                             if cli.dry_run {
                                 let diff = generate_unified_diff(&file_path_str, &content, &fixed_content);
                                 println!("[DRY-RUN FIX] Generated Remediation Patch for {}:\n{}", file_path_str, diff);
-                            } else if fs::write(file_path, &fixed_content).is_ok() {
-                                println!(
-                                    "[FIXED] Applied AST remediation fixes to {}",
-                                    file_path_str
-                                );
+                            } else if cli.fix {
+                                // Do NOT write to disk procedurally! The asynchronous MAS tokio agents will handle this during the 4-stage pipeline.
                             }
                         }
                     }
@@ -202,15 +199,26 @@ async fn main() {
             .unwrap());
         pb.enable_steady_tick(std::time::Duration::from_millis(100));
 
-        let bb_clone = blackboard.clone();
-        let _agent2 = tokio::spawn(async move {
-            let agent = rosfix::agent::ExecutorAgent;
-            use rosfix::agent::ExpertAgent;
-            agent.run(bb_clone, pb).await;
-        });
+        use rosfix::agent::*;
+        
+        let agents = vec![
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { KinematicsAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { ExecutorAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { SecurityAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { QoSAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { LifecycleAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { BuildSystemAgent.run(bb, p).await; } }),
+            tokio::spawn({ let bb = blackboard.clone(); let p = pb.clone(); async move { SemanticAgent.run(bb, p).await; } }),
+        ];
 
-        // Simulating waiting for the MAS to process all tasks
-        tokio::time::sleep(tokio::time::Duration::from_secs(6)).await;
+        // Wait for all agents to finish their tasks (they will exit when the blackboard is empty)
+        // Give them a small window to claim tasks before waiting.
+        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+        
+        for agent_handle in agents {
+            let _ = agent_handle.await;
+        }
+
         m.clear().unwrap();
         println!("\x1b[1;35m[MAS ORCHESTRATOR]\x1b[0m Expert Agents finished processing tasks.");
     }
