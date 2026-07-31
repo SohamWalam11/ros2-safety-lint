@@ -4,11 +4,11 @@
 [![Crates.io](https://img.shields.io/crates/v/rosfix.svg)](https://crates.io/crates/rosfix)
 [![License: MIT/Apache-2.0](https://img.shields.io/badge/License-MIT%2FApache--2.0-blue.svg)](LICENSE-MIT)
 
-Static analysis and auto-remediation tool for ROS 2 codebases.
+Static analysis and Multi-Agent Auto-Remediation Engine for ROS 2 codebases.
 
 ROS 2 configurations are often split across launch files, YAML parameter manifests, Python nodes, and C++ source code. Architects set QoS and security rules in configuration manifests, but developers frequently override them directly inside C++ or Python code (creating "Shadow Code" drift) or introduce callback deadlocks and real-time heap allocations.
 
-`rosfix` scans C++, Python, XML, YAML, and URDF files across your workspace to catch these issues early and fix them automatically (`--fix`).
+`rosfix` aggressively scans C++, Python, XML, YAML, and URDF files using Rayon data-parallelism to catch these issues. When run with `--fix`, it spawns a highly concurrent **7-Agent AI System** running on a `tokio` async runtime to automatically synthesize and apply safety patches to your codebase.
 
 ---
 
@@ -55,29 +55,30 @@ cargo rosfix --path src/ --format fancy
 
 ### Automatic In-Place Fixes (`--fix`)
 
-`rosfix` can automatically repair detected manifest and configuration issues in-place:
+### Automatic In-Place Fixes (`--fix` & Multi-Agent System)
+
+When the `--fix` flag is passed, `rosfix` transitions from a static analyzer into a fully concurrent **Multi-Agent System (MAS)**:
+
+1. **The Blackboard Event Bus**: Detected safety violations are pushed to a thread-safe, mutex-locked event bus.
+2. **Concurrent Expert Agents**: 7 specialized async agents (e.g., *ExecutorAgent*, *KinematicsAgent*, *BuildSystemAgent*) are spawned via `tokio::spawn`.
+3. **Task Claiming**: Agents poll the blackboard, claiming tasks that fall strictly within their domain expertise.
+4. **4-Stage Verification Loop**: Every agent executes a rigorous autonomous loop: `Patch Generation` $\to$ `Colcon Build Verification` $\to$ `Automated Testing` $\to$ `Disk Apply`.
 
 ```bash
-# Preview changes without modifying files on disk
-rosfix --path src/ --fix --dry-run
-
-# Apply fixes in-place
-rosfix --path src/ --fix
+# Automatically scan the current directory and spawn the MAS to fix violations
+rosfix --fix
 ```
 
-Auto-remediation currently handles:
-- Injecting `respawn="true"` into launch `<node>` tags missing crash policies.
-- Upgrading `governance.xml` protection modes from `NONE`/`SIGN` to `ENCRYPT`.
-- Converting `package.xml` formats (`format="1"`/`"2"` $\to$ `format="3"`) and adding open-source license tags.
-- Adjusting unisolated `ROS_DOMAIN_ID: 0` and zero Nav2 footprint radii.
+During execution, `rosfix` displays **live concurrent progress spinners** using `indicatif`, allowing you to watch the agents compile patches and synthesize solutions in real-time.
 
 ---
 
 ## Output Formats
 
 ```bash
-# Standard line format
-rosfix --path src/ --format text
+# Standard interactive tree format (Line & Col numbers grouped by file)
+rosfix
+rosfix --format text
 
 # JSON output for custom tools
 rosfix --path src/ --format json
