@@ -1,11 +1,11 @@
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
-use rosfix::remediator::{apply_remediation, generate_fix, generate_unified_diff, RemediationFix};
+use rosfix::remediator::{apply_remediation, generate_fix, generate_unified_diff};
 use rosfix::semantic_agent::filter_violations;
 use rosfix::sros2::{lint_governance, lint_keystore_paths, lint_permissions};
 use serde::Serialize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
 #[command(name = "rosfix")]
@@ -33,6 +33,10 @@ struct Cli {
     /// Preview fixes without modifying files on disk
     #[arg(long)]
     dry_run: bool,
+
+    /// Disable Rayon parallelism (for ablation experiments)
+    #[arg(long)]
+    sequential: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -57,9 +61,98 @@ struct JsonViolation {
     suggested_fix: Option<String>,
 }
 
+fn should_scan_file(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|ext| {
+            matches!(
+                ext,
+                "xml" | "yaml" | "yml" | "py" | "urdf" | "xacro" | "cpp" | "hpp" | "cc" | "c" | "h"
+            )
+        })
+        .unwrap_or(false)
+}
+
+fn scan_single_file(
+    file_path: &Path,
+    fix: bool,
+    dry_run: bool,
+) -> Vec<(String, rosfix::sros2::LintViolation, String)> {
+    let mut file_violations = Vec::new();
+    let Some(filename) = file_path.file_name().and_then(|n| n.to_str()) else {
+        return Vec::new();
+    };
+
+    let content = match fs::read_to_string(file_path) {
+        Ok(c) => c,
+        Err(_) => return Vec::new(),
+    };
+
+    let file_path_str = file_path.display().to_string();
+
+    if filename.ends_with(".xml") || filename.ends_with(".urdf") || filename.ends_with(".xacro") {
+        if let Ok(doc) = rosfix::parser::parse_xml(&content) {
+            if filename == "permissions.xml" {
+                file_violations.extend(lint_permissions(&doc));
+            } else if filename == "governance.xml" {
+                file_violations.extend(lint_governance(&doc));
+            } else if filename == "package.xml" {
+                file_violations.extend(rosfix::package_xml_parser::lint_package_xml(&doc));
+            } else if filename.ends_with(".urdf") || filename.ends_with(".xacro") {
+                file_violations.extend(rosfix::urdf_parser::lint_urdf(&doc));
+            } else if filename.ends_with(".launch.xml") {
+                file_violations.extend(rosfix::launch_xml_parser::lint_launch_xml(&doc));
+                file_violations.extend(rosfix::lifecycle_parser::lint_lifecycle(&doc));
+            } else {
+                file_violations.extend(lint_permissions(&doc));
+                file_violations.extend(lint_governance(&doc));
+            }
+            file_violations.extend(lint_keystore_paths(&doc));
+        }
+    } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
+        file_violations.extend(rosfix::yaml_parser::lint_yaml(&content));
+    } else if filename.ends_with(".py") {
+        file_violations.extend(rosfix::python_parser::lint_python(&content));
+    } else if filename.ends_with(".cpp")
+        || filename.ends_with(".hpp")
+        || filename.ends_with(".cc")
+        || filename.ends_with(".c")
+        || filename.ends_with(".h")
+    {
+        file_violations.extend(rosfix::cpp_parser::lint_cpp(&content));
+    }
+
+    if (fix || dry_run) && !file_violations.is_empty() {
+        let mut fixes = Vec::new();
+        for v in &file_violations {
+            if let Some(fix_patch) = generate_fix(&file_path_str, v, &content) {
+                fixes.push(fix_patch);
+            }
+        }
+
+        if !fixes.is_empty() {
+            if let Ok(fixed_content) = apply_remediation(&file_path_str, &content, &fixes) {
+                if dry_run {
+                    let diff = generate_unified_diff(&file_path_str, &content, &fixed_content);
+                    println!(
+                        "[DRY-RUN FIX] Generated Remediation Patch for {}:\n{}",
+                        file_path_str, diff
+                    );
+                }
+            }
+        }
+    }
+
+    file_violations
+        .into_iter()
+        .map(|v| (file_path_str.clone(), v, content.clone()))
+        .collect()
+}
+
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
+    let _config = rosfix::config::find_and_load_config(&cli.path);
 
     let mut files_to_scan = Vec::new();
     if cli.path.is_dir() {
@@ -68,7 +161,10 @@ async fn main() {
             .filter_map(|e| e.ok())
         {
             let path_str = entry.path().to_string_lossy();
-            if entry.path().is_file() && !path_str.contains("target") && !path_str.contains(".git")
+            if entry.path().is_file()
+                && !path_str.contains("target")
+                && !path_str.contains(".git")
+                && should_scan_file(entry.path())
             {
                 files_to_scan.push(entry.path().to_path_buf());
             }
@@ -86,90 +182,20 @@ async fn main() {
     spinner.set_message("Scanning workspace files for safety violations...");
     spinner.enable_steady_tick(std::time::Duration::from_millis(100));
 
-    // Parallel scanning with Rayon across CPU cores
-    let mut all_violations: Vec<(String, rosfix::sros2::LintViolation, String)> = files_to_scan
-        .par_iter()
-        .flat_map(|file_path| {
-            let mut file_violations = Vec::new();
-            if let Some(filename) = file_path.file_name().and_then(|n| n.to_str()) {
-                let content = match fs::read_to_string(file_path) {
-                    Ok(c) => c,
-                    Err(_) => return Vec::new(),
-                };
+    let scan_file = |file_path: &PathBuf| scan_single_file(file_path, cli.fix, cli.dry_run);
 
-                let file_path_str = file_path.display().to_string();
-
-                if filename.ends_with(".xml")
-                    || filename.ends_with(".urdf")
-                    || filename.ends_with(".xacro")
-                {
-                    if let Ok(doc) = rosfix::parser::parse_xml(&content) {
-                        if filename == "permissions.xml" {
-                            file_violations.extend(lint_permissions(&doc));
-                        } else if filename == "governance.xml" {
-                            file_violations.extend(lint_governance(&doc));
-                        } else if filename == "package.xml" {
-                            file_violations.extend(
-                                rosfix::package_xml_parser::lint_package_xml(&doc),
-                            );
-                        } else if filename.ends_with(".urdf") || filename.ends_with(".xacro") {
-                            file_violations.extend(rosfix::urdf_parser::lint_urdf(&doc));
-                        } else if filename.ends_with(".launch.xml") {
-                            file_violations.extend(
-                                rosfix::launch_xml_parser::lint_launch_xml(&doc),
-                            );
-                            file_violations.extend(
-                                rosfix::lifecycle_parser::lint_lifecycle(&doc),
-                            );
-                        } else {
-                            file_violations.extend(lint_permissions(&doc));
-                            file_violations.extend(lint_governance(&doc));
-                        }
-                        file_violations.extend(lint_keystore_paths(&doc));
-                    }
-                } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
-                    file_violations.extend(rosfix::yaml_parser::lint_yaml(&content));
-                } else if filename.ends_with(".py") {
-                    file_violations.extend(rosfix::python_parser::lint_python(&content));
-                } else if filename.ends_with(".cpp")
-                    || filename.ends_with(".hpp")
-                    || filename.ends_with(".cc")
-                    || filename.ends_with(".c")
-                    || filename.ends_with(".h")
-                {
-                    file_violations.extend(rosfix::cpp_parser::lint_cpp(&content));
-                }
-
-                // Collect generated fixes if --fix or --dry-run is specified
-                if (cli.fix || cli.dry_run) && !file_violations.is_empty() {
-                    let mut fixes = Vec::new();
-                    for v in &file_violations {
-                        if let Some(fix) = generate_fix(&file_path_str, v, &content) {
-                            fixes.push(fix);
-                        }
-                    }
-
-                    if !fixes.is_empty() {
-                        if let Ok(fixed_content) = apply_remediation(&file_path_str, &content, &fixes) {
-                            if cli.dry_run {
-                                let diff = generate_unified_diff(&file_path_str, &content, &fixed_content);
-                                println!("[DRY-RUN FIX] Generated Remediation Patch for {}:\n{}", file_path_str, diff);
-                            } else if cli.fix {
-                                // Do NOT write to disk procedurally! The asynchronous MAS tokio agents will handle this during the 4-stage pipeline.
-                            }
-                        }
-                    }
-                }
-
-                file_violations
-                    .into_iter()
-                    .map(|v| (file_path_str.clone(), v, content.clone()))
-                    .collect::<Vec<_>>()
-            } else {
-                Vec::new()
-            }
-        })
-        .collect();
+    let mut all_violations: Vec<(String, rosfix::sros2::LintViolation, String)> =
+        if cli.sequential {
+            files_to_scan
+                .iter()
+                .flat_map(|file_path| scan_file(file_path))
+                .collect()
+        } else {
+            files_to_scan
+                .par_iter()
+                .flat_map(|file_path| scan_file(file_path))
+                .collect()
+        };
 
     spinner.finish_with_message("Workspace scan complete.");
 

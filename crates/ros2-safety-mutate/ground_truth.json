@@ -1,9 +1,9 @@
 {
   "injected_bugs": {
-    "permissions.xml": [
+    "demo.launch.xml": [
       {
-        "tier": "Tier3",
-        "bug_type": "WildcardSubject"
+        "tier": "Tier2",
+        "bug_type": "AbsoluteKeystorePath"
       }
     ],
     "governance.xml": [
@@ -12,10 +12,10 @@
         "bug_type": "DowngradedRtps"
       }
     ],
-    "demo.launch.xml": [
+    "permissions.xml": [
       {
-        "tier": "Tier2",
-        "bug_type": "AbsoluteKeystorePath"
+        "tier": "Tier3",
+        "bug_type": "WildcardSubject"
       }
     ]
   }

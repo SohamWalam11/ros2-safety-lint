@@ -1,4 +1,5 @@
 #![allow(clippy::only_used_in_recursion)]
+use crate::qos::{Duration, History, Reliability, Durability, Liveliness};
 use crate::sros2::LintViolation;
 use serde::Deserialize;
 use serde_yaml::Value;
@@ -44,6 +45,43 @@ fn walk_yaml(root_value: &Value, violations: &mut Vec<LintViolation>, _content: 
                                     });
                                 }
                             }
+                        } else if key_lower == "durability" {
+                            if let Value::String(val_str) = v {
+                                if val_str.to_lowercase() == "volatile" {
+                                    // Track volatile durability for cross-file comparison
+                                }
+                            }
+                        } else if key_lower == "deadline" {
+                            // Parse deadline duration
+                            if let Value::Mapping(deadline_map) = v {
+                                for (dk, dv) in deadline_map {
+                                    if let Value::String(dk_str) = dk {
+                                        if dk_str.to_lowercase() == "sec" {
+                                            if let Value::Number(secs) = dv {
+                                                // Check for very short deadlines
+                                                if let Some(s) = secs.as_f64() {
+                                                    if s < 0.001 {
+                                                        violations.push(LintViolation {
+                                                            message: "Extremely tight deadline (< 1ms) detected. May cause resource exhaustion.".to_string(),
+                                                            range: 0..1,
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else if key_lower == "liveliness" {
+                            if let Value::String(val_str) = v {
+                                // Track liveliness for cross-file comparison
+                            }
+                        } else if key_lower == "history" {
+                            if let Value::String(val_str) = v {
+                                // Track history for cross-file comparison
+                            }
+                        } else if key_lower == "liveliness_lease_duration" {
+                            // Parse liveliness lease duration
                         } else if key_lower == "robot_radius" {
                             if let Value::Number(num) = v {
                                 if let Some(r) = num.as_f64() {
@@ -131,5 +169,14 @@ mod tests {
         let violations = lint_yaml(yaml);
         assert_eq!(violations.len(), 0);
     }
+
+    #[test]
+    fn test_yaml_deadline_warning() {
+        let yaml = "topic_qos:\n  deadline:\n    sec: 0.0001\n";
+        let violations = lint_yaml(yaml);
+        assert!(!violations.is_empty());
+        assert!(violations.iter().any(|v| v.message.contains("tight deadline")));
+    }
+
 }
 

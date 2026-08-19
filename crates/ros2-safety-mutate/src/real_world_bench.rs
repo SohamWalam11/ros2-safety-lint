@@ -1,9 +1,10 @@
+use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
-use walkdir::WalkDir;
 
+#[derive(Debug)]
 struct BenchmarkResult {
     repo_name: String,
     files_scanned: usize,
@@ -11,58 +12,73 @@ struct BenchmarkResult {
     violations_found: usize,
 }
 
-fn run_linter(path: &Path) -> (usize, u128) {
-    let start_time = Instant::now();
-    let output = Command::new("../../target/release/ros2-safety-lint.exe")
-        .args(["--format", "json", "--path", path.to_str().unwrap()])
-        .output()
-        .unwrap();
-    let elapsed = start_time.elapsed().as_millis();
+#[derive(serde::Deserialize)]
+struct JsonOutput {
+    file: String,
+    violations: Vec<JsonViolation>,
+}
 
+#[derive(serde::Deserialize)]
+struct JsonViolation {
+    message: String,
+}
+
+fn rosfix_binary() -> PathBuf {
+    if let Ok(path) = env::var("ROSFIX_BIN") {
+        return PathBuf::from(path);
+    }
+    PathBuf::from("../../target/release/rosfix.exe")
+}
+
+fn count_scannable_files(repo_path: &Path) -> usize {
+    let mut count = 0usize;
+    for entry in walkdir::WalkDir::new(repo_path)
+        .into_iter()
+        .filter_map(Result::ok)
+    {
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let path_str = path.to_string_lossy();
+        if path_str.contains("target") || path_str.contains(".git") {
+            continue;
+        }
+        if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+            if matches!(
+                ext,
+                "xml" | "yaml" | "yml" | "py" | "urdf" | "xacro" | "cpp" | "hpp" | "cc" | "c" | "h"
+            ) {
+                count += 1;
+            }
+        }
+    }
+    count
+}
+
+fn run_linter_on_repo(repo_path: &Path) -> (usize, u128) {
+    let start_time = Instant::now();
+    let output = Command::new(rosfix_binary())
+        .args(["--format", "json", "--path", repo_path.to_str().unwrap()])
+        .output()
+        .expect("Failed to execute rosfix. Build with: cargo build --release -p rosfix");
+
+    let elapsed = start_time.elapsed().as_millis();
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // We count the number of JSON violation objects or we just count lines if it's text.
-    // Wait, since we are doing --format json, it will print JSON. We can just count the word "message" or parse it.
-    let mut violations = 0;
-    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&stdout)
-        && let Some(arr) = json.get("violations").and_then(|v| v.as_array())
-    {
-        violations = arr.len();
+    let mut violations = 0usize;
+    if let Ok(json) = serde_json::from_str::<Vec<JsonOutput>>(&stdout) {
+        for file_output in json {
+            violations += file_output.violations.len();
+        }
     }
 
     (violations, elapsed)
 }
 
 fn benchmark_repo(repo_path: &Path, repo_name: &str) -> BenchmarkResult {
-    let mut files_scanned = 0;
-    let mut total_time_ms = 0;
-    let mut violations_found = 0;
-
-    for entry in WalkDir::new(repo_path)
-        .into_iter()
-        .filter_map(Result::ok)
-        .filter(|e| !e.file_type().is_dir())
-    {
-        if let Some(ext) = entry.path().extension().and_then(|e| e.to_str())
-            && (ext == "xml"
-                || ext == "yaml"
-                || ext == "yml"
-                || ext == "py"
-                || ext == "urdf"
-                || ext == "xacro"
-                || ext == "cpp"
-                || ext == "hpp"
-                || ext == "cc"
-                || ext == "c"
-                || ext == "h")
-        {
-            // We now scan XML, YAML, Python, URDF, Xacro, and C++ files
-            files_scanned += 1;
-            let (v, t) = run_linter(entry.path());
-            violations_found += v;
-            total_time_ms += t;
-        }
-    }
+    let files_scanned = count_scannable_files(repo_path);
+    let (violations_found, total_time_ms) = run_linter_on_repo(repo_path);
 
     BenchmarkResult {
         repo_name: repo_name.to_string(),
@@ -91,7 +107,7 @@ fn main() {
 
     let mut results = Vec::new();
 
-    println!("Starting Real-World Benchmark...");
+    println!("Starting Real-World Benchmark (one rosfix invocation per repository)...");
     for repo in repos {
         println!("Benchmarking {}...", repo);
         let repo_path = base_dir.join(repo);
@@ -107,7 +123,11 @@ fn main() {
     let mut csv_content =
         String::from("Repository,FilesScanned,TotalTimeMs,AvgTimePerFileMs,ViolationsFound\n");
 
-    for r in results {
+    let mut total_files = 0usize;
+    let mut total_time = 0u128;
+    let mut total_violations = 0usize;
+
+    for r in &results {
         let avg_time = if r.files_scanned > 0 {
             r.total_time_ms as f64 / r.files_scanned as f64
         } else {
@@ -121,11 +141,32 @@ fn main() {
         println!("  Violations Found: {}", r.violations_found);
         println!();
 
+        total_files += r.files_scanned;
+        total_time += r.total_time_ms;
+        total_violations += r.violations_found;
+
         csv_content.push_str(&format!(
             "{},{},{},{:.2},{}\n",
             r.repo_name, r.files_scanned, r.total_time_ms, avg_time, r.violations_found
         ));
     }
+
+    let corpus_avg = if total_files > 0 {
+        total_time as f64 / total_files as f64
+    } else {
+        0.0
+    };
+
+    println!("--- Corpus Totals ---");
+    println!("  Files: {}", total_files);
+    println!("  Wall Time (sum of per-repo runs): {} ms", total_time);
+    println!("  Avg ms/file (corpus): {:.2}", corpus_avg);
+    println!("  Total Violations: {}", total_violations);
+
+    csv_content.push_str(&format!(
+        "TOTAL,{},{},{:.2},{}\n",
+        total_files, total_time, corpus_avg, total_violations
+    ));
 
     fs::write("real_world_benchmark.csv", csv_content).unwrap();
     println!("Exported real_world_benchmark.csv");

@@ -211,27 +211,35 @@ fn evaluate(clean_dir: &Path, mutated_dir: &Path, ground_truth: &GroundTruth) {
     fs::write("evaluation_results_tiered.csv", csv).unwrap();
 }
 
-fn run_linter(path: &Path) -> LinterOutput {
-    let output = Command::new("cargo")
-        .args([
-            "run",
-            "-q",
-            "-p",
-            "ros2-safety-lint",
-            "--",
-            "--format",
-            "json",
-            "--path",
-            path.to_str().unwrap(),
-        ])
-        .output()
-        .unwrap();
+fn rosfix_binary() -> std::path::PathBuf {
+    if let Ok(path) = std::env::var("ROSFIX_BIN") {
+        return std::path::PathBuf::from(path);
+    }
+    std::path::PathBuf::from("../../target/release/rosfix.exe")
+}
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    serde_json::from_str(&stdout).unwrap_or_else(|_| LinterOutput {
+fn run_linter(path: &Path) -> LinterOutput {
+    let output = Command::new(rosfix_binary())
+        .args(["--format", "json", "--path", path.to_str().unwrap()])
+        .output()
+        .expect("Failed to execute rosfix. Build with: cargo build --release -p rosfix");
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    if let Ok(files) = serde_json::from_str::<Vec<LinterOutput>>(&stdout) {
+        let violations: Vec<LinterViolation> = files
+            .into_iter()
+            .flat_map(|f| f.violations)
+            .collect();
+        return LinterOutput {
+            file: path.to_str().unwrap().to_string(),
+            violations,
+        };
+    }
+
+    LinterOutput {
         file: path.to_str().unwrap().to_string(),
         violations: vec![],
-    })
+    }
 }
 
 fn main() {

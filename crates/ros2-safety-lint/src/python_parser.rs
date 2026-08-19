@@ -1,9 +1,20 @@
 #![allow(clippy::collapsible_match, clippy::only_used_in_recursion)]
+use crate::cross_language_ir::CrossLanguageIR;
+use crate::qos::{Duration, Reliability};
 use crate::sros2::LintViolation;
 use regex::Regex;
 use rustpython_parser::ast;
 use rustpython_parser::{parse, Mode};
 
+// Enhanced Python analysis with cross-file capabilities
+mod enhanced;
+pub use enhanced::{
+    PythonAnalysisResult, ParameterExtraction, Ros2ApiCall, Ros2ApiType,
+    CallbackPattern, CallbackType, LaunchScriptAnalysis,
+    analyze_python_with_context, analyze_python_and_update_ir
+};
+
+// Original lint function for backward compatibility
 pub fn lint_python(content: &str) -> Vec<LintViolation> {
     let mut violations = Vec::new();
 
@@ -14,7 +25,7 @@ pub fn lint_python(content: &str) -> Vec<LintViolation> {
             message:
                 "Hardcoded local IP address found. Use ROS parameters or environment variables."
                     .to_string(),
-            range: 0..1, // In a real parser we'd find the AST node
+            range: 0..1,
         });
     }
 
@@ -27,7 +38,7 @@ pub fn lint_python(content: &str) -> Vec<LintViolation> {
         });
     }
 
-    // 2. AST parsing for semantic logic
+    // AST parsing for semantic logic
     if let Ok(ast_module) = parse(content, Mode::Module, "<embedded>") {
         if let ast::Mod::Module(module) = ast_module {
             for stmt in module.body {
@@ -124,6 +135,16 @@ fn walk_expr(expr: &ast::Expr, violations: &mut Vec<LintViolation>, content: &st
                 range: 0..1,
             });
         }
+        ast::Expr::Attribute(attr) if attr.attr.as_str() == "RELIABLE" => {
+            // Track reliable QoS for cross-file comparison
+            // In cross-file mode, this should be compared against XML/YAML configs
+        }
+        ast::Expr::Attribute(attr) if attr.attr.as_str() == "VOLATILE" => {
+            // Track volatile durability for cross-file comparison
+        }
+        ast::Expr::Attribute(attr) if attr.attr.as_str() == "TRANSIENT_LOCAL" => {
+            // Track transient durability for cross-file comparison
+        }
         _ => {}
     }
 }
@@ -154,6 +175,14 @@ mod tests {
         let violations = lint_python(code);
         assert!(!violations.is_empty());
         assert!(violations.iter().any(|v| v.message.contains("BEST_EFFORT")));
+    }
+
+    #[test]
+    fn test_python_qos_reliable() {
+        let code = "qos = QoSReliabilityPolicy.RELIABLE\n";
+        let violations = lint_python(code);
+        // RELIABLE is generally safe, no violation expected
+        assert!(violations.is_empty());
     }
 
     #[test]

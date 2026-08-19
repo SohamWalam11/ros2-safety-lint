@@ -13,3 +13,5 @@ pub mod urdf_parser;
 pub mod yaml_parser;
 pub mod blackboard;
 pub mod agent;
+pub mod cross_language_ir;
+pub mod shadow_drift;
