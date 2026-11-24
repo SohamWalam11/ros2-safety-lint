@@ -370,7 +370,7 @@ impl W {
                     self.facts.imports.push((top, loc));
                 }
             }
-            Stmt::ImportFrom(i) if i.level.map_or(true, |l| l.to_u32() == 0) => {
+            Stmt::ImportFrom(i) if i.level.is_none_or(|l| l.to_u32() == 0) => {
                 if let Some(m) = &i.module {
                     let top = m.split('.').next().unwrap_or("").to_string();
                     let loc = self.loc(i);

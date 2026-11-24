@@ -45,7 +45,7 @@ where
             continue;
         }
         let d = edit_distance(target, c);
-        if d <= max && best.map_or(true, |(_, bd)| d < bd) {
+        if d <= max && best.is_none_or(|(_, bd)| d < bd) {
             best = Some((c, d));
         }
     }

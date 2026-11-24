@@ -220,7 +220,7 @@ pub fn run(
     let mut runs = Vec::new();
     let mut by_agent = HashMap::new();
     for a in all_agents() {
-        let selected = only.map_or(true, |o| o.iter().any(|x| x == a.id()) || a.id() == "core");
+        let selected = only.is_none_or(|o| o.iter().any(|x| x == a.id()) || a.id() == "core");
         let t = Instant::now();
         let reuse = event.and_then(|e| {
             let touched = a.inputs().iter().any(|k| e.changed.contains(k));

@@ -26,7 +26,7 @@ fn walk_displays(
             && disp
                 .get("Enabled")
                 .and_then(|e| e.as_str())
-                .map_or(true, |e| e == "true");
+                .is_none_or(|e| e == "true");
         let class = disp.get("Class").and_then(|c| c.as_str()).unwrap_or("");
         if class.ends_with("/Group") {
             walk_displays(file, disp, enabled, out);

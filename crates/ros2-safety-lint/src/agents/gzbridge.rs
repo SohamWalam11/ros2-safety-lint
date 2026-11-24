@@ -387,7 +387,7 @@ fn check_types(ros: &str, gz: &str) -> Option<TypeIssue> {
             if !(gz.starts_with("gz") || gz.starts_with("ign")) {
                 return None;
             }
-            let name = gz.rsplit(|c| c == '.' || c == ':').next()?;
+            let name = gz.rsplit(['.', ':']).next()?;
             if !pair_ok(ros, name) {
                 return None;
             }

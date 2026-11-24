@@ -75,7 +75,7 @@ fn in_empty_dir(cx: &Context, rel: &str) -> bool {
     while let Some(d) = dir.filter(|d| !d.as_os_str().is_empty()) {
         let abs = cx.ix.root.join(d);
         if abs.is_dir() {
-            return std::fs::read_dir(&abs).map_or(false, |mut it| it.next().is_none());
+            return std::fs::read_dir(&abs).is_ok_and(|mut it| it.next().is_none());
         }
         dir = d.parent();
     }

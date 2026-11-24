@@ -216,7 +216,7 @@ fn xml_children(
                 let ns = n.attribute("ns").map(sub);
                 let scoped = n
                     .attribute("scoped")
-                    .map_or(true, |s| s != "false" && s != "False");
+                    .is_none_or(|s| s != "false" && s != "False");
                 let inner = xml_children(file, dir, n, partial);
                 // `<group if=…>` / `unless=…`: everything inside runs only on that branch.
                 let inner = if conditional {

@@ -37,7 +37,7 @@ or, in a clone of the repository,
 
     cargo build --release -p rosfix
 
-Rust 1.80 or newer is required. Optional cargo features:
+Rust 1.88 or newer is required. Optional cargo features:
 
     parallel   index files on several threads (--jobs N)
     online     allow --online reference lookups

@@ -2,7 +2,7 @@
 name = "rosfix"
 version = "0.2.3"
 edition = "2021"
-rust-version = "1.80"
+rust-version = "1.88"
 readme = "../../README.md"
 description = "Static checker for silent ROS 2 misconfigurations: parameters, topic wiring, QoS, executors, ros2_control, Nav2, launch/packaging and SROS2"
 license = "MIT OR Apache-2.0"

@@ -775,7 +775,7 @@ impl<'a> W<'a> {
         let recv_norm = recv.as_deref().map(norm_var);
         let on_self = recv_norm
             .as_deref()
-            .map_or(true, |r| r == "this" || r.is_empty());
+            .is_none_or(|r| r == "this" || r.is_empty());
         let a = args(&n);
         let loc = self.loc(&n);
         let full = text(&n, self.src);

@@ -84,9 +84,7 @@ fn tok_match(pattern: &str, s: &str) -> bool {
             _ => return false,
         }
     }
-    parts
-        .last()
-        .map_or(true, |l| l.is_empty() || s.ends_with(l))
+    parts.last().is_none_or(|l| l.is_empty() || s.ends_with(l))
 }
 
 // ============================================================================ graph types

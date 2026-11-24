@@ -135,10 +135,8 @@ impl Agent for MoveItAgent {
                     }
                 }
                 "joint_limits.yaml" => joint_limits(f, doc, robot.as_ref().map(|r| &r.0), out),
-                "moveit_controllers.yaml" => {
-                    if !controllers.is_empty() {
-                        moveit_controllers(f, doc, &controllers, out);
-                    }
+                "moveit_controllers.yaml" if !controllers.is_empty() => {
+                    moveit_controllers(f, doc, &controllers, out);
                 }
                 _ => {}
             }
