@@ -1,0 +1,17 @@
+# Repositories mined for real configuration fixes (licenses are checked at runtime;
+# anything not Apache-2.0/MIT/BSD is skipped).
+ros-navigation/navigation2
+ros-controls/ros2_controllers
+ros-controls/ros2_control_demos
+ros2/demos
+ros2/examples
+ros2/geometry2
+ros/robot_state_publisher
+ROBOTIS-GIT/turtlebot3
+ROBOTIS-GIT/turtlebot3_simulations
+SteveMacenski/slam_toolbox
+cra-ros-pkg/robot_localization
+moveit/moveit2_tutorials
+ros-planning/navigation2_tutorials
+clearpathrobotics/clearpath_simulator
+husarion/rosbot_ros
