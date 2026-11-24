@@ -1,0 +1,467 @@
+{
+ "ROBOTIS-GIT/turtlebot3@7a038d067e": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "nav2_bringup exec_depend added, exactly as flagged"
+ },
+ "uleroboticsgroup/yasmin@343ff7e1b9": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_action/pluginlib added to yasmin_demos package.xml"
+ },
+ "ros-planning/navigation2@1856b67b0a": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "nav2_simple_commander exec_depend added"
+ },
+ "ros-perception/pointcloud_to_laserscan@057bd28a28": {
+  "is_the_bug": true,
+  "rule": "F002",
+  "note": "static_transform_publisher args passed as single string; fixed to flag form"
+ },
+ "autowarefoundation/autoware_core@297810c7e2": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "T001 gnss topic unrelated; commit adds missing params to yaml"
+ },
+ "ros2/rclc@b168f0f6bf": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "std_msgs/geometry_msgs test_depend added"
+ },
+ "open-rmf/rmf_demos@164e62e8af": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rmf_reservation_node exec_depend added"
+ },
+ "CCNYRoboticsLab/imu_tools@13eb717f32": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "tf2_ros build_depend added"
+ },
+ "CCNYRoboticsLab/imu_tools@d7a52d20e3": {
+  "is_the_bug": true,
+  "rule": "L004",
+  "note": "launch/ install rule added"
+ },
+ "UniversalRobots/Universal_Robots_ROS2_Driver@aea2ccd528": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "hardware_interface/controller_manager deps added"
+ },
+ "ros-perception/image_pipeline@0ff8e2f979": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_components depend added"
+ },
+ "IMRCLab/crazyswarm2@4dd2cc9fa9": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "nav2_msgs typo replaced by nav_msgs depend"
+ },
+ "RobotWebTools/rosbridge_suite@e0756f0e67": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "builtin_interfaces depend added"
+ },
+ "CCNYRoboticsLab/imu_tools@9323d2e371": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rviz_common/tf2/tf2_ros/message_filters depends added"
+ },
+ "introlab/rtabmap_ros@18f2788a37": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "Fix is LaunchConfiguration-as-bool; vanished findings unrelated (restructure)"
+ },
+ "nobleo/rviz_satellite@4badd37bdf": {
+  "is_the_bug": true,
+  "rule": "L004",
+  "note": "demo/demo.rviz install added"
+ },
+ "ros2/demos@abcfe53757": {
+  "is_the_bug": true,
+  "rule": "L004",
+  "note": "launch/ added to setup.py data_files"
+ },
+ "ika-rwth-aachen/mqtt_client@a43606a26b": {
+  "is_the_bug": true,
+  "rule": "L001",
+  "note": "executable renamed to mqtt_client_exe"
+ },
+ "autowarefoundation/autoware_core@5582266e15": {
+  "is_the_bug": true,
+  "rule": "A002",
+  "note": "declared *_enabled args unused; fix passes them to node"
+ },
+ "ROBOTIS-GIT/turtlebot3_simulations@e4a6f33965": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "borderline: wrong turtlebot3_bringup reference removed rather than declared"
+ },
+ "IntelRealSense/realsense-ros@cd85059acc": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "nav_msgs depend added"
+ },
+ "cyberbotics/webots_ros2@f3f0d5d7bd": {
+  "is_the_bug": true,
+  "rule": "N006",
+  "note": "controller_plugin_ids renamed to controller_plugins"
+ },
+ "IMRCLab/crazyswarm2@69ea67cafe": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "std_msgs depend added to crazyflie_interfaces"
+ },
+ "ros2/rclc@705efff90b": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "std_msgs/example_interfaces test_depend added"
+ },
+ "IMRCLab/crazyswarm2@4bbe8ce98a": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "T001 namespace finding unrelated to use_sim_time fix"
+ },
+ "ros-perception/image_pipeline@90f4667a47": {
+  "is_the_bug": true,
+  "rule": "L001",
+  "note": "executable renamed to image_publisher_node"
+ },
+ "ros-controls/ros2_controllers@9b344c7b5c": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "sensor_msgs depend added"
+ },
+ "autowarefoundation/autoware_core@af43bf18c9": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "topic_tools exec_depend added"
+ },
+ "kroshu/kuka_drivers@9119e85141": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "Fix is SRDF filename; findings vanished due to file rename"
+ },
+ "cyberbotics/webots_ros2@8bc7ac8f86": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "malformed nav2 YAML rewritten; params arg rename also fixed"
+ },
+ "IMRCLab/crazyswarm2@847dd3a169": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "geometry_msgs/std_srvs added to crazyflie_interfaces"
+ },
+ "ros2/cartographer_ros@8805f33c51": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "builtin_interfaces/tf2_msgs depends added"
+ },
+ "kroshu/kuka_drivers@85e811ea53": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "Fixes config filename/spawner flags; findings vanished via file rename"
+ },
+ "mavlink/mavros@1de7e9a5fb": {
+  "is_the_bug": true,
+  "rule": "A002",
+  "note": "respawn_mavros arg now wired to node"
+ },
+ "kroshu/kuka_drivers@825e206e30": {
+  "is_the_bug": true,
+  "rule": "L001",
+  "note": "nonexistent joint_controller replaced by interpolating_controller"
+ },
+ "IMRCLab/crazyswarm2@38db625e62": {
+  "is_the_bug": true,
+  "rule": "N003",
+  "note": "wrong base frame cf1 replaced by cf231"
+ },
+ "turtlebot/turtlebot4@6e16274acd": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "joint_state_publisher depend added"
+ },
+ "dynamixel-community/dynamixel_hardware@181af064fe": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "ros_ign_gazebo depend added"
+ },
+ "UniversalRobots/Universal_Robots_ROS2_Driver@a3c9a1e9d6": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "Fix adds controller_manager to cmake; controller_interface finding side effect"
+ },
+ "MOLAorg/mola@cd27bc4fa6": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "cv_bridge/tf2_geometry_msgs/sensor_msgs depends added"
+ },
+ "LORD-MicroStrain/microstrain_inertial@bf38768ed9": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "stray undeclared find_package(rclpy) removed; build farm fix"
+ },
+ "IMRCLab/crazyswarm2@dc158bb120": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "T001 unrelated; commit links crazyflieLinkCpp"
+ },
+ "mavlink/mavros@b00265ffc6": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "P003 vanished via namespace change; not the duplicated-namespace bug"
+ },
+ "PickNikRobotics/ros2_robotiq_gripper@39df060341": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rsp/jsp_gui/rviz2 exec_depends added"
+ },
+ "dynamixel-community/dynamixel_hardware@961f5c708b": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "package name mismatch pan_tilt_bot vs pan_tilt_robot fixed"
+ },
+ "MRPT/mvsim@382b38bbc1": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "missing comma syntax error fixed"
+ },
+ "robosoft-ai/SMACC2@510683363b": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "example_interfaces depend added"
+ },
+ "blackcoffeerobotics/bcr_bot@ecb2949259": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "missing </xacro:if> closing tag added"
+ },
+ "open-rmf/rmf_demos@ccab4560d0": {
+  "is_the_bug": true,
+  "rule": "S001",
+  "note": "hardcoded use_sim_time true replaced with shared arg"
+ },
+ "ros-perception/image_pipeline@2dba426066": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_components depend added"
+ },
+ "ros2/rviz@6d776b9123": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "pluginlib/rclcpp/ament_index_cpp depends added"
+ },
+ "PlanSys2/ros2_planning_system@f6ccbea8e5": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "ament_index_cpp test_depend added"
+ },
+ "brukg/SO-100-arm@f39c70459e": {
+  "is_the_bug": true,
+  "rule": "C004",
+  "note": "JTC params moved into own ros__parameters section"
+ },
+ "ros-perception/image_pipeline@008b75ee1d": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp/rclcpp_components depends added"
+ },
+ "ros-controls/ros2_control@432ecad8ac": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rcl_interfaces exec_depend added"
+ },
+ "open-rmf/rmf_traffic_editor@2a4dd6c5d0": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "geometry_msgs depend added"
+ },
+ "IntelRealSense/realsense-ros@eaffca9702": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "std_srvs depend added"
+ },
+ "cra-ros-pkg/robot_localization@4392935a65": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "merge conflict markers removed from launch XML"
+ },
+ "dynamixel-community/dynamixel_hardware@7437abae4d": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "gazebo_ros depend added"
+ },
+ "ROBOTIS-GIT/turtlebot3@01afa42412": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "turtlebot3_node depend added"
+ },
+ "ros2/cartographer_ros@098e6bf855": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "Fix is multiple main definitions in CMake; findings unrelated"
+ },
+ "ros2/rviz@3c84d62c14": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rviz_ogre_vendor depend added"
+ },
+ "uleroboticsgroup/yasmin@ff0062e76b": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rosidl_default_generators moved out of export into depend"
+ },
+ "IMRCLab/crazyswarm2@8f96525570": {
+  "is_the_bug": true,
+  "rule": "L001",
+  "note": "vel_mux.py renamed to vel_mux"
+ },
+ "open-rmf/rmf_demos@932e36073f": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "stray </node> making XML invalid removed"
+ },
+ "octomap/octomap@0c67470519": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "octomap build_depend added to octovis"
+ },
+ "uleroboticsgroup/yasmin@eeca2e5efe": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_action depend added"
+ },
+ "ros-planning/navigation2_tutorials@cb800b76d4": {
+  "is_the_bug": true,
+  "rule": "S002",
+  "note": "use_sim_time added to robot_state_publisher"
+ },
+ "MRPT/mvsim@ece7577a29": {
+  "is_the_bug": true,
+  "rule": "P003",
+  "note": "show_gui renamed to headless"
+ },
+ "autowarefoundation/agnocast@d34959fe8b": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_component typo fixed to rclcpp_components"
+ },
+ "ros-industrial/ros2_canopen@b7a63e0dbe": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "ros2_canopen_interfaces depend added"
+ },
+ "mavlink/mavros@22d338ce13": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rcl_interfaces depend added to mavros_msgs"
+ },
+ "ros-controls/ros2_control_demos@f5e163d4e0": {
+  "is_the_bug": true,
+  "rule": "C008",
+  "note": "spawner used parameter= so controller never spawned; fixed"
+ },
+ "swri-robotics/novatel_gps_driver@db5f24cd13": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp_components depend added"
+ },
+ "ros-drivers/joystick_drivers@f06aece475": {
+  "is_the_bug": true,
+  "rule": "L001",
+  "note": "executable renamed to spacenav_node"
+ },
+ "introlab/rtabmap_ros@a74c3acda5": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "apriltag_msgs depend added"
+ },
+ "selfpatch/ros2_medkit@19eb62c9c5": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "diagnostic_msgs depend added"
+ },
+ "ros-controls/gz_ros2_control@e3168db909": {
+  "is_the_bug": true,
+  "rule": "S002",
+  "note": "use_sim_time passed to robot_state_publisher"
+ },
+ "autowarefoundation/agnocast@14e3bda98e": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "agnocast_components depend added"
+ },
+ "open-rmf/rmf_demos@c7e2c22c38": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "ros_ign_bridge exec_depend added"
+ },
+ "open-rmf/rmf_demos@9bdd28ff2d": {
+  "is_the_bug": true,
+  "rule": "L005",
+  "note": "launch file including nonexistent file removed"
+ },
+ "ros-industrial/ros2_canopen@4044dcf0f1": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "canopen_proxy_driver/std_srvs depends added"
+ },
+ "ros-industrial/ros2_canopen@f12cc551e8": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "canopen_402_driver depend added"
+ },
+ "selfpatch/ros2_medkit@ef35fd6cbf": {
+  "is_the_bug": true,
+  "rule": "P002",
+  "note": "locking section moved under ros__parameters"
+ },
+ "MRPT/mrpt@bc0d8f6653": {
+  "is_the_bug": true,
+  "rule": "R001",
+  "note": "broken depend tag fixed"
+ },
+ "IMRCLab/crazyswarm2@1a3a98104d": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "T001 unrelated; fix is teleop.yaml path"
+ },
+ "robosoft-ai/SMACC2@a99ec6bf77": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "slam_toolbox depend added to sm_dance_bot"
+ },
+ "IMRCLab/crazyswarm2@23ef94a897": {
+  "is_the_bug": false,
+  "rule": null,
+  "note": "T001 unrelated; fix adds ros_environment depend"
+ },
+ "IMRCLab/crazyswarm2@a880749184": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "joy exec_depend added"
+ },
+ "PlanSys2/ros2_planning_system@de6b129986": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "rclcpp depend added"
+ },
+ "ros2/rclpy@e545f60c5c": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "type_description_interfaces/service_msgs depends added"
+ },
+ "ROBOTIS-GIT/turtlebot3@81d01664f6": {
+  "is_the_bug": true,
+  "rule": "L002",
+  "note": "robot_state_publisher/rviz2 depends added"
+ },
+ "moveit/moveit2_tutorials@9b1e55f2d6": {
+  "is_the_bug": true,
+  "rule": "P003",
+  "note": "leading slash removed from frame_id/child_frame_id param names"
+ }
+}

@@ -1,0 +1,100 @@
+[
+ {
+  "tid": "A001-000",
+  "rule": "A001",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "LaunchConfiguration('reference') used, but file declares 'reference_name' instead; no includer exists. Launch fails without reference:=."
+ },
+ {
+  "tid": "A001-001",
+  "rule": "A001",
+  "verdict": "fp",
+  "fp_cause": "Include-only boilerplate; robot bringup packages include it with launch_arguments",
+  "rationale": "README: common boilerplate for all robots; file declares no args (even params_file, map), so it is meant to be included with arguments."
+ },
+ {
+  "tid": "A001-002",
+  "rule": "A001",
+  "verdict": "fp",
+  "fp_cause": "Include-only boilerplate; robot bringup packages include it with launch_arguments",
+  "rationale": "Same file as A001-001: namespace supplied by including robot bringup launch files; file intentionally declares nothing."
+ },
+ {
+  "tid": "A001-003",
+  "rule": "A001",
+  "verdict": "fp",
+  "fp_cause": "Reference is inside a commented-out code block",
+  "rationale": "Line 117 is a commented-out rviz2 Node; run_rviz is never evaluated at launch."
+ },
+ {
+  "tid": "A001-004",
+  "rule": "A001",
+  "verdict": "fp",
+  "fp_cause": "Dynamic include path in gz_components.launch.py OpaqueFunction passes gz_bridge_name",
+  "rationale": "gz_components.launch.py includes gz_<name>.launch.py (name=kinova_6dof) with launch_arguments gz_bridge_name; path built from list substitution."
+ },
+ {
+  "tid": "A001-005",
+  "rule": "A001",
+  "verdict": "fp",
+  "fp_cause": "Dynamic include path in gz_components.launch.py OpaqueFunction passes gz_bridge_name",
+  "rationale": "gz_components.launch.py includes gz_<name>.launch.py (kinova_7dof) with gz_bridge_name launch argument."
+ },
+ {
+  "tid": "A002-006",
+  "rule": "A002",
+  "verdict": "tp_intentional",
+  "fp_cause": "",
+  "rationale": "platform_extras.launch.py is an empty stub: only declares arguments, no actions; placeholder template, so use_sim_time unused by design."
+ },
+ {
+  "tid": "A002-007",
+  "rule": "A002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "output_final_position declared but never referenced; nodes use only parameter files. Leftover from ROS 1 port."
+ },
+ {
+  "tid": "A002-008",
+  "rule": "A002",
+  "verdict": "fp",
+  "fp_cause": "Arg consumed via $(var) in param file loaded with allow_substs=true",
+  "rationale": "lanelet2_map_loader.param.yaml has lanelet2_map_path: $(var lanelet2_map_path), loaded with allow_substs=\"true\"."
+ },
+ {
+  "tid": "A002-009",
+  "rule": "A002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "PUBLISH_FRAME declared but never referenced; static_transform_publisher runs unconditionally. ROS 1 leftover."
+ },
+ {
+  "tid": "A002-010",
+  "rule": "A002",
+  "verdict": "fp",
+  "fp_cause": "Arg consumed via $(var) in param file loaded with allow_substs=true",
+  "rationale": "lanelet2_map_loader.param.yaml references $(var lanelet2_map_metadata_path); loaded with allow_substs."
+ },
+ {
+  "tid": "A002-011",
+  "rule": "A002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "robot_name declared but no LaunchConfiguration('robot_name') anywhere in file; only namespace/use_sim_time used."
+ },
+ {
+  "tid": "A002-012",
+  "rule": "A002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "node_name declared but node name comes from component_name; node_name never referenced."
+ },
+ {
+  "tid": "A002-013",
+  "rule": "A002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "target_frame declared but no node in this launch reads it; listener node not launched here."
+ }
+]

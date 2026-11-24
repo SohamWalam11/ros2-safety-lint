@@ -1,0 +1,4 @@
+[
+{"id": "SICKAG/sick_scan_xd@788af1b87f", "misconfig_fix": "unsure", "category": "Packaging", "subcategory": "", "failure": "unknown", "static": "yes", "rationale": "catkin_lint fixes, project() moved first; diff truncated, real impact unclear."},
+{"id": "IMRCLab/crazyswarm2@ec415695e3", "misconfig_fix": "no", "category": "none", "subcategory": "", "failure": "unknown", "static": "no", "rationale": "Changes default teleop remappings; behaviour preference."}
+]

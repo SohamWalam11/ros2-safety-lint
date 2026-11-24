@@ -1,0 +1,4152 @@
+{
+ "4am-robotics/cob_common": {
+  "stars": 68,
+  "archived": false,
+  "pushed": "2026-08-25T11:26:44Z"
+ },
+ "adityapande-1995/linux_isolate_process": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2024-01-31T21:38:44Z"
+ },
+ "ADVRHumanoids/nicla_vision_ros2": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2025-11-12T13:35:30Z"
+ },
+ "AIS-Bonn/rot_conv_lib": {
+  "stars": 26,
+  "archived": false,
+  "pushed": "2022-04-04T08:04:31Z"
+ },
+ "ajtudela/laser_segmentation": {
+  "stars": 39,
+  "archived": false,
+  "pushed": "2026-09-07T08:59:40Z"
+ },
+ "ajtudela/rqt_lifecycle_manager": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-09-30T10:46:09Z"
+ },
+ "ajtudela/sicks300_ros2": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-11-04T12:01:58Z"
+ },
+ "ajtudela/slg_msgs": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-09-07T08:58:49Z"
+ },
+ "ali-pahlevani/2D_Scan_Merger_ROS2": {
+  "stars": 36,
+  "archived": false,
+  "pushed": "2026-07-23T07:19:47Z"
+ },
+ "alvinsunyixiao/vrpn_mocap": {
+  "stars": 41,
+  "archived": false,
+  "pushed": "2026-09-24T22:52:59Z"
+ },
+ "ament/ament_cmake": {
+  "stars": 126,
+  "archived": false,
+  "pushed": "2026-11-06T20:11:22Z"
+ },
+ "ament/ament_index": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-10-01T08:23:51Z"
+ },
+ "ament/ament_lint": {
+  "stars": 50,
+  "archived": false,
+  "pushed": "2026-11-13T17:41:17Z"
+ },
+ "ament/ament_package": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-09-29T21:22:21Z"
+ },
+ "ament/google_benchmark_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-10-01T08:23:41Z"
+ },
+ "ament/googletest": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-05-05T18:31:25Z"
+ },
+ "ament/uncrustify_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-01T08:23:32Z"
+ },
+ "analogdevicesinc/depth-obstacle-detect-ros": {
+  "stars": 23,
+  "archived": false,
+  "pushed": "2025-04-28T18:04:54Z"
+ },
+ "analogdevicesinc/iio_ros2": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-07T11:29:08Z"
+ },
+ "analogdevicesinc/imu_ros2": {
+  "stars": 34,
+  "archived": false,
+  "pushed": "2026-09-02T13:16:22Z"
+ },
+ "analogdevicesinc/libaditof": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-19T11:22:38Z"
+ },
+ "AndrejOrsula/pymoveit2": {
+  "stars": 368,
+  "archived": false,
+  "pushed": "2026-11-19T19:44:58Z"
+ },
+ "ANYbotics/grid_map": {
+  "stars": 3273,
+  "archived": false,
+  "pushed": "2026-11-15T05:25:10Z"
+ },
+ "apl-ocean-engineering/marine_msgs": {
+  "stars": 52,
+  "archived": false,
+  "pushed": "2025-11-21T15:06:07Z"
+ },
+ "AprilRobotics/apriltag": {
+  "stars": 2622,
+  "archived": false,
+  "pushed": "2026-08-07T17:19:29Z"
+ },
+ "argallab/potential_fields": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-04-05T21:15:26Z"
+ },
+ "astuff/astuff_sensor_msgs": {
+  "stars": 47,
+  "archived": false,
+  "pushed": "2023-04-25T14:01:09Z"
+ },
+ "astuff/automotive_autonomy_msgs": {
+  "stars": 20,
+  "archived": false,
+  "pushed": "2021-08-25T13:30:57Z"
+ },
+ "astuff/avt_vimba_camera": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2023-06-18T22:10:02Z"
+ },
+ "aussierobots/ublox_dgnss": {
+  "stars": 85,
+  "archived": false,
+  "pushed": "2026-10-09T18:58:21Z"
+ },
+ "AutoAPMS/auto-apms": {
+  "stars": 106,
+  "archived": false,
+  "pushed": "2026-11-17T06:02:23Z"
+ },
+ "automatika-robotics/kompass": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2026-10-22T09:29:58Z"
+ },
+ "automatika-robotics/ros-agents": {
+  "stars": 75,
+  "archived": false,
+  "pushed": "2026-10-21T08:35:52Z"
+ },
+ "automatika-robotics/ros-sugar": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2026-10-21T09:10:16Z"
+ },
+ "Autoware-AI/qpoases_vendor": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2022-05-23T22:33:12Z"
+ },
+ "autowarefoundation/agnocast": {
+  "stars": 214,
+  "archived": false,
+  "pushed": "2026-11-20T00:30:09Z"
+ },
+ "autowarefoundation/autoware_adapi_msgs": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-10-31T03:16:57Z"
+ },
+ "autowarefoundation/autoware_cmake": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T06:51:59Z"
+ },
+ "autowarefoundation/autoware_core": {
+  "stars": 191,
+  "archived": false,
+  "pushed": "2026-11-19T09:38:49Z"
+ },
+ "autowarefoundation/autoware_internal_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-11T04:01:16Z"
+ },
+ "autowarefoundation/autoware_lanelet2_extension": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-11-19T06:16:20Z"
+ },
+ "autowarefoundation/autoware_msgs": {
+  "stars": 42,
+  "archived": false,
+  "pushed": "2026-10-31T04:02:12Z"
+ },
+ "autowarefoundation/autoware_utils": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-10-31T04:03:14Z"
+ },
+ "autowarefoundation/callback_isolated_executor": {
+  "stars": 79,
+  "archived": false,
+  "pushed": "2026-10-27T15:09:38Z"
+ },
+ "autowarefoundation/ros2_socketcan": {
+  "stars": 197,
+  "archived": false,
+  "pushed": "2026-09-07T19:59:38Z"
+ },
+ "autowarefoundation/tvm_vendor": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2023-01-24T04:48:39Z"
+ },
+ "autowarefoundation/zmqpp_vendor": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-12-22T11:01:41Z"
+ },
+ "aws-robotics/aws-robomaker-small-warehouse-world": {
+  "stars": 491,
+  "archived": true,
+  "pushed": "2026-07-21T21:33:54Z"
+ },
+ "Azure/azure-iot-sdk-c": {
+  "stars": 620,
+  "archived": false,
+  "pushed": "2026-11-19T22:58:28Z"
+ },
+ "b-robotized/ads_vendor": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-09-23T16:11:32Z"
+ },
+ "b-robotized/b_robotized_moveit_plugins": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-15T21:22:49Z"
+ },
+ "Beam-and-Spyrosoft/rtest": {
+  "stars": 136,
+  "archived": false,
+  "pushed": "2026-10-21T09:45:30Z"
+ },
+ "BehaviorTree/BehaviorTree.CPP": {
+  "stars": 4304,
+  "archived": false,
+  "pushed": "2026-11-13T15:22:40Z"
+ },
+ "blackcoffeerobotics/bcr_arm": {
+  "stars": 90,
+  "archived": false,
+  "pushed": "2026-01-03T14:18:44Z"
+ },
+ "blackcoffeerobotics/bcr_bot": {
+  "stars": 433,
+  "archived": false,
+  "pushed": "2026-09-22T08:56:23Z"
+ },
+ "blackcoffeerobotics/vector_pursuit_controller": {
+  "stars": 106,
+  "archived": false,
+  "pushed": "2026-10-05T15:19:04Z"
+ },
+ "borglab/gtsam": {
+  "stars": 3798,
+  "archived": false,
+  "pushed": "2026-11-18T13:06:28Z"
+ },
+ "bosch-engineering/off_highway_sensor_drivers": {
+  "stars": 80,
+  "archived": false,
+  "pushed": "2026-11-11T06:26:18Z"
+ },
+ "boschresearch/fmi_adapter": {
+  "stars": 52,
+  "archived": false,
+  "pushed": "2026-05-21T17:14:37Z"
+ },
+ "boschresearch/fmilibrary_vendor": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-05-21T17:17:38Z"
+ },
+ "botsandus/ament_black": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-09T08:47:12Z"
+ },
+ "brow1633/network_bridge": {
+  "stars": 53,
+  "archived": false,
+  "pushed": "2026-10-12T05:35:13Z"
+ },
+ "BruceChanJianLe/laser_scan_merger": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-07-03T06:27:17Z"
+ },
+ "brukg/SO-100-arm": {
+  "stars": 141,
+  "archived": false,
+  "pushed": "2026-08-05T11:53:36Z"
+ },
+ "brukg/so_arm_100_hardware": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-03-20T20:15:37Z"
+ },
+ "Bynn-Intelligence/decision-node-ros2": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-20T14:35:20Z"
+ },
+ "canonical/ros_snapd_interfaces": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-07-17T12:37:31Z"
+ },
+ "carologistics/clips_executive": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-11-08T18:16:04Z"
+ },
+ "carologistics/clips_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-06-26T16:13:03Z"
+ },
+ "CCNYRoboticsLab/imu_tools": {
+  "stars": 1144,
+  "archived": false,
+  "pushed": "2026-09-17T13:20:20Z"
+ },
+ "cellumation/cm_executors": {
+  "stars": 29,
+  "archived": false,
+  "pushed": "2026-07-20T11:23:38Z"
+ },
+ "chapulina/dolly": {
+  "stars": 241,
+  "archived": false,
+  "pushed": "2024-03-14T00:17:05Z"
+ },
+ "chrisib/open_sound_control_ros": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-03-19T04:02:17Z"
+ },
+ "christianrauch/apriltag_msgs": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-05-22T23:04:24Z"
+ },
+ "christianrauch/apriltag_ros": {
+  "stars": 381,
+  "archived": false,
+  "pushed": "2026-11-01T16:24:24Z"
+ },
+ "christianrauch/camera_ros": {
+  "stars": 172,
+  "archived": false,
+  "pushed": "2026-11-06T21:33:16Z"
+ },
+ "clalancette/sophus": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2024-06-06T14:07:55Z"
+ },
+ "clearpathrobotics/canopen_inventus": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2025-06-25T16:04:54Z"
+ },
+ "clearpathrobotics/clearpath_common": {
+  "stars": 64,
+  "archived": false,
+  "pushed": "2026-11-20T02:05:43Z"
+ },
+ "clearpathrobotics/clearpath_config": {
+  "stars": 28,
+  "archived": false,
+  "pushed": "2026-11-16T15:50:50Z"
+ },
+ "clearpathrobotics/clearpath_desktop": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-03T12:53:50Z"
+ },
+ "clearpathrobotics/clearpath_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-04T20:57:52Z"
+ },
+ "clearpathrobotics/clearpath_nav2_demos": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-11-03T14:12:30Z"
+ },
+ "clearpathrobotics/clearpath_ros2_socketcan_interface": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-10-20T17:27:08Z"
+ },
+ "clearpathrobotics/clearpath_simulator": {
+  "stars": 53,
+  "archived": false,
+  "pushed": "2026-11-11T14:02:03Z"
+ },
+ "clearpathrobotics/clearpath_tests": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-04-24T19:47:59Z"
+ },
+ "clearpathrobotics/ewellix_lift_common": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-03-11T15:44:42Z"
+ },
+ "clearpathrobotics/LMS1xx": {
+  "stars": 59,
+  "archived": false,
+  "pushed": "2024-08-27T19:38:30Z"
+ },
+ "clearpathrobotics/ptz_action_server": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-26T19:01:12Z"
+ },
+ "clearpathrobotics/robot_upstart": {
+  "stars": 208,
+  "archived": false,
+  "pushed": "2026-11-02T09:50:17Z"
+ },
+ "clearpathrobotics/simple-term-menu": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2022-12-19T18:27:10Z"
+ },
+ "clearpathrobotics/wireless": {
+  "stars": 27,
+  "archived": false,
+  "pushed": "2026-11-17T00:16:51Z"
+ },
+ "cnurobotics/ros2_snapshot": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-04-30T03:18:38Z"
+ },
+ "coal-library/coal": {
+  "stars": 668,
+  "archived": false,
+  "pushed": "2026-11-05T09:58:12Z"
+ },
+ "codevilot/ros2-helper": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-07-16T08:17:15Z"
+ },
+ "cps-test-lab/scenario-execution": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-11-18T15:31:51Z"
+ },
+ "cra-ros-pkg/robot_localization": {
+  "stars": 1990,
+  "archived": false,
+  "pushed": "2026-11-02T10:04:08Z"
+ },
+ "ctu-vras/compass": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-08-23T04:17:10Z"
+ },
+ "ctu-vras/cras_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-07-31T11:18:13Z"
+ },
+ "ctu-vras/ros-utils": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-18T23:31:41Z"
+ },
+ "cubicleguy/ess_imu_driver2": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-11-20T03:52:09Z"
+ },
+ "cyan-at/ros2_eventdispatch": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-06T19:57:24Z"
+ },
+ "cyberbotics/webots_ros2": {
+  "stars": 552,
+  "archived": false,
+  "pushed": "2026-11-19T12:06:22Z"
+ },
+ "damanikjosh/heightmap_spawner": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2025-01-30T20:37:46Z"
+ },
+ "danielcranston/crx_kinematics": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-05-23T12:02:46Z"
+ },
+ "david-dorf/lightning_rrt": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-02-15T18:41:40Z"
+ },
+ "david-dorf/lightning_rrt_interfaces": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-02-15T18:48:39Z"
+ },
+ "DFKI-NI/mir_robot": {
+  "stars": 285,
+  "archived": false,
+  "pushed": "2026-11-17T10:57:15Z"
+ },
+ "DFKI-NI/rospy_message_converter": {
+  "stars": 234,
+  "archived": false,
+  "pushed": "2026-09-17T13:36:59Z"
+ },
+ "dfki-ric/better_launch": {
+  "stars": 279,
+  "archived": false,
+  "pushed": "2026-11-13T12:37:47Z"
+ },
+ "DLu/simple_actions": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-02-27T17:17:43Z"
+ },
+ "DLu/tf_transformations": {
+  "stars": 58,
+  "archived": false,
+  "pushed": "2026-10-26T00:33:38Z"
+ },
+ "Doribelove/IGO_planner": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-20T02:34:59Z"
+ },
+ "dtrugman/pfs": {
+  "stars": 128,
+  "archived": false,
+  "pushed": "2026-05-09T19:46:43Z"
+ },
+ "dynamixel-community/dynamixel_hardware": {
+  "stars": 155,
+  "archived": true,
+  "pushed": "2026-07-26T04:04:10Z"
+ },
+ "EasyNavigation/easynav_nav2_bridge": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-10-10T06:47:58Z"
+ },
+ "EasyNavigation/easynav_playgrounds": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-10T12:09:47Z"
+ },
+ "EasyNavigation/easynav_plugins": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-14T07:15:31Z"
+ },
+ "EasyNavigation/EasyNavigation": {
+  "stars": 132,
+  "archived": false,
+  "pushed": "2026-11-03T11:32:03Z"
+ },
+ "EasyNavigation/NavMap": {
+  "stars": 112,
+  "archived": false,
+  "pushed": "2026-11-14T07:15:29Z"
+ },
+ "eclipse-cyclonedds/cyclonedds": {
+  "stars": 1369,
+  "archived": false,
+  "pushed": "2026-11-19T09:58:48Z"
+ },
+ "eclipse-ecal/ecal": {
+  "stars": 1060,
+  "archived": false,
+  "pushed": "2026-11-19T12:53:04Z"
+ },
+ "eclipse-iceoryx/iceoryx": {
+  "stars": 2212,
+  "archived": false,
+  "pushed": "2026-08-18T08:20:24Z"
+ },
+ "eclipse-zenoh/zenoh-plugin-dds": {
+  "stars": 227,
+  "archived": false,
+  "pushed": "2026-11-02T00:16:16Z"
+ },
+ "Ekumen-OS/beluga": {
+  "stars": 332,
+  "archived": false,
+  "pushed": "2026-11-20T03:00:08Z"
+ },
+ "EliteRobots/Elite_Robots_CS_ROS2_Description": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-03T09:40:04Z"
+ },
+ "EliteRobots/Elite_Robots_CS_ROS2_Driver": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-03T09:31:36Z"
+ },
+ "EliteRobots/Elite_Robots_CS_SDK": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-08-28T11:38:08Z"
+ },
+ "eProsima/Fast-CDR": {
+  "stars": 194,
+  "archived": false,
+  "pushed": "2026-11-19T13:47:30Z"
+ },
+ "eProsima/Fast-DDS": {
+  "stars": 2955,
+  "archived": false,
+  "pushed": "2026-11-19T13:59:55Z"
+ },
+ "eProsima/foonathan_memory_vendor": {
+  "stars": 37,
+  "archived": false,
+  "pushed": "2026-02-25T09:53:09Z"
+ },
+ "ethz-asl/libnabo": {
+  "stars": 491,
+  "archived": false,
+  "pushed": "2026-11-05T17:28:06Z"
+ },
+ "facontidavide/cloudini": {
+  "stars": 568,
+  "archived": false,
+  "pushed": "2026-11-20T00:02:33Z"
+ },
+ "facontidavide/plotjuggler_msgs": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2025-06-06T07:20:52Z"
+ },
+ "facontidavide/rosx_introspection": {
+  "stars": 102,
+  "archived": false,
+  "pushed": "2026-11-16T21:16:02Z"
+ },
+ "farshad-heravi/web_tf_editor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-09-27T16:49:54Z"
+ },
+ "fawkesrobotics/protobuf_comm": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-06-25T14:39:41Z"
+ },
+ "fictionlab/ros_aruco_opencv": {
+  "stars": 37,
+  "archived": false,
+  "pushed": "2026-06-22T14:46:55Z"
+ },
+ "fictionlab/rosbag2_to_video": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-05-05T11:27:07Z"
+ },
+ "Fields2Cover/fields2cover": {
+  "stars": 932,
+  "archived": false,
+  "pushed": "2026-11-17T21:09:23Z"
+ },
+ "Fields2Cover/ortools_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-12T11:39:28Z"
+ },
+ "fkie/async_web_server_cpp": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-05-06T20:47:49Z"
+ },
+ "fkie/fkie-multi-agent-suite": {
+  "stars": 43,
+  "archived": false,
+  "pushed": "2026-11-17T10:47:03Z"
+ },
+ "fkie/live555_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-12-16T20:49:12Z"
+ },
+ "fkie/message_filters": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-10-05T20:26:33Z"
+ },
+ "fkie/potree_rviz_plugin": {
+  "stars": 27,
+  "archived": false,
+  "pushed": "2026-02-05T15:06:29Z"
+ },
+ "fkie/rtsp_image_transport": {
+  "stars": 16,
+  "archived": false,
+  "pushed": "2026-07-14T13:20:49Z"
+ },
+ "flexbe/flexbe_behavior_engine": {
+  "stars": 77,
+  "archived": false,
+  "pushed": "2026-05-20T02:59:41Z"
+ },
+ "flynneva/bno055": {
+  "stars": 134,
+  "archived": false,
+  "pushed": "2024-02-17T17:15:08Z"
+ },
+ "flynneva/grbl_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2020-10-12T20:01:01Z"
+ },
+ "flynneva/grbl_ros": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2023-05-07T04:43:34Z"
+ },
+ "flynneva/udp_msgs": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2024-07-02T14:07:42Z"
+ },
+ "fmrico/cascade_lifecycle": {
+  "stars": 80,
+  "archived": false,
+  "pushed": "2026-10-21T07:50:53Z"
+ },
+ "fmrico/popf": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-10-21T05:16:03Z"
+ },
+ "fmrico/yaets": {
+  "stars": 91,
+  "archived": false,
+  "pushed": "2026-10-10T06:19:51Z"
+ },
+ "ForteFibre/FluentRviz": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2023-08-18T12:50:04Z"
+ },
+ "ForteFibre/parameter_expression": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-08-16T03:44:02Z"
+ },
+ "foxglove/foxglove-sdk": {
+  "stars": 325,
+  "archived": false,
+  "pushed": "2026-11-20T03:22:01Z"
+ },
+ "FraunhoferIOSB/camera_aravis2": {
+  "stars": 51,
+  "archived": false,
+  "pushed": "2026-11-19T10:09:36Z"
+ },
+ "FraunhoferIOSB/multisensor_calibration": {
+  "stars": 138,
+  "archived": false,
+  "pushed": "2026-10-30T11:41:49Z"
+ },
+ "frozenreboot/rplidar_driver": {
+  "stars": 49,
+  "archived": false,
+  "pushed": "2026-10-05T18:55:31Z"
+ },
+ "fujitatomoya/rcl_logging_syslog": {
+  "stars": 114,
+  "archived": false,
+  "pushed": "2026-09-13T00:51:14Z"
+ },
+ "fujitatomoya/ros2_persist_parameter_server": {
+  "stars": 119,
+  "archived": false,
+  "pushed": "2026-10-22T19:12:18Z"
+ },
+ "fujitatomoya/ros2ai": {
+  "stars": 340,
+  "archived": false,
+  "pushed": "2026-11-12T22:34:43Z"
+ },
+ "fzi-forschungszentrum-informatik/lanelet2": {
+  "stars": 977,
+  "archived": false,
+  "pushed": "2026-10-10T21:39:52Z"
+ },
+ "gazebo-release/gz_cmake_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:12:50Z"
+ },
+ "gazebo-release/gz_common_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-20T00:34:32Z"
+ },
+ "gazebo-release/gz_dartsim_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-30T18:28:06Z"
+ },
+ "gazebo-release/gz_fuel_tools_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-07T04:43:15Z"
+ },
+ "gazebo-release/gz_gui_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-18T21:07:36Z"
+ },
+ "gazebo-release/gz_launch_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:12:53Z"
+ },
+ "gazebo-release/gz_math_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-10-07T04:36:17Z"
+ },
+ "gazebo-release/gz_msgs_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:12:55Z"
+ },
+ "gazebo-release/gz_ogre_next_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-04-30T15:16:34Z"
+ },
+ "gazebo-release/gz_physics_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:12:57Z"
+ },
+ "gazebo-release/gz_plugin_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-07T04:37:16Z"
+ },
+ "gazebo-release/gz_rendering_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:13:03Z"
+ },
+ "gazebo-release/gz_sensors_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-23T16:48:25Z"
+ },
+ "gazebo-release/gz_sim_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T10:06:22Z"
+ },
+ "gazebo-release/gz_tools_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-09-04T13:33:21Z"
+ },
+ "gazebo-release/gz_transport_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-18T21:07:41Z"
+ },
+ "gazebo-release/gz_utils_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T09:12:45Z"
+ },
+ "gazebo-release/sdformat_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-07T04:40:55Z"
+ },
+ "gazebosim/ros_gz": {
+  "stars": 552,
+  "archived": false,
+  "pushed": "2026-11-19T14:34:03Z"
+ },
+ "gepetto/example-robot-descriptions": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-11T09:30:09Z"
+ },
+ "Geson-anko/numpy_ndarray_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-03-27T00:54:21Z"
+ },
+ "gstavrinos/doom_ros": {
+  "stars": 41,
+  "archived": false,
+  "pushed": "2025-03-05T20:58:15Z"
+ },
+ "gstavrinos/odom_to_tf_ros2": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-10-01T18:55:07Z"
+ },
+ "gstavrinos/video_to_image_msg_publisher": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-06-09T16:38:17Z"
+ },
+ "hatchbed/asyncapi_gencpp": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2022-07-29T16:09:26Z"
+ },
+ "hatchbed/hatchbed_common": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-10-20T14:35:25Z"
+ },
+ "hatchbed/log_view": {
+  "stars": 76,
+  "archived": false,
+  "pushed": "2026-10-20T14:35:56Z"
+ },
+ "hatchbed/opensw": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2022-10-12T01:50:07Z"
+ },
+ "hatchbed/opensw_ros": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2022-10-12T01:56:38Z"
+ },
+ "HayatoShimada/trackdlo_perception": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-05-14T01:59:12Z"
+ },
+ "hbanzhaf/steering_functions": {
+  "stars": 259,
+  "archived": false,
+  "pushed": "2024-06-29T12:51:02Z"
+ },
+ "HebiRobotics/hebi_cpp_api_ros": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-01-07T19:38:39Z"
+ },
+ "HebiRobotics/hebi_hardware": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-12-16T21:23:55Z"
+ },
+ "HebiRobotics/hebi_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-09-24T14:13:15Z"
+ },
+ "HexboxRC/scan_detection_fusion": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-09-06T16:12:34Z"
+ },
+ "hiran-t/MITI-sdk": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-05T07:55:29Z"
+ },
+ "HowardWhile/ros2_cheese": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-07T14:47:47Z"
+ },
+ "humanoid-path-planner/hpp-fcl": {
+  "stars": 668,
+  "archived": false,
+  "pushed": "2026-11-05T09:58:12Z"
+ },
+ "hungpham2511/toppra": {
+  "stars": 948,
+  "archived": false,
+  "pushed": "2026-11-05T11:46:40Z"
+ },
+ "husarion/husarion_components_description": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-17T16:03:59Z"
+ },
+ "husarion/husarion_controllers": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-13T08:57:17Z"
+ },
+ "husarion/husarion_gz_worlds": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-06-22T07:48:16Z"
+ },
+ "husarion/husarion_ugv_ros": {
+  "stars": 89,
+  "archived": false,
+  "pushed": "2026-11-17T20:37:26Z"
+ },
+ "husarion/rosbot-firmware": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-18T09:09:51Z"
+ },
+ "husarion/rosbot_ros": {
+  "stars": 194,
+  "archived": false,
+  "pushed": "2026-11-18T15:39:07Z"
+ },
+ "husarion/tf_namespace_bridge": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-08-25T12:10:19Z"
+ },
+ "ignitionrobotics/ign-rviz": {
+  "stars": 58,
+  "archived": false,
+  "pushed": "2023-05-31T16:48:23Z"
+ },
+ "ijnek/nao_button_sim": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-06-14T16:22:42Z"
+ },
+ "ijnek/nao_interfaces": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-06-14T16:15:27Z"
+ },
+ "ika-rwth-aachen/etsi_its_messages": {
+  "stars": 83,
+  "archived": false,
+  "pushed": "2026-10-28T13:59:35Z"
+ },
+ "ika-rwth-aachen/message_tf_frame_transformer": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-10-31T11:36:07Z"
+ },
+ "ika-rwth-aachen/mqtt_client": {
+  "stars": 304,
+  "archived": false,
+  "pushed": "2026-11-11T13:57:18Z"
+ },
+ "ika-rwth-aachen/ros2_unbag": {
+  "stars": 204,
+  "archived": false,
+  "pushed": "2026-11-06T19:07:10Z"
+ },
+ "IMRCLab/crazyswarm2": {
+  "stars": 266,
+  "archived": false,
+  "pushed": "2026-11-19T15:11:42Z"
+ },
+ "IMRCLab/motion_capture_tracking": {
+  "stars": 85,
+  "archived": false,
+  "pushed": "2026-07-25T21:06:07Z"
+ },
+ "IntellectusCorp/rmw_int2dds": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-17T00:08:16Z"
+ },
+ "IntelRealSense/librealsense": {
+  "stars": 9104,
+  "archived": false,
+  "pushed": "2026-11-19T21:44:04Z"
+ },
+ "IntelRealSense/realsense-ros": {
+  "stars": 3487,
+  "archived": false,
+  "pushed": "2026-11-15T14:48:08Z"
+ },
+ "introlab/find-object": {
+  "stars": 483,
+  "archived": false,
+  "pushed": "2026-10-26T15:04:24Z"
+ },
+ "introlab/rtabmap": {
+  "stars": 4114,
+  "archived": false,
+  "pushed": "2026-11-17T17:49:40Z"
+ },
+ "introlab/rtabmap_ros": {
+  "stars": 1558,
+  "archived": false,
+  "pushed": "2026-11-16T02:34:05Z"
+ },
+ "ipa320/ros_battery_monitoring": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-05-16T16:38:32Z"
+ },
+ "ipa320/rqt_frame_editor_plugin": {
+  "stars": 65,
+  "archived": false,
+  "pushed": "2026-02-17T12:15:02Z"
+ },
+ "iRobotEducation/create3_examples": {
+  "stars": 63,
+  "archived": false,
+  "pushed": "2024-09-28T16:34:25Z"
+ },
+ "iRobotEducation/create3_sim": {
+  "stars": 133,
+  "archived": false,
+  "pushed": "2026-09-25T06:22:45Z"
+ },
+ "iRobotEducation/irobot_create_msgs": {
+  "stars": 37,
+  "archived": false,
+  "pushed": "2024-06-15T17:09:43Z"
+ },
+ "JafarAbdi/jacro": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-11-21T04:16:51Z"
+ },
+ "Jannkar/turtle_nest": {
+  "stars": 210,
+  "archived": false,
+  "pushed": "2025-11-16T09:16:37Z"
+ },
+ "jlblancoc/nanoflann": {
+  "stars": 2708,
+  "archived": false,
+  "pushed": "2026-11-14T22:18:01Z"
+ },
+ "joshnewans/joy_tester": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2024-11-16T02:46:18Z"
+ },
+ "joshnewans/twist_stamper": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2024-11-16T02:48:07Z"
+ },
+ "jrl-umi3218/jrl-cmakemodules": {
+  "stars": 78,
+  "archived": false,
+  "pushed": "2026-11-16T16:24:55Z"
+ },
+ "jsk-ros-pkg/jsk_common_msgs": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-09-06T06:20:55Z"
+ },
+ "julianmueller/insight_gui": {
+  "stars": 72,
+  "archived": false,
+  "pushed": "2026-04-26T20:50:22Z"
+ },
+ "KaushalrajPuwar/adaptive-bridge": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-09-30T17:33:45Z"
+ },
+ "Kinovarobotics/ros2_kortex": {
+  "stars": 135,
+  "archived": false,
+  "pushed": "2026-10-08T20:25:30Z"
+ },
+ "KIT-MRT/mrt_cmake_modules": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2024-09-20T07:48:07Z"
+ },
+ "kobuki-base/kobuki_core": {
+  "stars": 21,
+  "archived": false,
+  "pushed": "2025-05-20T19:16:37Z"
+ },
+ "kobuki-base/kobuki_ros_interfaces": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2020-08-30T15:58:05Z"
+ },
+ "kobuki-base/kobuki_velocity_smoother": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-02-24T19:29:18Z"
+ },
+ "kroshu/kuka-external-control-sdk": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-11-18T15:46:51Z"
+ },
+ "kroshu/kuka_drivers": {
+  "stars": 193,
+  "archived": false,
+  "pushed": "2026-11-18T14:08:00Z"
+ },
+ "ksatyaki/ros2_node_inspector": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-06-27T20:39:17Z"
+ },
+ "kuka-ros/kuka_drivers": {
+  "stars": 0,
+  "archived": true,
+  "pushed": "2026-11-13T11:11:58Z"
+ },
+ "kuka-ros/kuka_external_control_sdk": {
+  "stars": 0,
+  "archived": true,
+  "pushed": "2026-11-05T09:09:32Z"
+ },
+ "kuka-ros/kuka_robot_descriptions": {
+  "stars": 4,
+  "archived": true,
+  "pushed": "2026-11-04T00:07:02Z"
+ },
+ "KumarRobotics/ublox": {
+  "stars": 540,
+  "archived": false,
+  "pushed": "2026-08-21T14:47:48Z"
+ },
+ "lagadic/visp": {
+  "stars": 945,
+  "archived": false,
+  "pushed": "2026-11-19T06:53:16Z"
+ },
+ "LaurusAg/cartesian_limit_adapter": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-13T19:11:27Z"
+ },
+ "lazytatzv/libbno055-linux": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-08-23T03:14:51Z"
+ },
+ "LeoRover/leo_common-ros2": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-08-20T22:14:35Z"
+ },
+ "LeoRover/leo_desktop-ros2": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-05-27T12:34:23Z"
+ },
+ "LeoRover/leo_examples-ros2": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-06-29T13:42:41Z"
+ },
+ "LeoRover/leo_robot-ros2": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-08-19T09:44:00Z"
+ },
+ "LeoRover/leo_simulator-ros2": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2025-04-11T15:10:28Z"
+ },
+ "lgsvl/lgsvl_msgs": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2020-12-14T20:50:03Z"
+ },
+ "li9i/hitch-estimation-apriltag-array": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-06-27T13:41:36Z"
+ },
+ "li9i/pointcloud-conversions": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-07-28T07:17:26Z"
+ },
+ "li9i/pointcloud-to-ply": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-06-06T18:33:09Z"
+ },
+ "loco-3d/crocoddyl": {
+  "stars": 1333,
+  "archived": false,
+  "pushed": "2026-11-16T21:42:11Z"
+ },
+ "loco-3d/linear-feedback-controller": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-11-10T11:40:15Z"
+ },
+ "loco-3d/linear-feedback-controller-msgs": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-17T17:57:29Z"
+ },
+ "loco-3d/ndcurves": {
+  "stars": 190,
+  "archived": false,
+  "pushed": "2026-11-05T21:21:33Z"
+ },
+ "locusrobotics/fuse": {
+  "stars": 884,
+  "archived": false,
+  "pushed": "2026-11-16T21:06:08Z"
+ },
+ "locusrobotics/tf2_2d": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-11-17T05:01:03Z"
+ },
+ "LOEWE-emergenCITY/ros2_babel_fish": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-10-13T17:24:04Z"
+ },
+ "LORD-MicroStrain/microstrain_inertial": {
+  "stars": 135,
+  "archived": false,
+  "pushed": "2026-11-18T20:14:41Z"
+ },
+ "LORD-MicroStrain/ntrip_client": {
+  "stars": 119,
+  "archived": false,
+  "pushed": "2026-04-21T18:03:17Z"
+ },
+ "luxonis/depthai-core": {
+  "stars": 365,
+  "archived": false,
+  "pushed": "2026-11-20T02:36:30Z"
+ },
+ "luxonis/depthai-ros": {
+  "stars": 365,
+  "archived": false,
+  "pushed": "2026-11-18T06:50:34Z"
+ },
+ "ma-shangao/at_sonde_ros_driver": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-06-22T17:23:33Z"
+ },
+ "manankharwar/fusioncore": {
+  "stars": 386,
+  "archived": false,
+  "pushed": "2026-11-19T02:18:24Z"
+ },
+ "mavlink/mavlink-gbp-release": {
+  "stars": 26,
+  "archived": false,
+  "pushed": "2025-09-09T07:11:31Z"
+ },
+ "mavlink/mavros": {
+  "stars": 1258,
+  "archived": false,
+  "pushed": "2026-11-20T03:44:49Z"
+ },
+ "MetroRobots/classic_bags": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-10-05T23:57:26Z"
+ },
+ "MetroRobots/color_util": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-05T23:57:13Z"
+ },
+ "MetroRobots/polygon_ros": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-10-05T23:57:09Z"
+ },
+ "MetroRobots/ros_system_fingerprint": {
+  "stars": 33,
+  "archived": false,
+  "pushed": "2026-10-05T23:57:24Z"
+ },
+ "micro-ROS/micro_ros_diagnostics": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2025-06-04T06:54:48Z"
+ },
+ "micro-ROS/micro_ros_msgs": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-10-08T07:55:46Z"
+ },
+ "micro-ROS/system_modes": {
+  "stars": 45,
+  "archived": false,
+  "pushed": "2025-08-08T06:54:38Z"
+ },
+ "mikeferguson/grasping_msgs": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2024-09-27T03:22:18Z"
+ },
+ "mikeferguson/robot_calibration": {
+  "stars": 507,
+  "archived": false,
+  "pushed": "2026-08-10T13:08:49Z"
+ },
+ "mikeferguson/simple_grasping": {
+  "stars": 68,
+  "archived": false,
+  "pushed": "2026-01-24T18:13:20Z"
+ },
+ "mlisi1/DendROS": {
+  "stars": 21,
+  "archived": false,
+  "pushed": "2026-11-18T10:00:49Z"
+ },
+ "MOCAP4ROS2-Project/mocap4r2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-14T17:27:26Z"
+ },
+ "MOCAP4ROS2-Project/mocap4r2_interfaces": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-14T17:10:37Z"
+ },
+ "MOCAP4ROS2-Project/mocap4ros2_gazebo": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-15T09:17:37Z"
+ },
+ "MOCAP4ROS2-Project/mocap4ros2_optitrack": {
+  "stars": 55,
+  "archived": false,
+  "pushed": "2026-11-14T17:10:40Z"
+ },
+ "MOCAP4ROS2-Project/mocap4ros2_qualisys": {
+  "stars": 29,
+  "archived": false,
+  "pushed": "2026-11-14T17:10:44Z"
+ },
+ "MOCAP4ROS2-Project/mocap4ros2_vicon": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-11-14T17:10:42Z"
+ },
+ "MoffKalast/vizanti": {
+  "stars": 275,
+  "archived": false,
+  "pushed": "2026-11-13T13:48:32Z"
+ },
+ "MOLAorg/mola": {
+  "stars": 1068,
+  "archived": false,
+  "pushed": "2026-11-19T23:37:34Z"
+ },
+ "MOLAorg/mola_academic_datasets": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-09T22:50:29Z"
+ },
+ "MOLAorg/mola_common": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-18T17:02:42Z"
+ },
+ "MOLAorg/mola_gnss_to_markers": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-01T16:01:35Z"
+ },
+ "MOLAorg/mola_imu_preintegration": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-11-15T12:00:15Z"
+ },
+ "MOLAorg/mola_input_ouster": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-01T16:02:01Z"
+ },
+ "MOLAorg/mola_input_rosbag1": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-11-15T09:49:53Z"
+ },
+ "MOLAorg/mola_lidar_odometry": {
+  "stars": 134,
+  "archived": false,
+  "pushed": "2026-11-19T23:01:41Z"
+ },
+ "MOLAorg/mola_mapper": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-19T23:01:55Z"
+ },
+ "MOLAorg/mola_sm_loop_closure": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-19T23:01:48Z"
+ },
+ "MOLAorg/mola_state_estimation": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-11-19T23:01:33Z"
+ },
+ "MOLAorg/mola_test_datasets": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-18T17:02:36Z"
+ },
+ "MOLAorg/mp2p_icp": {
+  "stars": 191,
+  "archived": false,
+  "pushed": "2026-11-19T23:42:58Z"
+ },
+ "MOLAorg/rosbag_timing_inspector": {
+  "stars": 84,
+  "archived": false,
+  "pushed": "2026-11-14T22:39:19Z"
+ },
+ "moveit/osqp_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-08-11T12:21:26Z"
+ },
+ "mrpt-ros-pkg/mrpt_msgs": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2025-10-17T08:44:51Z"
+ },
+ "mrpt-ros-pkg/mrpt_navigation": {
+  "stars": 225,
+  "archived": false,
+  "pushed": "2026-11-19T21:13:24Z"
+ },
+ "mrpt-ros-pkg/mrpt_sensors": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-11-14T22:17:50Z"
+ },
+ "mrpt-ros-pkg/pose_cov_ops": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-09-30T17:08:13Z"
+ },
+ "MRPT/gtsam2mrpt_serial": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-09-29T08:29:33Z"
+ },
+ "MRPT/mrpt": {
+  "stars": 2175,
+  "archived": false,
+  "pushed": "2026-11-19T23:43:44Z"
+ },
+ "MRPT/mrpt_path_planning": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-19T18:03:23Z"
+ },
+ "MRPT/mrpt_ros": {
+  "stars": 10,
+  "archived": true,
+  "pushed": "2026-08-11T21:58:09Z"
+ },
+ "MRPT/mrpt_ros_bridge": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-14T15:35:35Z"
+ },
+ "MRPT/mvsim": {
+  "stars": 422,
+  "archived": false,
+  "pushed": "2026-11-17T06:41:19Z"
+ },
+ "MRPT/python_mrpt_ros": {
+  "stars": 2,
+  "archived": true,
+  "pushed": "2026-06-19T07:46:11Z"
+ },
+ "namo-robotics/aruco_markers": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-03-29T14:54:41Z"
+ },
+ "namo-robotics/ros2_system_webview": {
+  "stars": 43,
+  "archived": false,
+  "pushed": "2026-03-27T20:56:08Z"
+ },
+ "nasa-jpl/dispatcher": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-21T22:11:20Z"
+ },
+ "naturerobots/mesh_tools": {
+  "stars": 281,
+  "archived": false,
+  "pushed": "2026-11-03T21:37:54Z"
+ },
+ "naturerobots/move_base_flex": {
+  "stars": 549,
+  "archived": false,
+  "pushed": "2026-11-02T13:06:58Z"
+ },
+ "Neargye/magic_enum": {
+  "stars": 6255,
+  "archived": false,
+  "pushed": "2026-11-17T07:33:52Z"
+ },
+ "neobotix/neo_nav2_bringup": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-11-02T14:34:19Z"
+ },
+ "ngmor/catch_ros2": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2025-09-06T07:14:49Z"
+ },
+ "nineyards-robotics/jig": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-08-31T22:46:40Z"
+ },
+ "niwcpac/rqt_dotgraph": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2025-09-22T22:29:07Z"
+ },
+ "nobleo/boost_sml_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-02-23T07:07:02Z"
+ },
+ "nobleo/mobile_robot_simulator": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-29T13:09:49Z"
+ },
+ "nobleo/mp_units_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-01-08T08:02:02Z"
+ },
+ "nobleo/nobleo_socketcan_bridge": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-02-09T09:34:39Z"
+ },
+ "nobleo/ros2_fmt_logger": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2026-08-24T06:56:26Z"
+ },
+ "nobleo/rviz_satellite": {
+  "stars": 666,
+  "archived": false,
+  "pushed": "2026-11-17T13:48:32Z"
+ },
+ "norlab-ulaval/libpointmatcher": {
+  "stars": 1845,
+  "archived": false,
+  "pushed": "2026-08-27T14:20:25Z"
+ },
+ "novatel/novatel_oem7_driver": {
+  "stars": 124,
+  "archived": false,
+  "pushed": "2026-07-24T21:53:45Z"
+ },
+ "NVIDIA-ISAAC-ROS/greenwave_monitor": {
+  "stars": 265,
+  "archived": false,
+  "pushed": "2026-09-08T15:37:27Z"
+ },
+ "octomap/octomap": {
+  "stars": 2405,
+  "archived": false,
+  "pushed": "2026-09-26T18:12:00Z"
+ },
+ "OctoMap/octomap_mapping": {
+  "stars": 452,
+  "archived": false,
+  "pushed": "2026-11-14T07:59:16Z"
+ },
+ "octomap/octomap_msgs": {
+  "stars": 42,
+  "archived": false,
+  "pushed": "2026-08-31T10:48:39Z"
+ },
+ "OctoMap/octomap_ros": {
+  "stars": 105,
+  "archived": false,
+  "pushed": "2025-10-30T20:45:28Z"
+ },
+ "OctoMap/octomap_rviz_plugins": {
+  "stars": 109,
+  "archived": false,
+  "pushed": "2026-02-03T19:57:38Z"
+ },
+ "oKermorgant/localization_msgs_tools": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-13T17:40:50Z"
+ },
+ "oKermorgant/simple_launch": {
+  "stars": 101,
+  "archived": false,
+  "pushed": "2026-11-10T15:39:38Z"
+ },
+ "oKermorgant/slider_publisher": {
+  "stars": 21,
+  "archived": false,
+  "pushed": "2026-08-26T10:51:25Z"
+ },
+ "olive-robotics/olive-openrmf-fleet-adapter": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-05T08:53:11Z"
+ },
+ "olive-robotics/olive-ros2-interfaces": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-09-02T13:30:54Z"
+ },
+ "open-planning/roboplan": {
+  "stars": 483,
+  "archived": false,
+  "pushed": "2026-11-19T18:34:42Z"
+ },
+ "open-planning/roboplan-ros": {
+  "stars": 33,
+  "archived": false,
+  "pushed": "2026-11-18T20:29:12Z"
+ },
+ "open-rmf/ament_cmake_catch2": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T12:54:27Z"
+ },
+ "open-rmf/menge_vendor": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-19T12:54:54Z"
+ },
+ "open-rmf/nlohmann_json_schema_validator_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T12:55:29Z"
+ },
+ "open-rmf/pybind11_json_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T12:55:46Z"
+ },
+ "open-rmf/rmf_api_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T12:56:16Z"
+ },
+ "open-rmf/rmf_battery": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-19T12:56:46Z"
+ },
+ "open-rmf/rmf_building_map_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T15:26:34Z"
+ },
+ "open-rmf/rmf_demos": {
+  "stars": 631,
+  "archived": false,
+  "pushed": "2026-11-20T03:17:37Z"
+ },
+ "open-rmf/rmf_internal_msgs": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2026-11-19T15:27:02Z"
+ },
+ "open-rmf/rmf_ros2": {
+  "stars": 122,
+  "archived": false,
+  "pushed": "2026-11-20T05:19:11Z"
+ },
+ "open-rmf/rmf_simulation": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-11-19T15:29:04Z"
+ },
+ "open-rmf/rmf_task": {
+  "stars": 29,
+  "archived": false,
+  "pushed": "2026-11-19T15:28:20Z"
+ },
+ "open-rmf/rmf_traffic": {
+  "stars": 43,
+  "archived": false,
+  "pushed": "2026-11-19T15:28:50Z"
+ },
+ "open-rmf/rmf_traffic_editor": {
+  "stars": 173,
+  "archived": false,
+  "pushed": "2026-11-19T15:29:36Z"
+ },
+ "open-rmf/rmf_utils": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T15:29:56Z"
+ },
+ "open-rmf/rmf_variants": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-05-14T22:13:35Z"
+ },
+ "open-rmf/rmf_visualization": {
+  "stars": 32,
+  "archived": false,
+  "pushed": "2026-11-19T15:30:20Z"
+ },
+ "open-rmf/rmf_visualization_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-19T15:30:28Z"
+ },
+ "orbbec/OrbbecSDK_ROS2": {
+  "stars": 367,
+  "archived": false,
+  "pushed": "2026-11-10T06:11:35Z"
+ },
+ "OSCPS/oscp_ros2_driver": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-19T20:32:52Z"
+ },
+ "osrf/nodl_to_policy": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2021-10-27T12:02:37Z"
+ },
+ "osrf/osrf_pycommon": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-09-09T20:22:15Z"
+ },
+ "osrf/osrf_testing_tools_cpp": {
+  "stars": 39,
+  "archived": false,
+  "pushed": "2026-10-01T12:16:08Z"
+ },
+ "osrf/ros2launch_security": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-10T01:08:01Z"
+ },
+ "ouster-lidar/ouster-ros": {
+  "stars": 212,
+  "archived": false,
+  "pushed": "2026-10-22T18:59:36Z"
+ },
+ "OUXT-Polaris/boost_geometry_util": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-01-19T13:34:34Z"
+ },
+ "OUXT-Polaris/color_names-release": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2022-01-15T11:58:46Z"
+ },
+ "OUXT-Polaris/nmea_hardware_interface": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-01-19T13:37:03Z"
+ },
+ "OUXT-Polaris/ouxt_common": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-01-19T13:36:36Z"
+ },
+ "OUXT-Polaris/quaternion_operation": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2025-01-19T13:46:24Z"
+ },
+ "OUXT-Polaris/sol_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-01-19T13:39:39Z"
+ },
+ "p2p-industries/hyveos_ros": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-01-19T04:30:22Z"
+ },
+ "p2p-industries/hyveos_ros_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-01-19T03:31:48Z"
+ },
+ "pal-robotics/aruco_ros": {
+  "stars": 614,
+  "archived": false,
+  "pushed": "2026-10-07T14:05:42Z"
+ },
+ "pal-robotics/backward_ros": {
+  "stars": 244,
+  "archived": false,
+  "pushed": "2026-10-08T10:39:34Z"
+ },
+ "pal-robotics/launch_pal": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-10-01T09:59:30Z"
+ },
+ "pal-robotics/mujoco_vendor": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-11-09T10:09:42Z"
+ },
+ "pal-robotics/pal_statistics": {
+  "stars": 72,
+  "archived": false,
+  "pushed": "2026-11-19T06:13:14Z"
+ },
+ "pal-robotics/play_motion2": {
+  "stars": 37,
+  "archived": false,
+  "pushed": "2026-10-16T11:25:04Z"
+ },
+ "pal-robotics/play_motion_builder": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-07-15T09:53:39Z"
+ },
+ "pal-robotics/urdf_test": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-09-08T07:16:58Z"
+ },
+ "Pana1v/polka": {
+  "stars": 70,
+  "archived": false,
+  "pushed": "2026-11-17T16:43:03Z"
+ },
+ "pantor/ruckig": {
+  "stars": 1455,
+  "archived": false,
+  "pushed": "2026-11-13T10:51:03Z"
+ },
+ "PickNikRobotics/cpp_polyfills": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-08-12T22:58:37Z"
+ },
+ "PickNikRobotics/data_tamer": {
+  "stars": 289,
+  "archived": false,
+  "pushed": "2026-11-13T13:50:05Z"
+ },
+ "PickNikRobotics/graph_msgs": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-09-08T21:22:03Z"
+ },
+ "PickNikRobotics/launch_param_builder": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-09-10T19:02:32Z"
+ },
+ "PickNikRobotics/pick_ik": {
+  "stars": 99,
+  "archived": false,
+  "pushed": "2026-09-19T03:42:35Z"
+ },
+ "PickNikRobotics/picknik_controllers": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-21T04:36:43Z"
+ },
+ "PickNikRobotics/ros2_robotiq_gripper": {
+  "stars": 185,
+  "archived": false,
+  "pushed": "2026-11-13T20:15:44Z"
+ },
+ "PickNikRobotics/RSL": {
+  "stars": 85,
+  "archived": false,
+  "pushed": "2026-10-20T07:10:03Z"
+ },
+ "PickNikRobotics/rviz_visual_tools": {
+  "stars": 821,
+  "archived": false,
+  "pushed": "2026-09-08T21:32:02Z"
+ },
+ "PickNikRobotics/snowbot_operating_system": {
+  "stars": 19,
+  "archived": true,
+  "pushed": "2026-09-02T20:16:41Z"
+ },
+ "PlanSys2/kairos": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-10-30T05:40:45Z"
+ },
+ "PlanSys2/ros2_planning_system": {
+  "stars": 496,
+  "archived": false,
+  "pushed": "2026-10-30T22:32:10Z"
+ },
+ "PlotJuggler/PlotJuggler": {
+  "stars": 6332,
+  "archived": false,
+  "pushed": "2026-11-20T05:00:55Z"
+ },
+ "PlotJuggler/plotjuggler-ros-plugins": {
+  "stars": 151,
+  "archived": false,
+  "pushed": "2026-04-21T18:16:27Z"
+ },
+ "polymathrobotics/behaviortree_cpp_pluginlib": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-24T19:01:41Z"
+ },
+ "polymathrobotics/replay_testing": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-10-14T21:43:01Z"
+ },
+ "polymathrobotics/socketcan_adapter": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-10-20T22:09:56Z"
+ },
+ "pradyum/dual_laser_merger": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-11-19T16:03:13Z"
+ },
+ "PRBonn/rko_lio": {
+  "stars": 695,
+  "archived": false,
+  "pushed": "2026-10-18T01:56:56Z"
+ },
+ "PRBonn/rko_slam": {
+  "stars": 53,
+  "archived": false,
+  "pushed": "2026-10-15T04:33:34Z"
+ },
+ "PX4/px4_msgs": {
+  "stars": 164,
+  "archived": false,
+  "pushed": "2026-11-19T18:29:05Z"
+ },
+ "qleonardolp/kinematic_pose_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-03-19T00:02:58Z"
+ },
+ "rai-opensource/proto2ros": {
+  "stars": 89,
+  "archived": false,
+  "pushed": "2026-07-21T14:02:41Z"
+ },
+ "rai-opensource/synchros2": {
+  "stars": 59,
+  "archived": false,
+  "pushed": "2026-05-29T21:54:07Z"
+ },
+ "RaphRover/raph_common": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-13T10:00:29Z"
+ },
+ "RaphRover/raph_desktop": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-12-08T10:48:20Z"
+ },
+ "RaphRover/raph_robot": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-19T14:44:28Z"
+ },
+ "reductstore/reduct-bridge": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-12T14:38:20Z"
+ },
+ "reductstore/reductstore_agent": {
+  "stars": 16,
+  "archived": false,
+  "pushed": "2026-03-25T22:17:06Z"
+ },
+ "roboception/rc_common_msgs_ros2": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-06-12T12:01:15Z"
+ },
+ "roboception/rc_dynamics_api": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-12T10:25:13Z"
+ },
+ "roboception/rc_genicam_api": {
+  "stars": 142,
+  "archived": false,
+  "pushed": "2026-11-11T10:48:53Z"
+ },
+ "roboception/rc_genicam_driver_ros2": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-03T09:26:58Z"
+ },
+ "roboception/rc_reason_clients_ros2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-07T11:33:13Z"
+ },
+ "roboception/rcdiscover": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-08-13T07:09:06Z"
+ },
+ "RoboSense-LiDAR/rslidar_msg": {
+  "stars": 32,
+  "archived": false,
+  "pushed": "2023-04-11T07:54:11Z"
+ },
+ "RoboSense-LiDAR/rslidar_sdk": {
+  "stars": 753,
+  "archived": false,
+  "pushed": "2026-07-10T13:33:52Z"
+ },
+ "robosoft-ai/ai_prompt_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2024-07-19T13:07:24Z"
+ },
+ "robosoft-ai/robosoft_openai": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2024-07-29T21:56:56Z"
+ },
+ "robosoft-ai/SMACC2": {
+  "stars": 385,
+  "archived": false,
+  "pushed": "2026-11-20T05:08:56Z"
+ },
+ "RobotecAI/rai_interfaces": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-06T12:32:49Z"
+ },
+ "robotic-esp/canboat_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-08-25T20:19:44Z"
+ },
+ "ROBOTIS-GIT/coin_d4_driver": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-11-18T08:28:12Z"
+ },
+ "ROBOTIS-GIT/dynamixel-workbench": {
+  "stars": 124,
+  "archived": true,
+  "pushed": "2025-06-20T02:40:33Z"
+ },
+ "ROBOTIS-GIT/dynamixel-workbench-msgs": {
+  "stars": 18,
+  "archived": true,
+  "pushed": "2025-06-20T02:36:02Z"
+ },
+ "ROBOTIS-GIT/dynamixel_hardware_interface": {
+  "stars": 45,
+  "archived": false,
+  "pushed": "2026-11-18T08:39:31Z"
+ },
+ "ROBOTIS-GIT/dynamixel_interfaces": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-18T08:24:17Z"
+ },
+ "ROBOTIS-GIT/DynamixelSDK": {
+  "stars": 619,
+  "archived": false,
+  "pushed": "2026-11-12T02:03:17Z"
+ },
+ "ROBOTIS-GIT/hls_lfcd_lds_driver": {
+  "stars": 107,
+  "archived": false,
+  "pushed": "2026-11-12T03:31:21Z"
+ },
+ "ROBOTIS-GIT/ld08_driver": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2026-11-12T03:31:14Z"
+ },
+ "ROBOTIS-GIT/open_manipulator": {
+  "stars": 679,
+  "archived": false,
+  "pushed": "2026-11-18T08:42:15Z"
+ },
+ "ROBOTIS-GIT/robotis_interfaces": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-18T08:52:56Z"
+ },
+ "ROBOTIS-GIT/turtlebot3": {
+  "stars": 2107,
+  "archived": false,
+  "pushed": "2026-11-12T02:15:00Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_applications": {
+  "stars": 107,
+  "archived": false,
+  "pushed": "2025-06-23T04:00:24Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_applications_msgs": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2025-06-20T02:43:09Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_autorace": {
+  "stars": 115,
+  "archived": false,
+  "pushed": "2025-06-30T02:44:51Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_home_service_challenge": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2025-07-17T03:39:39Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_machine_learning": {
+  "stars": 153,
+  "archived": false,
+  "pushed": "2026-02-18T23:57:45Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_manipulation": {
+  "stars": 106,
+  "archived": false,
+  "pushed": "2025-06-20T02:42:38Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_msgs": {
+  "stars": 85,
+  "archived": false,
+  "pushed": "2025-06-20T02:41:05Z"
+ },
+ "ROBOTIS-GIT/turtlebot3_simulations": {
+  "stars": 543,
+  "archived": false,
+  "pushed": "2025-07-14T04:49:34Z"
+ },
+ "robotology/osqp-eigen": {
+  "stars": 509,
+  "archived": false,
+  "pushed": "2026-07-20T07:45:18Z"
+ },
+ "robotraconteur/robotraconteur": {
+  "stars": 80,
+  "archived": false,
+  "pushed": "2026-11-11T02:12:48Z"
+ },
+ "robotraconteur/robotraconteur_companion": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-12T23:37:18Z"
+ },
+ "RobotWebTools/rosbridge_suite": {
+  "stars": 1256,
+  "archived": false,
+  "pushed": "2026-11-04T22:32:38Z"
+ },
+ "RobotWebTools/tf2_web_republisher": {
+  "stars": 29,
+  "archived": false,
+  "pushed": "2025-08-01T22:48:44Z"
+ },
+ "RobotWebTools/web_video_server": {
+  "stars": 389,
+  "archived": false,
+  "pushed": "2026-10-29T13:53:22Z"
+ },
+ "ros-acceleration/adaptive_component": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2022-04-14T07:23:07Z"
+ },
+ "ros-acceleration/ament_acceleration": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2023-10-05T09:32:15Z"
+ },
+ "ros-acceleration/ament_vitis": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2023-08-14T09:36:57Z"
+ },
+ "ros-acceleration/ros2acceleration": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2022-03-30T10:08:06Z"
+ },
+ "ros-acceleration/tracetools_acceleration": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2022-03-30T09:22:31Z"
+ },
+ "ros-acceleration/vitis_common": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2022-11-18T10:52:25Z"
+ },
+ "ros-controls/control_msgs": {
+  "stars": 78,
+  "archived": false,
+  "pushed": "2026-11-03T21:26:02Z"
+ },
+ "ros-controls/control_toolbox": {
+  "stars": 180,
+  "archived": false,
+  "pushed": "2026-11-11T09:37:14Z"
+ },
+ "ros-controls/gz_ros2_control": {
+  "stars": 262,
+  "archived": false,
+  "pushed": "2026-11-03T21:26:13Z"
+ },
+ "ros-controls/kinematics_interface": {
+  "stars": 51,
+  "archived": false,
+  "pushed": "2026-11-13T07:47:10Z"
+ },
+ "ros-controls/mujoco_ros2_control": {
+  "stars": 280,
+  "archived": false,
+  "pushed": "2026-11-19T15:45:59Z"
+ },
+ "ros-controls/onnxruntime_vendor": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-09-30T15:29:15Z"
+ },
+ "ros-controls/realtime_tools": {
+  "stars": 195,
+  "archived": false,
+  "pushed": "2026-11-18T19:38:44Z"
+ },
+ "ros-controls/ros2_control": {
+  "stars": 1067,
+  "archived": false,
+  "pushed": "2026-11-19T22:14:31Z"
+ },
+ "ros-controls/ros2_control_cmake": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-03T21:26:35Z"
+ },
+ "ros-controls/ros2_controllers": {
+  "stars": 866,
+  "archived": false,
+  "pushed": "2026-11-12T22:19:58Z"
+ },
+ "ros-controls/topic_based_hardware_interfaces": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2026-11-03T21:26:50Z"
+ },
+ "ros-drivers/ackermann_msgs": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2025-07-21T12:09:25Z"
+ },
+ "ros-drivers/audio_common": {
+  "stars": 109,
+  "archived": false,
+  "pushed": "2026-11-17T05:17:04Z"
+ },
+ "ros-drivers/axis_camera": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-10-26T18:24:29Z"
+ },
+ "ros-drivers/flir_camera_driver": {
+  "stars": 205,
+  "archived": false,
+  "pushed": "2026-11-06T11:13:40Z"
+ },
+ "ros-drivers/flir_ptu": {
+  "stars": 16,
+  "archived": false,
+  "pushed": "2026-05-04T14:57:57Z"
+ },
+ "ros-drivers/four_wheel_steering_msgs": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2021-12-02T10:24:12Z"
+ },
+ "ros-drivers/gscam": {
+  "stars": 174,
+  "archived": false,
+  "pushed": "2026-02-16T04:26:23Z"
+ },
+ "ros-drivers/joystick_drivers": {
+  "stars": 277,
+  "archived": false,
+  "pushed": "2026-03-16T21:25:31Z"
+ },
+ "ros-drivers/mocap_optitrack": {
+  "stars": 118,
+  "archived": false,
+  "pushed": "2025-04-22T04:07:41Z"
+ },
+ "ros-drivers/nmea_msgs": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2025-06-03T23:55:46Z"
+ },
+ "ros-drivers/nmea_navsat_driver": {
+  "stars": 287,
+  "archived": false,
+  "pushed": "2026-10-18T15:00:02Z"
+ },
+ "ros-drivers/openni2_camera": {
+  "stars": 69,
+  "archived": false,
+  "pushed": "2025-05-22T17:37:49Z"
+ },
+ "ros-drivers/phidgets_drivers": {
+  "stars": 51,
+  "archived": false,
+  "pushed": "2026-09-17T13:30:10Z"
+ },
+ "ros-drivers/ros2_ouster_drivers": {
+  "stars": 149,
+  "archived": false,
+  "pushed": "2024-08-23T22:49:42Z"
+ },
+ "ros-drivers/transport_drivers": {
+  "stars": 128,
+  "archived": false,
+  "pushed": "2026-03-02T22:38:24Z"
+ },
+ "ros-drivers/urg_c": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2020-10-04T06:21:38Z"
+ },
+ "ros-drivers/urg_node": {
+  "stars": 123,
+  "archived": false,
+  "pushed": "2025-05-23T13:46:16Z"
+ },
+ "ros-drivers/urg_node_msgs": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2023-06-13T13:48:35Z"
+ },
+ "ros-drivers/usb_cam": {
+  "stars": 727,
+  "archived": false,
+  "pushed": "2026-02-26T04:14:50Z"
+ },
+ "ros-drivers/velodyne": {
+  "stars": 730,
+  "archived": false,
+  "pushed": "2026-10-23T21:36:14Z"
+ },
+ "ros-drivers/zbar_ros": {
+  "stars": 65,
+  "archived": false,
+  "pushed": "2025-06-02T13:15:38Z"
+ },
+ "ros-event-camera/event_camera_codecs": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-01-05T13:40:50Z"
+ },
+ "ros-event-camera/event_camera_msgs": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2025-12-07T17:16:14Z"
+ },
+ "ros-event-camera/event_camera_py": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-10-21T14:41:54Z"
+ },
+ "ros-event-camera/event_camera_renderer": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-11-19T18:22:27Z"
+ },
+ "ros-event-camera/event_camera_tools": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-11-19T14:47:23Z"
+ },
+ "ros-event-camera/event_image_reconstruction_fibar": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-04-07T14:22:33Z"
+ },
+ "ros-event-camera/fibar_lib": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-12-10T10:21:44Z"
+ },
+ "ros-event-camera/frequency_cam": {
+  "stars": 27,
+  "archived": false,
+  "pushed": "2026-05-12T14:49:17Z"
+ },
+ "ros-event-camera/libcaer_driver": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-11-19T14:41:16Z"
+ },
+ "ros-event-camera/libcaer_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-05-23T00:23:46Z"
+ },
+ "ros-event-camera/metavision_driver": {
+  "stars": 71,
+  "archived": false,
+  "pushed": "2026-10-26T23:35:55Z"
+ },
+ "ros-event-camera/openeb_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-05-08T16:15:22Z"
+ },
+ "ros-geographic-info/geographic_info": {
+  "stars": 84,
+  "archived": false,
+  "pushed": "2026-11-16T19:07:04Z"
+ },
+ "ros-industrial/reach": {
+  "stars": 114,
+  "archived": false,
+  "pushed": "2025-03-06T16:06:25Z"
+ },
+ "ros-industrial/reach_ros2": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2025-09-23T15:13:06Z"
+ },
+ "ros-industrial/ros2_canopen": {
+  "stars": 294,
+  "archived": false,
+  "pushed": "2026-11-06T11:39:25Z"
+ },
+ "ros-industrial/ros_canopen": {
+  "stars": 380,
+  "archived": false,
+  "pushed": "2026-11-18T05:29:14Z"
+ },
+ "ros-industrial/ros_industrial_cmake_boilerplate": {
+  "stars": 23,
+  "archived": false,
+  "pushed": "2026-08-21T13:58:55Z"
+ },
+ "ros-industrial/stomp": {
+  "stars": 32,
+  "archived": false,
+  "pushed": "2026-01-02T15:47:40Z"
+ },
+ "ros-industrial/ur_msgs": {
+  "stars": 26,
+  "archived": false,
+  "pushed": "2026-11-03T10:49:45Z"
+ },
+ "ros-misc-utilities/apriltag_detector": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2025-12-03T15:46:22Z"
+ },
+ "ros-misc-utilities/apriltag_mit": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2025-06-16T01:20:16Z"
+ },
+ "ros-misc-utilities/ffmpeg_encoder_decoder": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-11-18T16:40:35Z"
+ },
+ "ros-misc-utilities/ffmpeg_image_transport": {
+  "stars": 131,
+  "archived": false,
+  "pushed": "2026-11-17T18:39:01Z"
+ },
+ "ros-misc-utilities/ffmpeg_image_transport_msgs": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-06-13T12:28:15Z"
+ },
+ "ros-misc-utilities/ffmpeg_image_transport_tools": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-07-28T17:43:08Z"
+ },
+ "ros-misc-utilities/flex_sync": {
+  "stars": 27,
+  "archived": false,
+  "pushed": "2025-05-26T20:30:51Z"
+ },
+ "ros-misc-utilities/foxglove_compressed_video_transport": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-06-29T11:41:41Z"
+ },
+ "ros-naoqi/libqi": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-06-19T14:49:50Z"
+ },
+ "ros-naoqi/libqicore": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-06-22T09:13:09Z"
+ },
+ "ros-naoqi/nao_meshes2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-06-22T09:13:36Z"
+ },
+ "ros-naoqi/naoqi_bridge_msgs2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-06T09:17:50Z"
+ },
+ "ros-naoqi/pepper_meshes2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2023-11-22T10:08:30Z"
+ },
+ "ros-navigation/nav2_minimal_turtlebot_simulation": {
+  "stars": 29,
+  "archived": false,
+  "pushed": "2026-11-16T19:05:46Z"
+ },
+ "ros-perception/depthimage_to_laserscan": {
+  "stars": 300,
+  "archived": false,
+  "pushed": "2024-07-29T13:46:48Z"
+ },
+ "ros-perception/image_common": {
+  "stars": 154,
+  "archived": false,
+  "pushed": "2026-11-18T10:49:39Z"
+ },
+ "ros-perception/image_pipeline": {
+  "stars": 978,
+  "archived": false,
+  "pushed": "2026-11-04T15:28:11Z"
+ },
+ "ros-perception/image_transport_plugins": {
+  "stars": 79,
+  "archived": false,
+  "pushed": "2026-11-18T10:49:57Z"
+ },
+ "ros-perception/imu_pipeline": {
+  "stars": 134,
+  "archived": false,
+  "pushed": "2026-09-26T00:20:03Z"
+ },
+ "ros-perception/laser_filters": {
+  "stars": 233,
+  "archived": false,
+  "pushed": "2026-09-18T23:48:55Z"
+ },
+ "ros-perception/laser_geometry": {
+  "stars": 164,
+  "archived": false,
+  "pushed": "2026-11-16T08:38:06Z"
+ },
+ "ros-perception/laser_proc": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2025-05-22T08:49:33Z"
+ },
+ "ros-perception/pcl_msgs": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-02-04T17:11:57Z"
+ },
+ "ros-perception/perception_open3d": {
+  "stars": 167,
+  "archived": false,
+  "pushed": "2025-05-28T20:15:22Z"
+ },
+ "ros-perception/perception_pcl": {
+  "stars": 485,
+  "archived": false,
+  "pushed": "2026-11-03T08:23:14Z"
+ },
+ "ros-perception/point_cloud_transport": {
+  "stars": 104,
+  "archived": false,
+  "pushed": "2026-10-30T14:34:51Z"
+ },
+ "ros-perception/point_cloud_transport_plugins": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-07-16T10:27:38Z"
+ },
+ "ros-perception/point_cloud_transport_tutorial": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-08-26T10:24:06Z"
+ },
+ "ros-perception/pointcloud_to_laserscan": {
+  "stars": 607,
+  "archived": false,
+  "pushed": "2026-11-02T14:01:49Z"
+ },
+ "ros-perception/vision_msgs": {
+  "stars": 186,
+  "archived": false,
+  "pushed": "2026-11-18T20:32:49Z"
+ },
+ "ros-perception/vision_opencv": {
+  "stars": 671,
+  "archived": false,
+  "pushed": "2026-11-12T03:24:38Z"
+ },
+ "ros-physical-ai/feetech_ros2_driver": {
+  "stars": 48,
+  "archived": false,
+  "pushed": "2026-09-21T01:02:07Z"
+ },
+ "ros-planning/geometric_shapes": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-07-20T10:16:02Z"
+ },
+ "ros-planning/moveit2": {
+  "stars": 2129,
+  "archived": false,
+  "pushed": "2026-11-19T14:30:29Z"
+ },
+ "ros-planning/moveit_msgs": {
+  "stars": 59,
+  "archived": false,
+  "pushed": "2026-09-14T06:58:12Z"
+ },
+ "ros-planning/moveit_resources": {
+  "stars": 115,
+  "archived": false,
+  "pushed": "2026-09-16T18:05:48Z"
+ },
+ "ros-planning/moveit_visual_tools": {
+  "stars": 173,
+  "archived": false,
+  "pushed": "2026-08-03T06:19:44Z"
+ },
+ "ros-planning/navigation2": {
+  "stars": 5087,
+  "archived": false,
+  "pushed": "2026-11-19T18:37:14Z"
+ },
+ "ros-planning/navigation_msgs": {
+  "stars": 47,
+  "archived": false,
+  "pushed": "2026-10-23T09:37:50Z"
+ },
+ "ros-planning/py_binding_tools": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-09-01T07:55:45Z"
+ },
+ "ros-planning/random_numbers": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-07-20T10:28:40Z"
+ },
+ "ros-planning/srdfdom": {
+  "stars": 24,
+  "archived": false,
+  "pushed": "2026-07-20T10:32:49Z"
+ },
+ "ros-planning/warehouse_ros": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2026-09-01T17:19:10Z"
+ },
+ "ros-planning/warehouse_ros_sqlite": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-08-03T08:01:36Z"
+ },
+ "ros-simulation/simulation_interfaces": {
+  "stars": 134,
+  "archived": false,
+  "pushed": "2026-04-23T21:37:18Z"
+ },
+ "ros-sports/game_controller_spl": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2025-06-14T16:19:07Z"
+ },
+ "ros-sports/nao_lola": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2025-06-14T16:17:47Z"
+ },
+ "ros-sports/r2r_spl": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-11-24T01:04:24Z"
+ },
+ "ros-sports/rcss3d_agent": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2025-06-14T16:17:26Z"
+ },
+ "ros-sports/rcss3d_nao": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-06-14T16:19:32Z"
+ },
+ "ros-sports/ros_image_to_qimage": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-06-14T16:17:59Z"
+ },
+ "ros-sports/rqt_image_overlay": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2025-06-14T16:15:29Z"
+ },
+ "ros-sports/soccer_interfaces": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2025-02-17T15:54:52Z"
+ },
+ "ros-sports/soccer_vision_3d_rviz_markers": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2025-02-19T07:56:15Z"
+ },
+ "ros-sports/vision_msgs_layers": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-06-14T16:17:36Z"
+ },
+ "ros-teleop/teleop_tools": {
+  "stars": 230,
+  "archived": false,
+  "pushed": "2026-10-26T14:11:00Z"
+ },
+ "ros-teleop/twist_mux": {
+  "stars": 85,
+  "archived": false,
+  "pushed": "2026-07-09T12:00:49Z"
+ },
+ "ros-teleop/twist_mux_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2023-07-03T17:32:43Z"
+ },
+ "ros-tooling/generate_parameter_library": {
+  "stars": 389,
+  "archived": false,
+  "pushed": "2026-11-19T22:53:08Z"
+ },
+ "ros-tooling/graph-monitor": {
+  "stars": 40,
+  "archived": false,
+  "pushed": "2026-11-02T19:41:53Z"
+ },
+ "ros-tooling/keyboard_handler": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-06-19T02:02:32Z"
+ },
+ "ros-tooling/launch_frontend_py": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2025-10-22T07:06:40Z"
+ },
+ "ros-tooling/libstatistics_collector": {
+  "stars": 41,
+  "archived": false,
+  "pushed": "2026-10-01T04:03:16Z"
+ },
+ "ros-tooling/nodl": {
+  "stars": 53,
+  "archived": false,
+  "pushed": "2026-11-20T01:07:09Z"
+ },
+ "ros-tooling/rosbag2_broll": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-11-13T20:22:18Z"
+ },
+ "ros-tooling/topic_tools": {
+  "stars": 143,
+  "archived": false,
+  "pushed": "2026-11-14T00:54:05Z"
+ },
+ "ros-tracing/tracetools_analysis": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-05-11T22:27:00Z"
+ },
+ "ros-visualization/interactive_marker_twist_server": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2025-05-23T10:41:21Z"
+ },
+ "ros-visualization/interactive_markers": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2026-11-13T23:53:17Z"
+ },
+ "ros-visualization/python_qt_binding": {
+  "stars": 34,
+  "archived": false,
+  "pushed": "2026-11-05T22:47:03Z"
+ },
+ "ros-visualization/qt_gui_core": {
+  "stars": 40,
+  "archived": false,
+  "pushed": "2026-11-16T22:18:25Z"
+ },
+ "ros-visualization/rqt": {
+  "stars": 75,
+  "archived": false,
+  "pushed": "2026-10-22T09:08:26Z"
+ },
+ "ros-visualization/rqt_action": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-10-22T09:07:27Z"
+ },
+ "ros-visualization/rqt_bag": {
+  "stars": 32,
+  "archived": false,
+  "pushed": "2026-11-03T08:48:12Z"
+ },
+ "ros-visualization/rqt_common_plugins": {
+  "stars": 47,
+  "archived": false,
+  "pushed": "2025-04-26T21:49:06Z"
+ },
+ "ros-visualization/rqt_console": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-10-22T09:13:58Z"
+ },
+ "ros-visualization/rqt_graph": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-09-04T07:36:18Z"
+ },
+ "ros-visualization/rqt_image_view": {
+  "stars": 31,
+  "archived": false,
+  "pushed": "2026-10-12T13:13:51Z"
+ },
+ "ros-visualization/rqt_moveit": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2025-05-09T17:51:59Z"
+ },
+ "ros-visualization/rqt_msg": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-22T09:18:14Z"
+ },
+ "ros-visualization/rqt_plot": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2026-10-22T09:19:03Z"
+ },
+ "ros-visualization/rqt_publisher": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-22T09:26:29Z"
+ },
+ "ros-visualization/rqt_py_console": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-06-17T10:25:21Z"
+ },
+ "ros-visualization/rqt_reconfigure": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-10-22T09:27:33Z"
+ },
+ "ros-visualization/rqt_robot_dashboard": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-01-26T17:58:54Z"
+ },
+ "ros-visualization/rqt_robot_monitor": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-11-18T23:45:44Z"
+ },
+ "ros-visualization/rqt_robot_steering": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2026-06-01T13:23:34Z"
+ },
+ "ros-visualization/rqt_runtime_monitor": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-19T00:52:11Z"
+ },
+ "ros-visualization/rqt_service_caller": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-10-22T09:29:18Z"
+ },
+ "ros-visualization/rqt_shell": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-09-04T10:39:23Z"
+ },
+ "ros-visualization/rqt_srv": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-22T09:30:51Z"
+ },
+ "ros-visualization/rqt_tf_tree": {
+  "stars": 16,
+  "archived": false,
+  "pushed": "2026-10-05T20:34:01Z"
+ },
+ "ros-visualization/rqt_topic": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-10-29T15:30:21Z"
+ },
+ "ros-visualization/tango_icons_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-29T21:21:46Z"
+ },
+ "ros/angles": {
+  "stars": 67,
+  "archived": false,
+  "pushed": "2026-10-16T15:20:02Z"
+ },
+ "ros/bond_core": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2026-09-11T14:05:20Z"
+ },
+ "ros/class_loader": {
+  "stars": 46,
+  "archived": false,
+  "pushed": "2026-11-16T22:07:51Z"
+ },
+ "ros/diagnostics": {
+  "stars": 167,
+  "archived": false,
+  "pushed": "2026-11-11T04:52:14Z"
+ },
+ "ros/eigen_stl_containers": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2025-03-18T14:42:51Z"
+ },
+ "ros/executive_smach": {
+  "stars": 186,
+  "archived": false,
+  "pushed": "2026-11-18T20:06:23Z"
+ },
+ "ros/filters": {
+  "stars": 45,
+  "archived": false,
+  "pushed": "2026-07-30T00:39:49Z"
+ },
+ "ros/geometry_tutorials": {
+  "stars": 36,
+  "archived": false,
+  "pushed": "2026-10-29T23:36:01Z"
+ },
+ "ros/joint_state_publisher": {
+  "stars": 62,
+  "archived": false,
+  "pushed": "2026-07-31T14:15:14Z"
+ },
+ "ros/kdl_parser": {
+  "stars": 86,
+  "archived": false,
+  "pushed": "2026-05-06T18:57:45Z"
+ },
+ "ros/pluginlib": {
+  "stars": 66,
+  "archived": false,
+  "pushed": "2026-11-13T05:00:12Z"
+ },
+ "ros/resource_retriever": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-11-18T20:19:03Z"
+ },
+ "ros/robot_state_publisher": {
+  "stars": 127,
+  "archived": false,
+  "pushed": "2026-11-03T20:53:43Z"
+ },
+ "ros/ros_environment": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-10-01T08:21:18Z"
+ },
+ "ros/ros_tutorials": {
+  "stars": 946,
+  "archived": false,
+  "pushed": "2026-10-22T21:03:07Z"
+ },
+ "ros/sdformat_urdf": {
+  "stars": 54,
+  "archived": false,
+  "pushed": "2026-07-20T13:47:05Z"
+ },
+ "ros/urdf_launch": {
+  "stars": 43,
+  "archived": false,
+  "pushed": "2026-10-05T17:07:22Z"
+ },
+ "ros/urdf_parser_py": {
+  "stars": 108,
+  "archived": false,
+  "pushed": "2026-11-17T21:39:58Z"
+ },
+ "ros/urdf_tutorial": {
+  "stars": 314,
+  "archived": false,
+  "pushed": "2026-10-05T17:07:10Z"
+ },
+ "ros/urdfdom": {
+  "stars": 138,
+  "archived": false,
+  "pushed": "2026-11-05T03:00:34Z"
+ },
+ "ros/urdfdom_headers": {
+  "stars": 40,
+  "archived": false,
+  "pushed": "2026-09-25T06:19:29Z"
+ },
+ "ros/xacro": {
+  "stars": 126,
+  "archived": false,
+  "pushed": "2026-04-07T10:08:51Z"
+ },
+ "ros2-rust/rosidl_rust": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-10-26T21:01:13Z"
+ },
+ "ros2/ament_cmake_ros": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-10-22T09:47:39Z"
+ },
+ "ros2/cartographer": {
+  "stars": 149,
+  "archived": false,
+  "pushed": "2025-05-20T23:29:35Z"
+ },
+ "ros2/cartographer_ros": {
+  "stars": 216,
+  "archived": false,
+  "pushed": "2025-05-24T14:35:57Z"
+ },
+ "ros2/common_interfaces": {
+  "stars": 402,
+  "archived": false,
+  "pushed": "2026-10-28T14:26:02Z"
+ },
+ "ros2/console_bridge_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-02T22:12:45Z"
+ },
+ "ros2/demos": {
+  "stars": 658,
+  "archived": false,
+  "pushed": "2026-10-23T10:19:50Z"
+ },
+ "ros2/domain_bridge": {
+  "stars": 93,
+  "archived": false,
+  "pushed": "2026-04-27T19:50:21Z"
+ },
+ "ros2/eigen3_cmake_module": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-10-01T08:22:13Z"
+ },
+ "ros2/example_interfaces": {
+  "stars": 96,
+  "archived": false,
+  "pushed": "2026-10-23T10:07:48Z"
+ },
+ "ros2/examples": {
+  "stars": 989,
+  "archived": false,
+  "pushed": "2026-11-02T21:23:36Z"
+ },
+ "ros2/geometry2": {
+  "stars": 157,
+  "archived": false,
+  "pushed": "2026-11-19T13:32:26Z"
+ },
+ "ros2/launch": {
+  "stars": 156,
+  "archived": false,
+  "pushed": "2026-11-19T09:02:11Z"
+ },
+ "ros2/launch_ros": {
+  "stars": 84,
+  "archived": false,
+  "pushed": "2026-11-18T09:53:37Z"
+ },
+ "ros2/libyaml_vendor": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-02T22:13:17Z"
+ },
+ "ros2/message_filters": {
+  "stars": 120,
+  "archived": false,
+  "pushed": "2026-11-17T13:16:28Z"
+ },
+ "ros2/mimick_vendor": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-25T18:30:00Z"
+ },
+ "ros2/orocos_kdl_vendor": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-06-02T06:20:15Z"
+ },
+ "ros2/performance_test_fixture": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-09-25T18:28:18Z"
+ },
+ "ros2/pybind11_vendor": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2025-11-10T15:29:38Z"
+ },
+ "ros2/python_cmake_module": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2024-12-02T17:06:52Z"
+ },
+ "ros2/rcl": {
+  "stars": 172,
+  "archived": false,
+  "pushed": "2026-11-18T09:20:05Z"
+ },
+ "ros2/rcl_interfaces": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-10-23T10:46:14Z"
+ },
+ "ros2/rcl_logging": {
+  "stars": 32,
+  "archived": false,
+  "pushed": "2026-11-02T22:14:11Z"
+ },
+ "ros2/rclc": {
+  "stars": 160,
+  "archived": false,
+  "pushed": "2026-11-03T06:34:19Z"
+ },
+ "ros2/rclcpp": {
+  "stars": 828,
+  "archived": false,
+  "pushed": "2026-11-19T19:07:57Z"
+ },
+ "ros2/rclpy": {
+  "stars": 489,
+  "archived": false,
+  "pushed": "2026-11-17T10:27:49Z"
+ },
+ "ros2/rcpputils": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2026-11-03T11:49:30Z"
+ },
+ "ros2/rcutils": {
+  "stars": 76,
+  "archived": false,
+  "pushed": "2026-11-10T02:06:19Z"
+ },
+ "ros2/realtime_support": {
+  "stars": 82,
+  "archived": false,
+  "pushed": "2026-10-23T11:02:18Z"
+ },
+ "ros2/rmw": {
+  "stars": 121,
+  "archived": false,
+  "pushed": "2026-11-10T23:30:00Z"
+ },
+ "ros2/rmw_connextdds": {
+  "stars": 68,
+  "archived": false,
+  "pushed": "2026-11-18T09:54:04Z"
+ },
+ "ros2/rmw_cyclonedds": {
+  "stars": 178,
+  "archived": false,
+  "pushed": "2026-11-16T08:37:15Z"
+ },
+ "ros2/rmw_dds_common": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-11-03T12:00:20Z"
+ },
+ "ros2/rmw_fastrtps": {
+  "stars": 209,
+  "archived": false,
+  "pushed": "2026-11-19T06:30:02Z"
+ },
+ "ros2/rmw_gurumdds": {
+  "stars": 13,
+  "archived": false,
+  "pushed": "2026-08-31T01:28:40Z"
+ },
+ "ros2/rmw_implementation": {
+  "stars": 25,
+  "archived": false,
+  "pushed": "2026-11-20T01:08:19Z"
+ },
+ "ros2/rmw_zenoh": {
+  "stars": 512,
+  "archived": false,
+  "pushed": "2026-11-20T01:01:49Z"
+ },
+ "ros2/ros1_bridge": {
+  "stars": 625,
+  "archived": false,
+  "pushed": "2025-11-17T09:02:55Z"
+ },
+ "ros2/ros2_tracing": {
+  "stars": 273,
+  "archived": false,
+  "pushed": "2026-11-18T23:45:40Z"
+ },
+ "ros2/ros2cli": {
+  "stars": 272,
+  "archived": false,
+  "pushed": "2026-11-17T15:50:39Z"
+ },
+ "ros2/ros2cli_common_extensions": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-09-29T21:21:52Z"
+ },
+ "ros2/ros_testing": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2026-09-25T15:12:42Z"
+ },
+ "ros2/ros_workspace": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2023-05-22T07:34:42Z"
+ },
+ "ros2/rosbag2": {
+  "stars": 448,
+  "archived": false,
+  "pushed": "2026-11-06T14:40:30Z"
+ },
+ "ros2/rosbag2_bag_v2": {
+  "stars": 49,
+  "archived": false,
+  "pushed": "2026-05-10T22:50:50Z"
+ },
+ "ros2/rosidl": {
+  "stars": 112,
+  "archived": false,
+  "pushed": "2026-11-11T06:58:34Z"
+ },
+ "ros2/rosidl_core": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-25T15:12:12Z"
+ },
+ "ros2/rosidl_dds": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-11-03T12:20:30Z"
+ },
+ "ros2/rosidl_defaults": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-25T14:56:55Z"
+ },
+ "ros2/rosidl_dynamic_typesupport": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-03T12:22:11Z"
+ },
+ "ros2/rosidl_dynamic_typesupport_fastrtps": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-03T12:23:34Z"
+ },
+ "ros2/rosidl_python": {
+  "stars": 26,
+  "archived": false,
+  "pushed": "2026-11-16T12:20:30Z"
+ },
+ "ros2/rosidl_runtime_py": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-11-03T12:33:25Z"
+ },
+ "ros2/rosidl_typesupport": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-17T08:43:27Z"
+ },
+ "ros2/rosidl_typesupport_fastrtps": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-11-05T22:49:23Z"
+ },
+ "ros2/rpyutils": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-25T15:12:37Z"
+ },
+ "ros2/rviz": {
+  "stars": 503,
+  "archived": false,
+  "pushed": "2026-11-19T12:50:40Z"
+ },
+ "ros2/spdlog_vendor": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-02T22:18:17Z"
+ },
+ "ros2/sros2": {
+  "stars": 121,
+  "archived": false,
+  "pushed": "2026-11-03T12:30:41Z"
+ },
+ "ros2/system_tests": {
+  "stars": 45,
+  "archived": false,
+  "pushed": "2026-11-18T01:51:17Z"
+ },
+ "ros2/teleop_twist_joy": {
+  "stars": 86,
+  "archived": false,
+  "pushed": "2025-07-16T08:22:57Z"
+ },
+ "ros2/teleop_twist_keyboard": {
+  "stars": 52,
+  "archived": false,
+  "pushed": "2026-09-28T17:56:02Z"
+ },
+ "ros2/test_interface_files": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-09-25T15:13:00Z"
+ },
+ "ros2/tinyxml2_vendor": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-11-18T10:10:16Z"
+ },
+ "ros2/tinyxml_vendor": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2023-05-12T18:40:53Z"
+ },
+ "ros2/tlsf": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-09-15T09:15:44Z"
+ },
+ "ros2/unique_identifier_msgs": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-11-03T12:33:09Z"
+ },
+ "ros2/urdf": {
+  "stars": 15,
+  "archived": false,
+  "pushed": "2026-11-02T22:18:36Z"
+ },
+ "ros2/variants": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-06-04T22:49:49Z"
+ },
+ "ros2/yaml_cpp_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-08-20T16:47:39Z"
+ },
+ "ros4hri/hri_actions_msgs": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2025-11-13T15:33:55Z"
+ },
+ "ros4hri/hri_msgs": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-03-04T14:46:50Z"
+ },
+ "ros4hri/hri_rviz": {
+  "stars": 22,
+  "archived": false,
+  "pushed": "2026-02-03T12:47:59Z"
+ },
+ "ros4hri/human_description": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2024-03-18T12:02:30Z"
+ },
+ "ros4hri/libhri": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-08-25T12:36:07Z"
+ },
+ "rst-tu-dortmund/control_box_rst": {
+  "stars": 67,
+  "archived": false,
+  "pushed": "2024-03-15T15:15:43Z"
+ },
+ "rt-net/crane_plus": {
+  "stars": 63,
+  "archived": false,
+  "pushed": "2026-10-28T02:59:25Z"
+ },
+ "rt-net/raspimouse2": {
+  "stars": 59,
+  "archived": false,
+  "pushed": "2026-08-07T06:59:23Z"
+ },
+ "rt-net/raspimouse_description": {
+  "stars": 23,
+  "archived": false,
+  "pushed": "2026-08-31T09:56:25Z"
+ },
+ "rt-net/raspimouse_ros2_examples": {
+  "stars": 92,
+  "archived": false,
+  "pushed": "2026-11-19T07:31:41Z"
+ },
+ "rt-net/raspimouse_sim": {
+  "stars": 49,
+  "archived": false,
+  "pushed": "2026-09-30T02:18:49Z"
+ },
+ "rt-net/raspimouse_slam_navigation_ros2": {
+  "stars": 28,
+  "archived": false,
+  "pushed": "2026-11-19T09:29:32Z"
+ },
+ "rt-net/rt_manipulators_cpp": {
+  "stars": 21,
+  "archived": false,
+  "pushed": "2026-08-27T10:05:13Z"
+ },
+ "rt-net/rt_usb_9axisimu_driver": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-08-12T03:48:49Z"
+ },
+ "rudislabs/actuator_msgs": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2023-04-11T19:19:57Z"
+ },
+ "s2015-turtle/robstride_ros2": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-11-04T11:54:01Z"
+ },
+ "samsung-ros/ament_download": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2023-04-04T22:13:56Z"
+ },
+ "samuelba/rqt_multiplot_plugin": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-15T18:25:37Z"
+ },
+ "SBG-Systems/sbg_ros2": {
+  "stars": 54,
+  "archived": false,
+  "pushed": "2026-11-06T19:07:35Z"
+ },
+ "selfpatch/ros2_medkit": {
+  "stars": 290,
+  "archived": false,
+  "pushed": "2026-11-19T22:35:29Z"
+ },
+ "septentrio-gnss/septentrio_gnss_driver": {
+  "stars": 134,
+  "archived": false,
+  "pushed": "2026-10-18T17:31:57Z"
+ },
+ "SherifFathey/btick": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-11-15T09:07:02Z"
+ },
+ "shimz-robotics/mapoi": {
+  "stars": 14,
+  "archived": false,
+  "pushed": "2026-09-26T10:50:12Z"
+ },
+ "shkwon98/grasp_synergy_adapter": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-09-18T03:30:04Z"
+ },
+ "SICKAG/sick_safetyscanners2": {
+  "stars": 44,
+  "archived": false,
+  "pushed": "2026-11-17T21:53:30Z"
+ },
+ "SICKAG/sick_safetyscanners2_interfaces": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-17T18:48:46Z"
+ },
+ "SICKAG/sick_safetyscanners_base": {
+  "stars": 20,
+  "archived": false,
+  "pushed": "2026-11-17T10:15:19Z"
+ },
+ "SICKAG/sick_safevisionary_base": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-08-25T15:58:33Z"
+ },
+ "SICKAG/sick_safevisionary_ros2": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-05-07T09:00:11Z"
+ },
+ "SICKAG/sick_scan_xd": {
+  "stars": 180,
+  "archived": false,
+  "pushed": "2026-11-13T20:38:19Z"
+ },
+ "signetlabdei/rmw_desert": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2026-11-18T09:22:54Z"
+ },
+ "simone-contorno/prox_mpc": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-01T15:36:25Z"
+ },
+ "Simple-Robotics/nanoeigenpy": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-02T15:48:45Z"
+ },
+ "Simple-Robotics/proxsuite": {
+  "stars": 606,
+  "archived": false,
+  "pushed": "2026-11-16T09:23:17Z"
+ },
+ "Slamtec/rplidar_ros": {
+  "stars": 698,
+  "archived": false,
+  "pushed": "2025-04-27T08:40:26Z"
+ },
+ "sloretz/rcl_logging_rcutils": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2022-11-30T01:33:17Z"
+ },
+ "splat-ros/RVizSplat": {
+  "stars": 142,
+  "archived": false,
+  "pushed": "2026-08-17T10:14:15Z"
+ },
+ "splat-ros/splat_interfaces": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-08-17T09:03:45Z"
+ },
+ "splintered-reality/py_trees": {
+  "stars": 655,
+  "archived": false,
+  "pushed": "2026-11-04T16:38:06Z"
+ },
+ "splintered-reality/py_trees_js": {
+  "stars": 24,
+  "archived": false,
+  "pushed": "2026-10-11T23:37:57Z"
+ },
+ "splintered-reality/py_trees_ros": {
+  "stars": 234,
+  "archived": false,
+  "pushed": "2026-09-15T02:41:51Z"
+ },
+ "splintered-reality/py_trees_ros_interfaces": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-07-14T01:27:06Z"
+ },
+ "splintered-reality/py_trees_ros_tutorials": {
+  "stars": 17,
+  "archived": false,
+  "pushed": "2026-09-10T21:36:53Z"
+ },
+ "splintered-reality/py_trees_ros_viewer": {
+  "stars": 50,
+  "archived": false,
+  "pushed": "2026-10-11T23:37:08Z"
+ },
+ "stack-of-tasks/eigenpy": {
+  "stars": 212,
+  "archived": false,
+  "pushed": "2026-11-19T10:22:01Z"
+ },
+ "stack-of-tasks/eiquadprog": {
+  "stars": 61,
+  "archived": false,
+  "pushed": "2026-10-27T08:53:57Z"
+ },
+ "stack-of-tasks/odri_master_board_sdk_release": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-06-03T21:21:39Z"
+ },
+ "stack-of-tasks/pinocchio": {
+  "stars": 3877,
+  "archived": false,
+  "pushed": "2026-11-13T16:25:35Z"
+ },
+ "stack-of-tasks/tsid": {
+  "stars": 360,
+  "archived": false,
+  "pushed": "2026-11-07T18:04:56Z"
+ },
+ "StefanFabian/gstreamer_ros_babel_fish": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-09-17T10:54:26Z"
+ },
+ "StefanFabian/qml6_ros2_plugin": {
+  "stars": 11,
+  "archived": false,
+  "pushed": "2026-11-04T15:55:56Z"
+ },
+ "StefanFabian/qml_ros2_plugin": {
+  "stars": 63,
+  "archived": false,
+  "pushed": "2026-10-30T08:32:25Z"
+ },
+ "StefanFabian/rqml": {
+  "stars": 36,
+  "archived": false,
+  "pushed": "2026-10-30T14:50:15Z"
+ },
+ "stereolabs/zed-ros2-description": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-10-07T09:00:49Z"
+ },
+ "stereolabs/zed-ros2-interfaces": {
+  "stars": 19,
+  "archived": false,
+  "pushed": "2026-11-02T15:19:21Z"
+ },
+ "SteveMacenski/slam_toolbox": {
+  "stars": 2722,
+  "archived": false,
+  "pushed": "2026-11-02T20:12:24Z"
+ },
+ "SteveMacenski/spatio_temporal_voxel_layer": {
+  "stars": 887,
+  "archived": false,
+  "pushed": "2026-11-19T00:55:54Z"
+ },
+ "stevenlovegrove/Pangolin": {
+  "stars": 2759,
+  "archived": false,
+  "pushed": "2026-10-26T18:01:34Z"
+ },
+ "stonier/ecl_core": {
+  "stars": 88,
+  "archived": false,
+  "pushed": "2024-06-23T20:44:07Z"
+ },
+ "stonier/ecl_lite": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2024-04-15T15:39:34Z"
+ },
+ "stonier/ecl_tools": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2024-04-15T15:42:17Z"
+ },
+ "styri-dev/styri": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-19T20:55:39Z"
+ },
+ "suchetanrs/roadmap-explorer": {
+  "stars": 58,
+  "archived": false,
+  "pushed": "2026-07-06T17:43:44Z"
+ },
+ "swri-robotics/gps_umd": {
+  "stars": 106,
+  "archived": false,
+  "pushed": "2026-11-06T23:40:20Z"
+ },
+ "swri-robotics/mapviz": {
+  "stars": 486,
+  "archived": false,
+  "pushed": "2026-11-19T22:04:40Z"
+ },
+ "swri-robotics/marti_common": {
+  "stars": 54,
+  "archived": false,
+  "pushed": "2026-11-06T21:31:10Z"
+ },
+ "swri-robotics/marti_messages": {
+  "stars": 7,
+  "archived": false,
+  "pushed": "2026-09-21T02:09:50Z"
+ },
+ "swri-robotics/novatel_gps_driver": {
+  "stars": 175,
+  "archived": false,
+  "pushed": "2026-10-30T18:23:37Z"
+ },
+ "swri-robotics/swri_console": {
+  "stars": 64,
+  "archived": false,
+  "pushed": "2026-09-12T16:55:58Z"
+ },
+ "synapticon/synapticon_ros2_control": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-11-19T19:21:32Z"
+ },
+ "TanayK07/ros2_pulse": {
+  "stars": 57,
+  "archived": false,
+  "pushed": "2026-11-07T07:03:13Z"
+ },
+ "Tanneguydv/tf_tree_terminal": {
+  "stars": 71,
+  "archived": false,
+  "pushed": "2026-01-09T17:20:36Z"
+ },
+ "teamspatzenhirn/rig_reconfigure": {
+  "stars": 101,
+  "archived": false,
+  "pushed": "2026-07-31T13:38:31Z"
+ },
+ "teamspatzenhirn/rviz_2d_overlay_plugins": {
+  "stars": 82,
+  "archived": false,
+  "pushed": "2026-07-31T09:22:51Z"
+ },
+ "tecgihan/tecgihan_driver": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-09-28T06:23:01Z"
+ },
+ "tesseract-robotics/boost_plugin_loader": {
+  "stars": 4,
+  "archived": false,
+  "pushed": "2026-11-07T11:30:46Z"
+ },
+ "tier4/cudnn_cmake_module": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-11-05T05:35:42Z"
+ },
+ "tier4/hash_library_vendor": {
+  "stars": 3,
+  "archived": true,
+  "pushed": "2023-02-27T05:05:50Z"
+ },
+ "tier4/heaphook": {
+  "stars": 26,
+  "archived": false,
+  "pushed": "2024-06-04T03:44:57Z"
+ },
+ "tier4/nebula": {
+  "stars": 126,
+  "archived": false,
+  "pushed": "2026-11-20T04:47:24Z"
+ },
+ "tier4/sync_tooling_msgs": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2026-07-07T07:54:01Z"
+ },
+ "tier4/tensorrt_cmake_module": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2026-03-06T05:07:06Z"
+ },
+ "tilk/rtcm_msgs": {
+  "stars": 12,
+  "archived": false,
+  "pushed": "2022-11-02T09:21:21Z"
+ },
+ "TobasFlightControl/tobas": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-20T00:06:01Z"
+ },
+ "Tonywelte/rosidlcpp": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-08-24T19:17:16Z"
+ },
+ "ToyotaResearchInstitute/gauges2": {
+  "stars": 36,
+  "archived": false,
+  "pushed": "2024-03-14T15:03:26Z"
+ },
+ "traclabs/trac_ik": {
+  "stars": 16,
+  "archived": false,
+  "pushed": "2026-06-02T13:48:05Z"
+ },
+ "trimble-oss/trimble_driver_ros": {
+  "stars": 9,
+  "archived": false,
+  "pushed": "2026-08-22T19:22:30Z"
+ },
+ "tu-darmstadt-ros-pkg/hector_rviz_overlay": {
+  "stars": 23,
+  "archived": false,
+  "pushed": "2026-11-17T16:41:19Z"
+ },
+ "turtlebot/turtlebot4": {
+  "stars": 168,
+  "archived": false,
+  "pushed": "2025-09-09T14:17:17Z"
+ },
+ "turtlebot/turtlebot4_desktop": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2024-10-30T21:10:40Z"
+ },
+ "turtlebot/turtlebot4_robot": {
+  "stars": 38,
+  "archived": false,
+  "pushed": "2025-09-02T17:28:46Z"
+ },
+ "turtlebot/turtlebot4_setup": {
+  "stars": 33,
+  "archived": false,
+  "pushed": "2025-07-16T00:34:58Z"
+ },
+ "turtlebot/turtlebot4_simulator": {
+  "stars": 113,
+  "archived": false,
+  "pushed": "2025-03-06T16:52:05Z"
+ },
+ "tuw-robotics/marker_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2023-04-02T10:27:08Z"
+ },
+ "tuw-robotics/tuw_geometry": {
+  "stars": 8,
+  "archived": false,
+  "pushed": "2026-08-13T17:52:58Z"
+ },
+ "tuw-robotics/tuw_msgs": {
+  "stars": 6,
+  "archived": false,
+  "pushed": "2026-11-19T18:28:30Z"
+ },
+ "tuw-robotics/tuw_robotics": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-11-16T09:51:54Z"
+ },
+ "ubi-agni/agni_tf_tools": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-08-13T21:37:33Z"
+ },
+ "uleroboticsgroup/yasmin": {
+  "stars": 284,
+  "archived": false,
+  "pushed": "2026-11-14T16:15:47Z"
+ },
+ "unisa-acg/inverse-dynamics-solver": {
+  "stars": 30,
+  "archived": false,
+  "pushed": "2026-06-26T12:54:30Z"
+ },
+ "UniversalRobots/Universal_Robots_Client_Library": {
+  "stars": 205,
+  "archived": false,
+  "pushed": "2026-11-19T14:34:37Z"
+ },
+ "UniversalRobots/Universal_Robots_ROS2_Description": {
+  "stars": 375,
+  "archived": false,
+  "pushed": "2026-11-13T13:58:12Z"
+ },
+ "UniversalRobots/Universal_Robots_ROS2_Driver": {
+  "stars": 848,
+  "archived": false,
+  "pushed": "2026-11-19T14:36:30Z"
+ },
+ "UniversalRobots/Universal_Robots_ROS2_GZ_Simulation": {
+  "stars": 90,
+  "archived": false,
+  "pushed": "2026-11-09T14:30:59Z"
+ },
+ "UniversalRobots/urinterfaces": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-03T07:46:16Z"
+ },
+ "uos/lvr2": {
+  "stars": 158,
+  "archived": false,
+  "pushed": "2026-11-05T10:20:01Z"
+ },
+ "vdovetzi/daheng4ros": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-01-22T22:32:25Z"
+ },
+ "vooon/ntpd_driver": {
+  "stars": 18,
+  "archived": false,
+  "pushed": "2025-09-08T17:12:04Z"
+ },
+ "vrpn/vrpn": {
+  "stars": 435,
+  "archived": false,
+  "pushed": "2026-10-22T14:47:48Z"
+ },
+ "vtalpaert/ardrone-ros2": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-03-10T13:18:25Z"
+ },
+ "vtalpaert/ros2-phone-sensors": {
+  "stars": 10,
+  "archived": false,
+  "pushed": "2026-06-28T13:39:28Z"
+ },
+ "WATonomous/wato_monorepo": {
+  "stars": 128,
+  "archived": false,
+  "pushed": "2026-11-19T06:25:04Z"
+ },
+ "wep21/aws_sdk_cpp_vendor": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2023-09-27T15:51:58Z"
+ },
+ "wep21/bag2_to_image": {
+  "stars": 1,
+  "archived": false,
+  "pushed": "2026-05-22T03:26:29Z"
+ },
+ "wep21/tinyspline_vendor": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2024-05-03T13:12:34Z"
+ },
+ "wep21/turbojpeg_compressed_image_transport": {
+  "stars": 3,
+  "archived": false,
+  "pushed": "2025-05-28T22:51:50Z"
+ },
+ "wg-perception/object_recognition_msgs": {
+  "stars": 2,
+  "archived": false,
+  "pushed": "2025-07-25T08:15:44Z"
+ },
+ "wirestead/wirestead": {
+  "stars": 5,
+  "archived": false,
+  "pushed": "2026-11-19T12:08:47Z"
+ },
+ "wirestead/wirestead-ros": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-10-29T11:39:45Z"
+ },
+ "yuokamoto/PyBulletFleet": {
+  "stars": 0,
+  "archived": false,
+  "pushed": "2026-11-07T16:18:54Z"
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "IntelRealSense/realsense-ros@24e01f1d79": {
+  "cause": "out_of_rules",
+  "rule": "new: launch-action-invalid-argument",
+  "detail": "Node(node_name=...) is a removed launch_ros kwarg (TypeError at launch on humble). No rule checks launch action keyword arguments against the launch_ros API."
+ },
+ "ROBOTIS-GIT/turtlebot3@95bd60b219": {
+  "cause": "unknown_facts",
+  "rule": "L005",
+  "detail": "rviz config path in external package nav2_bringup (share/launch/nav2_default_view.rviz). File lists of external package share dirs are not in the knowledge pack, so L005 cannot check."
+ },
+ "mavlink/mavros@227c02e04d": {
+  "cause": "unknown_facts",
+  "rule": "P003",
+  "detail": "plugin_blacklist is dead (source declares plugin_denylist), but mavros_node is marked 'plugin params open' (pluginlib plugins declare params), so P003 is suppressed. log_output part is not a bug (arg declared)."
+ },
+ "SteveMacenski/spatio_temporal_voxel_layer@6b67f25e79": {
+  "cause": "rosfix_bug",
+  "rule": "N006",
+  "detail": "Plugin is the in-repo pluginlib class whose declareParameter() calls are visible, but nav2.rs typos() only knows pack Nav2 plugin types and only reports near-miss names; dead key max_obstacle_height not reported."
+ },
+ "RoboSense-LiDAR/rslidar_sdk@49c4332555": {
+  "cause": "out_of_rules",
+  "rule": "F003 (extend)",
+  "detail": "ros_frame_id lives in a driver-private yaml-cpp config (not ros__parameters), and is a publisher-side header frame; F003 only checks lookup-frame ROS params by design. Needs header-frame slash rule + driver config schemas."
+ },
+ "ROBOTIS-GIT/open_manipulator@8b282b7152": {
+  "cause": "out_of_rules",
+  "rule": "new: urdf-missing-mesh (L005-like)",
+  "detail": "URDF mesh /end_unit.stl does not exist in the package (link6.stl does). No rule checks URDF mesh/resource file existence; L005 covers launch-referenced files only."
+ },
+ "gazebosim/ros_gz@118e33794e": {
+  "cause": "unknown_facts",
+  "rule": "L005",
+  "detail": "config_file=/home/caguero/... is an absolute host path in custom frontend actions <gz_server>/<ros_gz_bridge> (launch extension, unmodeled). Absolute paths outside the workspace are unknowable; a home-dir path heuristic would catch it."
+ },
+ "swri-robotics/mapviz@4465b9d931": {
+  "cause": "harness",
+  "rule": "P001/new: ros1-global-param",
+  "detail": "2015 ROS 1 tree (type=, rosparam, global <param>); replayed as humble. rosfix is ROS 2 only; mining should drop ROS 1 trees (no package.xml format>=2/ament)."
+ },
+ "DFKI-NI/mir_robot@229bde5788": {
+  "cause": "harness",
+  "rule": "T002/T001",
+  "detail": "2019 ROS 1 (melodic) amcl.launch, service remap static_map. ROS 1 launch semantics not modelled; commit should be excluded from a ROS 2 replay."
+ },
+ "splintered-reality/py_trees_ros@a26548ad59": {
+  "cause": "harness",
+  "rule": "T002",
+  "detail": "2015 ROS 1 gopher launch file (remap from wrong namespace). ROS 1 launch not analysed by rosfix; harness included a pre-ROS 2 commit."
+ },
+ "ros/diagnostics@bfcefef5f8": {
+  "cause": "harness",
+  "rule": "new: plugin-type-unknown (generic N002)",
+  "detail": "2009 ROS 1 stack (stack.xml, rosparam). Analyzer type ComponentAnalyzer nonexistent; ROS 1 out of scope. Even in ROS 2, only Nav2/ros2_control plugin types are checked."
+ },
+ "ros/urdfdom@4232496f32": {
+  "cause": "out_of_rules",
+  "rule": "new: urdf-joint-missing-link",
+  "detail": "Test URDF had gripper joints without <parent>/<child>; urdfdom rejects it. No rule validates URDF structure (joint parent/child present, links exist, single root). 2010 test fixture."
+ },
+ "ros2/rviz@a59b7516d5": {
+  "cause": "out_of_rules",
+  "rule": "new: cmake-variable-typo",
+  "detail": "CMake variable typo ORGE_CMAKE_ARGS vs OGRE_CMAKE_ARGS in a vendor package; build logic, not ROS configuration. Arguably out of scope (score.py excludes CMake-only commits)."
+ },
+ "ros-perception/depthimage_to_laserscan@cd097640cf": {
+  "cause": "rosfix_bug",
+  "rule": "P001",
+  "detail": "Two bugs: extract/launch.rs:24 misses repo-root 'launch/x-launch.py' (contains(\"/launch/\") needs leading slash), so 0 graphs; nested, P001 still silent: params.rs:158 closest() rejects key 'X' vs node 'X_node'."
+ }
+}

@@ -1,0 +1,219 @@
+{
+ "repos": 830,
+ "analysed": 826,
+ "failed": [
+  [
+   "cps-test-lab/scenario-execution",
+   "thread 'main' (74768) has overflowed its stack"
+  ],
+  [
+   "Kinovarobotics/ros2_kortex",
+   "thread 'main' (48024) has overflowed its stack"
+  ],
+  [
+   "orbbec/OrbbecSDK_ROS2",
+   "clone failed"
+  ],
+  [
+   "TobasFlightControl/tobas",
+   "clone failed"
+  ]
+ ],
+ "repos_with_findings": 278,
+ "repos_with_errors": 65,
+ "findings": 3384,
+ "per_rule": {
+  "P003": {
+   "severity": "warning",
+   "findings": 996,
+   "repos": 36
+  },
+  "L002": {
+   "severity": "warning",
+   "findings": 761,
+   "repos": 228
+  },
+  "X001": {
+   "severity": "warning",
+   "findings": 491,
+   "repos": 2
+  },
+  "P002": {
+   "severity": "error",
+   "findings": 215,
+   "repos": 6
+  },
+  "L001": {
+   "severity": "error",
+   "findings": 141,
+   "repos": 18
+  },
+  "P005": {
+   "severity": "warning",
+   "findings": 121,
+   "repos": 7
+  },
+  "C005": {
+   "severity": "error",
+   "findings": 75,
+   "repos": 5
+  },
+  "E002": {
+   "severity": "warning",
+   "findings": 71,
+   "repos": 31
+  },
+  "S002": {
+   "severity": "warning",
+   "findings": 55,
+   "repos": 16
+  },
+  "L004": {
+   "severity": "warning",
+   "findings": 51,
+   "repos": 10
+  },
+  "A002": {
+   "severity": "info",
+   "findings": 49,
+   "repos": 18
+  },
+  "X002": {
+   "severity": "warning",
+   "findings": 35,
+   "repos": 2
+  },
+  "P004": {
+   "severity": "error",
+   "findings": 32,
+   "repos": 7
+  },
+  "T004": {
+   "severity": "info",
+   "findings": 30,
+   "repos": 4
+  },
+  "L003": {
+   "severity": "error",
+   "findings": 28,
+   "repos": 15
+  },
+  "R001": {
+   "severity": "info",
+   "findings": 23,
+   "repos": 12
+  },
+  "L005": {
+   "severity": "error",
+   "findings": 23,
+   "repos": 4
+  },
+  "T003": {
+   "severity": "error",
+   "findings": 21,
+   "repos": 10
+  },
+  "T001": {
+   "severity": "warning",
+   "findings": 20,
+   "repos": 6
+  },
+  "A001": {
+   "severity": "warning",
+   "findings": 17,
+   "repos": 3
+  },
+  "Q004": {
+   "severity": "info",
+   "findings": 16,
+   "repos": 13
+  },
+  "C002": {
+   "severity": "error",
+   "findings": 16,
+   "repos": 3
+  },
+  "E001": {
+   "severity": "error",
+   "findings": 15,
+   "repos": 4
+  },
+  "C004": {
+   "severity": "warning",
+   "findings": 12,
+   "repos": 4
+  },
+  "P001": {
+   "severity": "warning",
+   "findings": 11,
+   "repos": 2
+  },
+  "T002": {
+   "severity": "warning",
+   "findings": 9,
+   "repos": 6
+  },
+  "S001": {
+   "severity": "warning",
+   "findings": 9,
+   "repos": 3
+  },
+  "Q005": {
+   "severity": "warning",
+   "findings": 8,
+   "repos": 1
+  },
+  "F002": {
+   "severity": "error",
+   "findings": 8,
+   "repos": 1
+  },
+  "N003": {
+   "severity": "warning",
+   "findings": 7,
+   "repos": 2
+  },
+  "N005": {
+   "severity": "warning",
+   "findings": 5,
+   "repos": 4
+  },
+  "X003": {
+   "severity": "error",
+   "findings": 5,
+   "repos": 2
+  },
+  "C001": {
+   "severity": "error",
+   "findings": 4,
+   "repos": 1
+  },
+  "C008": {
+   "severity": "warning",
+   "findings": 1,
+   "repos": 1
+  },
+  "N006": {
+   "severity": "warning",
+   "findings": 1,
+   "repos": 1
+  },
+  "N001": {
+   "severity": "error",
+   "findings": 1,
+   "repos": 1
+  },
+  "M001": {
+   "severity": "warning",
+   "findings": 1,
+   "repos": 1
+  }
+ },
+ "secs": {
+  "median": 0.1235,
+  "p95": 0.882,
+  "max": 8.312,
+  "total": 217.3
+ },
+ "version": 1
+}

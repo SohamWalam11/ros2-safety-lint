@@ -1,0 +1,380 @@
+[
+ {
+  "tid": "P001-108",
+  "rule": "P001",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "Node launched as /carla/scenario_server; rclcpp matches param keys by exact FQN, so key 'scenario_server' (-> /scenario_server) never applies. File also uses YAML aliases rcl rejects."
+ },
+ {
+  "tid": "P001-109",
+  "rule": "P001",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "ptu.launch.py launches ptu_driver in namespace 'ptu' by default; key 'ptu_driver' resolves to /ptu_driver, not /ptu/ptu_driver, so values ignored."
+ },
+ {
+  "tid": "P002-110",
+  "rule": "P002",
+  "verdict": "fp",
+  "fp_cause": "clearpath_config robot.yaml sample, not a ROS parameter file",
+  "rationale": "File is a Clearpath robot config consumed by clearpath_config Python library, never passed as --params-file."
+ },
+ {
+  "tid": "P002-111",
+  "rule": "P002",
+  "verdict": "fp",
+  "fp_cause": "clearpath_config robot.yaml sample, not a ROS parameter file",
+  "rationale": "Sample Clearpath robot config read by clearpath_config library; sensors section is not a node section."
+ },
+ {
+  "tid": "P002-112",
+  "rule": "P002",
+  "verdict": "fp",
+  "fp_cause": "launch_pal preset format (ros__parameters/remappings/arguments), not ROS params file",
+  "rationale": "Test mock for launch_pal parameter presets; launch_pal reads remappings/arguments keys itself, file never given to rcl."
+ },
+ {
+  "tid": "P002-113",
+  "rule": "P002",
+  "verdict": "tp_intentional",
+  "fp_cause": "",
+  "rationale": "rcl_yaml_param_parser test fixture params_with_no_node.yaml deliberately lacks node level to test parser handling."
+ },
+ {
+  "tid": "P002-114",
+  "rule": "P002",
+  "verdict": "tp_intentional",
+  "fp_cause": "",
+  "rationale": "Same rcl negative test fixture; malformed structure is intentional."
+ },
+ {
+  "tid": "P002-115",
+  "rule": "P002",
+  "verdict": "fp",
+  "fp_cause": "Kubernetes ConfigMap manifest, not a ROS parameter file",
+  "rationale": "k8s/parameters.yaml is a ConfigMap; embedded string holds the real params file with proper ros__parameters."
+ },
+ {
+  "tid": "P002-116",
+  "rule": "P002",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "Regular nodes load carla_bridge.yaml via rcl, which errors on values before ros__parameters and on YAML aliases; anchor section never applied."
+ },
+ {
+  "tid": "P002-117",
+  "rule": "P002",
+  "verdict": "fp",
+  "fp_cause": "YAML anchor template merged via <<; composable-node loader is PyYAML",
+  "rationale": "Only used by load_composable_node; launch_ros parses with PyYAML (anchors/merge ok) and skips sections lacking ros__parameters."
+ },
+ {
+  "tid": "P003-118",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "declared via mrpt_sensorlib init() template param table",
+  "rationale": "GenericSensorNode::init declares each rosParams entry (serial_baud_rate) with declare_parameter<std::string> in mrpt_sensorlib.cpp."
+ },
+ {
+  "tid": "P003-119",
+  "rule": "P003",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "GuiWrapper declares only its own params; rtabmap Vis/* values in shared dict passed to rtabmap_viz are ignored there (benign)."
+ },
+ {
+  "tid": "P003-120",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "node reads raw get_parameter_overrides() into YAML tree",
+  "rationale": "PFLocalizationNode builds config from get_parameter_overrides(); core reads initial_pose.mean.pitch if present."
+ },
+ {
+  "tid": "P003-121",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "/** params consumed by sibling 'npv' node with automatically_declare",
+  "rationale": "tf_broadcaster is auxiliary; SbgDevice creates node 'npv' with automatically_declare_parameters_from_overrides; ConfigStore reads gnss.posRejectMode."
+ },
+ {
+  "tid": "P003-122",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "/** params consumed by sibling 'npv' node with automatically_declare",
+  "rationale": "output.log_ekf_rot_accel_body read by ConfigStore from 'npv' node that auto-declares overrides."
+ },
+ {
+  "tid": "P003-123",
+  "rule": "P003",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "rtabmap_viz (GuiWrapper) does not declare Icp/* rtabmap params; shared dict values ignored at this node (benign)."
+ },
+ {
+  "tid": "P003-124",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "filter chain plugin declares params dynamically via ParameterReader",
+  "rationale": "SlidingWindowMathExpressionFilter reads output_layer via ParameterReader, which declares prefix+name on node params interface."
+ },
+ {
+  "tid": "P003-125",
+  "rule": "P003",
+  "verdict": "fp",
+  "fp_cause": "node reads raw get_parameter_overrides() into YAML tree",
+  "rationale": "Overrides converted to YAML; core loads relocalization_resolution_phi via MCP_LOAD_OPT_DEG."
+ },
+ {
+  "tid": "P004-126",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "launch_ros yaml-evaluates substitution values ('5000' -> int)",
+  "rationale": "value $(var pygame_web_port) default '5000'; evaluate_parameters applies yaml.safe_load, producing integer."
+ },
+ {
+  "tid": "P004-127",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "rcl parses hex with strtoll base 0",
+  "rationale": "0x174 parsed as integer by rcl_yaml_param_parser (strtoll base 0); matches integer declaration."
+ },
+ {
+  "tid": "P004-128",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "launch_ros yaml-evaluates substitution values ('2000' -> int)",
+  "rationale": "value $(var carla_port) default '2000' becomes int via yaml.safe_load in evaluate_parameters."
+ },
+ {
+  "tid": "P004-129",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "rcl parses hex with strtoll base 0",
+  "rationale": "0xB500000 parsed as integer by rcl yaml parser; no type mismatch."
+ },
+ {
+  "tid": "P004-130",
+  "rule": "P004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "loop_rate = 1 (Python int despite annotation) passed; node declares default 1.0 (double); rclpy raises InvalidParameterTypeException."
+ },
+ {
+  "tid": "P004-131",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "launch_ros yaml-evaluates substitution values into int array",
+  "rationale": "$(var domains) e.g. '[0,1]' yaml-evaluated to integer tuple, not string; empty default would fail differently."
+ },
+ {
+  "tid": "P004-132",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "explicit type: float on frontend param; value yaml-evaluated",
+  "rationale": "launch_ros frontend honours type attribute; '0.15' becomes double, matching declare_parameter('robot_radius', 0.15)."
+ },
+ {
+  "tid": "P004-133",
+  "rule": "P004",
+  "verdict": "fp",
+  "fp_cause": "launch_ros yaml-evaluates substitution values ('3883' -> int)",
+  "rationale": "Quoted $(var port) still a substitution; '3883' yaml-evaluated to int, matching declare_parameter('port', 0)."
+ },
+ {
+  "tid": "P005-134",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) does not throw; teleop.yaml supplies value",
+  "rationale": "launch.py passes teleop.yaml (via PythonExpression) with z_limit; non-templated declare without override leaves param unset, no throw."
+ },
+ {
+  "tid": "P005-135",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw in Jazzy",
+  "rationale": "rclcpp stores uninitialized param; bool get_parameter(name, out) returns false. tf_prefix optional by design."
+ },
+ {
+  "tid": "P005-136",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw; reads in try/catch",
+  "rationale": "Compass params optional; get_parameter wrapped in try block, declare itself does not throw."
+ },
+ {
+  "tid": "P005-137",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw; reads in try/catch",
+  "rationale": "Same optional compass-correction pattern in phidgets_spatial."
+ },
+ {
+  "tid": "P005-138",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw; loadParameter has default",
+  "rationale": "loadParameter('broker.tls.enabled', ..., false) handles unset value."
+ },
+ {
+  "tid": "P005-139",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "teleop.yaml passed through PythonExpression provides takeoff.height",
+  "rationale": "Templated declare<float> would throw if unset, but launch.py/launch_teleop2.py pass teleop.yaml with takeoff.height: 0.5."
+ },
+ {
+  "tid": "P005-140",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw in Jazzy",
+  "rationale": "Same tf_prefix optional pattern; bool get_parameter overload returns false."
+ },
+ {
+  "tid": "P005-141",
+  "rule": "P005",
+  "verdict": "fp",
+  "fp_cause": "declare(name, type) without override does not throw in Jazzy",
+  "rationale": "stack_size_to_use optional; checked via bool get_parameter."
+ },
+ {
+  "tid": "Q004-142",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "sdf_parser.launch.py runs RSP (transient_local) with vehicle.rviz; Volatile RobotModel subscriber misses description when RViz starts later."
+ },
+ {
+  "tid": "Q004-143",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "robot_description_publisher.launch.py starts RSP with RViz; Volatile Description Topic misses latched description."
+ },
+ {
+  "tid": "Q004-144",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "ewellix RSP publishes latched /robot_description; model.rviz volatile durability misses it."
+ },
+ {
+  "tid": "Q004-145",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "bcr_arm launches RSP with this RViz config; Volatile durability late joiner misses description."
+ },
+ {
+  "tid": "Q004-146",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "moveit.rviz RobotModel Volatile on latched /robot_description from RSP; same miss."
+ },
+ {
+  "tid": "Q004-147",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "raspimouse display.launch.py runs RSP and RViz; Volatile durability misses latched description."
+ },
+ {
+  "tid": "Q004-148",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "bcr_bot rviz.launch.py with RSP; entire_setup.rviz Volatile Description Topic."
+ },
+ {
+  "tid": "Q004-149",
+  "rule": "Q004",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "nicla_sim.launch.py runs RSP with nicla.rviz Volatile Description Topic."
+ },
+ {
+  "tid": "Q005-150",
+  "rule": "Q005",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "Mag subscription created only if use_mag; shipped config sets use_mag: false, so /imu/mag override has no effect."
+ },
+ {
+  "tid": "Q005-151",
+  "rule": "Q005",
+  "verdict": "fp",
+  "fp_cause": "subscription via message_filters::Subscriber with QosOverridingOptions",
+  "rationale": "Node subscribes imu/data_raw (root ns -> /imu/data_raw) with qos_overriding_options; override applies."
+ },
+ {
+  "tid": "R001-152",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "pytest test module, not a launch file",
+  "rationale": "test_timer_action.py is a unit test under launch/test; no generate_launch_description expected."
+ },
+ {
+  "tid": "R001-153",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "libyaml accepts flow sequence closing bracket at key indentation",
+  "rationale": "rcl/libyaml do not enforce indentation inside flow context; file loads in practice."
+ },
+ {
+  "tid": "R001-154",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "Qt Installer Framework package.xml, not ROS package manifest",
+  "rationale": "installer/.../meta/package.xml is a Qt IFW component descriptor."
+ },
+ {
+  "tid": "R001-155",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "STM32CubeIDE debug configuration, not ROS launch file",
+  "rationale": "'.launch' file is Eclipse/STM32 launchConfiguration XML."
+ },
+ {
+  "tid": "R001-156",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "libyaml accepts flow sequence closing bracket at key indentation",
+  "rationale": "Same create3 republisher params pattern; libyaml (rcl) parses it."
+ },
+ {
+  "tid": "R001-157",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "tinyxml2 does not validate XML declaration attributes",
+  "rationale": "'verison' typo in declaration ignored by tinyxml2; urdf loads the file."
+ },
+ {
+  "tid": "R001-158",
+  "rule": "R001",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "xacro:macro self-closed on line 4 then closed again at line 41: malformed XML; included by project_description.urdf.xacro, so xacro fails."
+ },
+ {
+  "tid": "R001-159",
+  "rule": "R001",
+  "verdict": "fp",
+  "fp_cause": "tinyxml2 does not validate XML declaration attributes",
+  "rationale": "Same 'verison' typo; urdf parser loads the file fine."
+ },
+ {
+  "tid": "S001-160",
+  "rule": "S001",
+  "verdict": "tp",
+  "fp_cause": "",
+  "rationale": "use_sim_time defaults False for RSP and cartographer_node, but occupancy grid node hard-codes True; mismatched clocks in default use."
+ },
+ {
+  "tid": "S001-161",
+  "rule": "S001",
+  "verdict": "fp",
+  "fp_cause": "deliberate wall time for orchestrator; no timestamped data exchange",
+  "rationale": "Comment documents lifecycle_manager uses wall time since it runs before /clock exists; it only calls lifecycle services."
+ }
+]

@@ -1,0 +1,436 @@
+[
+ {
+  "id": "108291",
+  "cls": "required parameter missing",
+  "verdict": "partial",
+  "rule": "P005 only when declared without default",
+  "rospec": "ParameterError: The configuration manager: string is missing from the component instance"
+ },
+ {
+  "id": "11095",
+  "cls": "TF lookup of a frame nobody broadcasts",
+  "verdict": "partial",
+  "rule": "F004 for frames named in parameters; needs the TF-broadcaster catalog",
+  "rospec": "ParameterDependencyError: node instance configurations for laser_scan_matcher do not respect the dependency defined in the node type: is_simulation -> use_sim_t"
+ },
+ {
+  "id": "11547",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(camera/depth/points)) == 1 not satisfied in: publishes to camera/depth/points: sensor_msgs/PointCloud2 whe"
+ },
+ {
+  "id": "12977",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for move_base do not respect the dependency defined in the node type: local_costmap/footprint[0, 1] >= lo"
+ },
+ {
+  "id": "142456",
+  "cls": "QoS mismatch",
+  "verdict": "covered",
+  "rule": "Q001",
+  "rospec": "QoSError: Mismatch in quality of service for reliability, consumer value Reliable does not match provider value BestEffort"
+ },
+ {
+  "id": "164526",
+  "cls": "service/action without server",
+  "verdict": "covered",
+  "rule": "T005",
+  "rospec": "ConnectionError: Provider not found for consumes service get_distance_to_obstacle: hector_nav_msgs/GetDistanceToObstacle in hector_object_tracker"
+ },
+ {
+  "id": "165661",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for robot_localization do not respect the dependency defined in the node type: imu0_config[1, 2] == imu0_"
+ },
+ {
+  "id": "185909",
+  "cls": "deployment/context assumption",
+  "verdict": "out of scope",
+  "rule": "depends on the environment, not the files",
+  "rospec": "Refinement environment == \"EmptyLayout\" not satisfied in environment: Enum[ObstacleLayout, EmptyLayout] where {environment == ObstacleLayout}"
+ },
+ {
+  "id": "188919",
+  "cls": "simulation without use_sim_time",
+  "verdict": "covered",
+  "rule": "S002 (when the simulator is launched)",
+  "rospec": "ParameterDependencyError: node instance configurations for laser_scan_matcher_node do not respect the dependency defined in the node type: is_simulation -> use_"
+ },
+ {
+  "id": "190126",
+  "cls": "service/action without server",
+  "verdict": "covered",
+  "rule": "T005",
+  "rospec": "ConnectionError: Provider not found for consumes service /camera/set_camera_info: sensor_msgs/SetCameraInfo in camera_calibration"
+ },
+ {
+  "id": "190483",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(camera/depth/points)) == 1 not satisfied in: publishes to camera/depth/points: sensor_msgs/PointCloud2 whe"
+ },
+ {
+  "id": "195289",
+  "cls": "service/action without server",
+  "verdict": "covered",
+  "rule": "T005",
+  "rospec": "ConnectionError: Provider not found for consumes service static_map: nav_msgs/GetMap in amcl"
+ },
+ {
+  "id": "200387",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for obstacle_layer do not respect the dependency defined in the node type: z_voxels == len(observation_so"
+ },
+ {
+  "id": "204321",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /RosAria/cmd_vel in rosaria_node"
+ },
+ {
+  "id": "210583",
+  "cls": "deployment/context assumption",
+  "verdict": "out of scope",
+  "rule": "depends on the environment, not the files",
+  "rospec": "Refinement is_simulation == False not satisfied in is_simulation: bool where {is_simulation == True}"
+ },
+ {
+  "id": "214816",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for ekf_localization_node do not respect the dependency defined in the node type: exists(twist0_config) -"
+ },
+ {
+  "id": "217551",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(/mico_arm_driver/in/cartesian_velocity)) == 1 not satisfied in: publishes to /mico_arm_driver/in/cartesian"
+ },
+ {
+  "id": "218573",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(image)) == 1 not satisfied in: publishes to image: sensor_msgs/Image where {count(publishers(image)) == 1}"
+ },
+ {
+  "id": "22195",
+  "cls": "parameter the node does not declare",
+  "verdict": "covered",
+  "rule": "P003",
+  "rospec": "ParameterError: Configurable information penalize_negative_x instanced in dwa_local_planner was not found in the node type dwa_local_planner_type"
+ },
+ {
+  "id": "223521",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /kinect2/pointcloud_filtered in pointcloud_to_laserscan"
+ },
+ {
+  "id": "225375",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /set_pose in ekf_localization_node"
+ },
+ {
+  "id": "225694",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast odom to map has multiple parents: ['robot_localization_type', 'rtab']"
+ },
+ {
+  "id": "227092",
+  "cls": "TF lookup of a frame nobody broadcasts",
+  "verdict": "partial",
+  "rule": "F004 for frames named in parameters; needs the TF-broadcaster catalog",
+  "rospec": "TFError: Broadcaster not found for listener listen base_link to map in rviz"
+ },
+ {
+  "id": "227128",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast base_footprint to odom has multiple parents: ['node1_type', 'gps_node_type', 'node0']"
+ },
+ {
+  "id": "229722",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(tf)) == 1 not satisfied in: subscribes to tf: tf2_msgs/TFMessage where {count(publishers(tf)) == 1}"
+ },
+ {
+  "id": "231458",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for rgbdslam do not respect the dependency defined in the node type: exists(topic_image_depth) -> topic_p"
+ },
+ {
+  "id": "232853",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterError: The configuration cost_scaling_factor: double is missing from the component instance"
+ },
+ {
+  "id": "235375",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(joint_states)) == 1 not satisfied in: publishes to joint_states: sensor_msgs/JointState where {count(publi"
+ },
+ {
+  "id": "250138",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: plugin instance configurations for teb_local_planner do not respect the dependency defined in the plugin type: exists(orientation_mode"
+ },
+ {
+  "id": "253726",
+  "cls": "two nodes with the same name",
+  "verdict": "covered",
+  "rule": "A003",
+  "rospec": "ROSpecFormationError: Variable ratslam_ros already defined in the program"
+ },
+ {
+  "id": "255713",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast odom to map has multiple parents: ['ekf_node_type', 'amcl']"
+ },
+ {
+  "id": "257637",
+  "cls": "TF lookup of a frame nobody broadcasts",
+  "verdict": "partial",
+  "rule": "F004 for frames named in parameters; needs the TF-broadcaster catalog",
+  "rospec": "TFError: Broadcaster not found for listener listen \"base_link\" to \"base_link\" in hector_mapping"
+ },
+ {
+  "id": "257935",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber imu_data in custom_node"
+ },
+ {
+  "id": "259561",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber position in custom_node2"
+ },
+ {
+  "id": "280412",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber turtle2/cmd_vel in turtlesim_node"
+ },
+ {
+  "id": "28163",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ParameterDependencyError: node instance configurations for planning_scene_warehouse_viewer do not respect the dependency defined in the node type: is_simulation"
+ },
+ {
+  "id": "283932",
+  "cls": "TF cycle",
+  "verdict": "covered",
+  "rule": "F005",
+  "rospec": "TFError: Broadcast camera_link to camera_rgb_frame is cyclic"
+ },
+ {
+  "id": "285062",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for map_server do not respect the dependency defined in the node type: exists(frame_id) -> use_map_topic"
+ },
+ {
+  "id": "296720",
+  "cls": "simulation without use_sim_time",
+  "verdict": "covered",
+  "rule": "S002 (when the simulator is launched)",
+  "rospec": "ParameterDependencyError: node instance configurations for joint_controller do not respect the dependency defined in the node type: is_simulation -> use_sim_tim"
+ },
+ {
+  "id": "316037",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast odom to map has multiple parents: ['static_transform_publisher', 'amcl']"
+ },
+ {
+  "id": "319065",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for amcl do not respect the dependency defined in the node type: odom_model_type == DiffCorrected -> odom"
+ },
+ {
+  "id": "320389",
+  "cls": "topic with more than one publisher where one is required",
+  "verdict": "gap",
+  "rule": "new: single-writer topics",
+  "rospec": "ConnectionError: Connection property count(publishers(rgbd_image)) == 1 not satisfied in: subscribes to rgbd_image: sensor_msgs/Image where {count(publishers(rg"
+ },
+ {
+  "id": "325712",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast odom to map has multiple parents: ['static_transform_publisher', 'ekf_localization_node']"
+ },
+ {
+  "id": "33175",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for rgbdslam do not respect the dependency defined in the node type: base_frame_name == \"odom\" -> !(exist"
+ },
+ {
+  "id": "336221",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber initialpose_dqn in amcl"
+ },
+ {
+  "id": "340683",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast \"base_link\" to \"odom\" has multiple parents: ['global_costmap_t', 'local_costmap']"
+ },
+ {
+  "id": "350740",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for navsat_transform_node do not respect the dependency defined in the node type: version >= V221 -> yaw_"
+ },
+ {
+  "id": "360477",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /sensor_1/points in ira_laser_tools"
+ },
+ {
+  "id": "364801",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for move_group do not respect the dependency defined in the node type: exists(elbow_joint/max_acceleratio"
+ },
+ {
+  "id": "378462",
+  "cls": "parameter the node does not declare",
+  "verdict": "covered",
+  "rule": "P003",
+  "rospec": "ParameterError: Configurable information worl_frame instanced in ekf_filter_node was not found in the node type ekf_filter_node_type"
+ },
+ {
+  "id": "379101",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for robot_state_publisher do not respect the dependency defined in the node type: number_of_robots > 1 ->"
+ },
+ {
+  "id": "390380",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for op_motion_simulation do not respect the dependency defined in the node type: object_avoidance -> !(us"
+ },
+ {
+  "id": "393902",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for ekf_filter_node do not respect the dependency defined in the node type: two_d_mode -> odom0_config[6]"
+ },
+ {
+  "id": "401185",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ParameterDependencyError: node instance configurations for amcl do not respect the dependency defined in the node type: exists(initial_pose) -> set_initial_pose"
+ },
+ {
+  "id": "405765",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /robo/cmd_vel in custom_node"
+ },
+ {
+  "id": "41000",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast \"odom_error\" to \"map\" has multiple parents: ['custom_node_type', 'amcl']"
+ },
+ {
+  "id": "45556",
+  "cls": "service/action without server",
+  "verdict": "covered",
+  "rule": "T005",
+  "rospec": "ConnectionError: Provider not found for consumes service SimpleActionClient: MoveBaseAction in simple_move"
+ },
+ {
+  "id": "53228",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "ConnectionError: Publisher not found for subscriber /rgbdslam/batch_clouds in custom_node"
+ },
+ {
+  "id": "53288",
+  "cls": "topic without publisher",
+  "verdict": "covered",
+  "rule": "T005 (T001 if a near-miss name exists)",
+  "rospec": "Publisher not found for subscriber /rgbdslam/batch_clouds"
+ },
+ {
+  "id": "63179",
+  "cls": "cross-parameter dependency",
+  "verdict": "gap",
+  "rule": "roadmap #7: cross-parameter constraints",
+  "rospec": "ParameterDependencyError: node instance configurations for rviz do not respect the dependency defined in the node type: number_of_systems > 1 -> exists(tf_prefi"
+ },
+ {
+  "id": "66176",
+  "cls": "simulation without use_sim_time",
+  "verdict": "covered",
+  "rule": "S002 (when the simulator is launched)",
+  "rospec": "ParameterDependencyError: node instance configurations for hector_mapping do not respect the dependency defined in the node type: is_simulation -> use_sim_time"
+ },
+ {
+  "id": "98736",
+  "cls": "TF frame with two parents",
+  "verdict": "partial",
+  "rule": "F001 sees URDF and static_transform_publisher; runtime broadcasters (amcl, robot_localization, SLAM) need a TF-broadcaster catalog",
+  "rospec": "TFError: Broadcast odom to map has multiple parents: ['static_transform_publisher_type', 'amcl']"
+ }
+]

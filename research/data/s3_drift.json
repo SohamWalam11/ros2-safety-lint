@@ -1,0 +1,1874 @@
+{
+ "packs:humble->jazzy": {
+  "nodes_compared": 36,
+  "nodes_only_before": [
+   "demo_nodes_cpp/add_two_ints_client_async",
+   "demo_nodes_cpp/add_two_ints_server",
+   "demo_nodes_cpp/content_filtering_publisher",
+   "demo_nodes_cpp/content_filtering_subscriber",
+   "demo_nodes_cpp/even_parameters_node",
+   "demo_nodes_cpp/list_parameters",
+   "demo_nodes_cpp/listener",
+   "demo_nodes_cpp/listener_best_effort",
+   "demo_nodes_cpp/listener_serialized_message",
+   "demo_nodes_cpp/one_off_timer",
+   "demo_nodes_cpp/parameter_blackboard",
+   "demo_nodes_cpp/parameter_events_async",
+   "demo_nodes_cpp/reuse_timer",
+   "demo_nodes_cpp/set_and_get_parameters",
+   "demo_nodes_cpp/talker",
+   "demo_nodes_cpp/talker_loaned_message",
+   "demo_nodes_cpp/talker_serialized_message",
+   "slam_toolbox/async_slam_toolbox_node"
+  ],
+  "nodes_only_after": [
+   "demo_nodes_cpp/allocator_tutorial",
+   "demo_nodes_py/add_two_ints_client",
+   "demo_nodes_py/add_two_ints_client_async",
+   "demo_nodes_py/add_two_ints_server",
+   "demo_nodes_py/async_param_client",
+   "demo_nodes_py/introspection",
+   "demo_nodes_py/listener",
+   "demo_nodes_py/listener_qos",
+   "demo_nodes_py/listener_serialized",
+   "demo_nodes_py/matched_event_detect",
+   "demo_nodes_py/set_parameters_callback",
+   "demo_nodes_py/talker",
+   "demo_nodes_py/talker_qos",
+   "demo_nodes_py/use_logger_service",
+   "nav2_collision_monitor/collision_detector",
+   "nav2_loopback_sim/loopback_simulator",
+   "opennav_docking/opennav_docking",
+   "opennav_following/opennav_following",
+   "slam_toolbox/lifelong_slam_toolbox_node"
+  ],
+  "params_before": 1311,
+  "changes": {
+   "controller_manager/ros2_control_node": {
+    "removed": [],
+    "added": [
+     "defaults.allow_controller_activation_with_inactive_hardware",
+     "defaults.deactivate_controllers_on_hardware_self_deactivate",
+     "defaults.switch_controller.strictness",
+     "diagnostics.threshold.controller_manager.periodicity.mean_error.error",
+     "diagnostics.threshold.controller_manager.periodicity.mean_error.warn",
+     "diagnostics.threshold.controller_manager.periodicity.standard_deviation.error",
+     "diagnostics.threshold.controller_manager.periodicity.standard_deviation.warn",
+     "diagnostics.threshold.controllers.execution_time.mean_error.error",
+     "diagnostics.threshold.controllers.execution_time.mean_error.warn",
+     "diagnostics.threshold.controllers.execution_time.standard_deviation.error",
+     "diagnostics.threshold.controllers.execution_time.standard_deviation.warn",
+     "diagnostics.threshold.controllers.periodicity.mean_error.error",
+     "diagnostics.threshold.controllers.periodicity.mean_error.warn",
+     "diagnostics.threshold.controllers.periodicity.standard_deviation.error",
+     "diagnostics.threshold.controllers.periodicity.standard_deviation.warn",
+     "diagnostics.threshold.hardware_components.execution_time.mean_error.error",
+     "diagnostics.threshold.hardware_components.execution_time.mean_error.warn",
+     "diagnostics.threshold.hardware_components.execution_time.standard_deviation.error",
+     "diagnostics.threshold.hardware_components.execution_time.standard_deviation.warn",
+     "diagnostics.threshold.hardware_components.periodicity.mean_error.error",
+     "diagnostics.threshold.hardware_components.periodicity.mean_error.warn",
+     "diagnostics.threshold.hardware_components.periodicity.standard_deviation.error",
+     "diagnostics.threshold.hardware_components.periodicity.standard_deviation.warn",
+     "enforce_command_limits",
+     "handle_exceptions",
+     "hardware_components_initial_state.inactive",
+     "hardware_components_initial_state.shutdown_on_initial_state_failure",
+     "hardware_components_initial_state.unconfigured",
+     "is_async",
+     "joint_offset",
+     "overruns.print_warnings",
+     "run_cycle",
+     "test_cycle",
+     "thread_priority"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 8,
+    "n_after": 42,
+    "verification": {}
+   },
+   "force_torque_sensor_broadcaster/wrench_transformer_node": {
+    "removed": [],
+    "added": [
+     "multiplier.force.x",
+     "multiplier.force.y",
+     "multiplier.force.z",
+     "multiplier.torque.x",
+     "multiplier.torque.y",
+     "multiplier.torque.z",
+     "offset.force.x",
+     "offset.force.y",
+     "offset.force.z",
+     "offset.torque.x",
+     "offset.torque.y",
+     "offset.torque.z",
+     "sensor_filter_chain"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 10,
+    "n_after": 23,
+    "verification": {}
+   },
+   "nav2_amcl/amcl": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 7,
+    "n_after": 12,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_behaviors/behavior_server": {
+    "removed": [
+     "*.acceleration_limit",
+     "*.deceleration_limit",
+     "*.minimum_speed",
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "default_cancel_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "global_costmap_topic",
+     "global_footprint_topic",
+     "initial_transform_timeout",
+     "local_frame",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [
+     [
+      "costmap_topic",
+      "local_costmap_topic",
+      0.81
+     ],
+     [
+      "footprint_topic",
+      "local_footprint_topic",
+      0.83
+     ]
+    ],
+    "retyped": [],
+    "n_before": 57,
+    "n_after": 83,
+    "verification": {
+     "*.acceleration_limit": "unknown",
+     "*.deceleration_limit": "unknown",
+     "*.minimum_speed": "unknown",
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact",
+     "costmap_topic": "real",
+     "footprint_topic": "real"
+    }
+   },
+   "nav2_bt_navigator/bt_navigator": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "*.enable_groot_monitoring",
+     "*.groot_server_port",
+     "*.plugin",
+     "action_server_result_timeout",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "default_cancel_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "navigators",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 49,
+    "n_after": 79,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_collision_monitor/collision_monitor": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "*.angular_limit",
+     "*.direction_end_angle",
+     "*.direction_start_angle",
+     "*.holonomic",
+     "*.linear_limit",
+     "*.linear_max",
+     "*.linear_min",
+     "*.min_points",
+     "*.min_range",
+     "*.polygon_similarity_threshold",
+     "*.polygon_sub_topic",
+     "*.polygon_subscribe_transient_local",
+     "*.sampling_distance",
+     "*.source_timeout",
+     "*.sources_names",
+     "*.theta_max",
+     "*.theta_min",
+     "*.use_global_height",
+     "*.velocity_polygons",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "frequency",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "state_topic",
+     "strict_param_loading",
+     "use_realtime_priority",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [
+     [
+      "*.points",
+      "DoubleArray",
+      "Str"
+     ]
+    ],
+    "n_before": 61,
+    "n_after": 104,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_controller/controller_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "always_reload_bt_xml",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "bt_loop_duration",
+     "burpy",
+     "costmap_update_timeout",
+     "default_cancel_timeout",
+     "default_server_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "goal_reached_tol",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "use_realtime_priority",
+     "wait_for_service_timeout",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [
+     [
+      "progress_checker_plugin",
+      "progress_checker_plugins",
+      0.98
+     ]
+    ],
+    "retyped": [],
+    "n_before": 58,
+    "n_after": 91,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact",
+     "progress_checker_plugin": "real"
+    }
+   },
+   "nav2_costmap_2d/nav2_costmap_2d_cloud": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "*combination_method",
+     "*enabled",
+     "*plugins",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 43,
+    "n_after": 67,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_costmap_2d/nav2_costmap_2d_markers": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "*combination_method",
+     "*enabled",
+     "*plugins",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 43,
+    "n_after": 67,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_lifecycle_manager/lifecycle_manager": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 12,
+    "n_after": 17,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_map_server/costmap_filter_info_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 19,
+    "n_after": 24,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_map_server/map_saver_cli": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 19,
+    "n_after": 24,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_map_server/map_saver_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 19,
+    "n_after": 24,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_map_server/map_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "strict_param_loading",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 19,
+    "n_after": 24,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_planner/planner_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "always_reload_bt_xml",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "bt_loop_duration",
+     "burpy",
+     "costmap_update_timeout",
+     "default_cancel_timeout",
+     "default_server_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "goal_reached_tol",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "wait_for_service_timeout",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 40,
+    "n_after": 72,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_route/route_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "always_reload_bt_xml",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "bt_loop_duration",
+     "burpy",
+     "default_cancel_timeout",
+     "default_server_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "goal_reached_tol",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "wait_for_service_timeout",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 110,
+    "n_after": 141,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_smoother/smoother_server": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "always_reload_bt_xml",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "bt_loop_duration",
+     "burpy",
+     "default_cancel_timeout",
+     "default_server_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "goal_reached_tol",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "wait_for_service_timeout",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 50,
+    "n_after": 81,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_velocity_smoother/velocity_smoother": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "burpy",
+     "enable_stamped_cmd_vel",
+     "stamp_smoothed_velocity_with_smoothing_time",
+     "strict_param_loading",
+     "use_realtime_priority",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 18,
+    "n_after": 25,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "nav2_waypoint_follower/waypoint_follower": {
+    "removed": [
+     "Foo",
+     "Foo.bar",
+     "Foo1",
+     "Foo2"
+    ],
+    "added": [
+     "action_server_result_timeout",
+     "always_reload_bt_xml",
+     "autostart_node",
+     "base_footprint_frame",
+     "base_link_frame",
+     "bond_heartbeat_period",
+     "bt_loop_duration",
+     "burpy",
+     "default_cancel_timeout",
+     "default_server_timeout",
+     "enable_stamped_cmd_vel",
+     "error_code_names",
+     "global_frame_id",
+     "goal_reached_tol",
+     "initial_transform_timeout",
+     "map_vis_z",
+     "obstacles.combination_method",
+     "pclayer_a.inflation.cost_scaling_factor",
+     "pclayer_a.inflation.inflation_radius",
+     "pclayer_a.static.map_topic",
+     "pclayer_b.inflation.cost_scaling_factor",
+     "pclayer_b.inflation.inflation_radius",
+     "plugin_container_layer_a.inflation_layer.plugin",
+     "plugin_container_layer_a.obstacle_layer.plugin",
+     "plugin_container_layer_a.plugin",
+     "plugin_container_layer_a.plugins",
+     "plugin_container_layer_b.inflation_layer.plugin",
+     "plugin_container_layer_b.plugin",
+     "plugin_container_layer_b.plugins",
+     "plugin_container_layer_b.static_layer.plugin",
+     "strict_param_loading",
+     "test",
+     "test_alternative",
+     "wait_for_service_timeout",
+     "warn_on_missing_params",
+     "wololo"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 47,
+    "n_after": 79,
+    "verification": {
+     "Foo": "test_artifact",
+     "Foo.bar": "test_artifact",
+     "Foo1": "test_artifact",
+     "Foo2": "test_artifact"
+    }
+   },
+   "robot_localization/ekf_node": {
+    "removed": [
+     "initial_estimate_covariance"
+    ],
+    "added": [
+     "transform_timeout_odom_bl"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 61,
+    "n_after": 61,
+    "verification": {
+     "initial_estimate_covariance": "still_present"
+    }
+   },
+   "robot_localization/navsat_transform_node": {
+    "removed": [
+     "initial_estimate_covariance"
+    ],
+    "added": [
+     "transform_timeout_odom_bl"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 61,
+    "n_after": 61,
+    "verification": {
+     "initial_estimate_covariance": "still_present"
+    }
+   },
+   "robot_localization/robot_localization_listener_node": {
+    "removed": [
+     "initial_estimate_covariance"
+    ],
+    "added": [
+     "transform_timeout_odom_bl"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 61,
+    "n_after": 61,
+    "verification": {
+     "initial_estimate_covariance": "still_present"
+    }
+   },
+   "robot_localization/ukf_node": {
+    "removed": [
+     "initial_estimate_covariance"
+    ],
+    "added": [
+     "transform_timeout_odom_bl"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 61,
+    "n_after": 61,
+    "verification": {
+     "initial_estimate_covariance": "still_present"
+    }
+   },
+   "ros2_controllers_test_nodes/publisher_forward_position_controller": {
+    "removed": [],
+    "added": [
+     "publish_topic"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 5,
+    "n_after": 6,
+    "verification": {}
+   },
+   "ros2_controllers_test_nodes/publisher_joint_trajectory_controller": {
+    "removed": [],
+    "added": [
+     "publish_topic"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 5,
+    "n_after": 6,
+    "verification": {}
+   },
+   "slam_toolbox/localization_slam_toolbox_node": {
+    "removed": [
+     "min_laser_range"
+    ],
+    "added": [
+     "check_min_dist_and_heading_precisely",
+     "localization_on_configure",
+     "use_lifecycle_manager"
+    ],
+    "renamed": [
+     [
+      "/slam_toolbox/interactive_mode",
+      "slam_toolbox/interactive_mode",
+      0.98
+     ],
+     [
+      "/slam_toolbox/paused_new_measurements",
+      "slam_toolbox/paused_new_measurements",
+      0.99
+     ]
+    ],
+    "retyped": [],
+    "n_before": 75,
+    "n_after": 77,
+    "verification": {
+     "min_laser_range": "still_present",
+     "/slam_toolbox/interactive_mode": "still_present",
+     "/slam_toolbox/paused_new_measurements": "still_present"
+    }
+   },
+   "slam_toolbox/map_and_localization_slam_toolbox_node": {
+    "removed": [
+     "min_laser_range"
+    ],
+    "added": [
+     "check_min_dist_and_heading_precisely",
+     "localization_on_configure",
+     "use_lifecycle_manager"
+    ],
+    "renamed": [
+     [
+      "/slam_toolbox/interactive_mode",
+      "slam_toolbox/interactive_mode",
+      0.98
+     ],
+     [
+      "/slam_toolbox/paused_new_measurements",
+      "slam_toolbox/paused_new_measurements",
+      0.99
+     ]
+    ],
+    "retyped": [],
+    "n_before": 75,
+    "n_after": 77,
+    "verification": {
+     "min_laser_range": "still_present",
+     "/slam_toolbox/interactive_mode": "still_present",
+     "/slam_toolbox/paused_new_measurements": "still_present"
+    }
+   },
+   "slam_toolbox/merge_maps_kinematic": {
+    "removed": [
+     "min_laser_range"
+    ],
+    "added": [
+     "check_min_dist_and_heading_precisely",
+     "localization_on_configure",
+     "use_lifecycle_manager"
+    ],
+    "renamed": [
+     [
+      "/slam_toolbox/interactive_mode",
+      "slam_toolbox/interactive_mode",
+      0.98
+     ],
+     [
+      "/slam_toolbox/paused_new_measurements",
+      "slam_toolbox/paused_new_measurements",
+      0.99
+     ]
+    ],
+    "retyped": [],
+    "n_before": 75,
+    "n_after": 77,
+    "verification": {
+     "min_laser_range": "still_present",
+     "/slam_toolbox/interactive_mode": "still_present",
+     "/slam_toolbox/paused_new_measurements": "still_present"
+    }
+   },
+   "slam_toolbox/sync_slam_toolbox_node": {
+    "removed": [
+     "min_laser_range"
+    ],
+    "added": [
+     "check_min_dist_and_heading_precisely",
+     "localization_on_configure",
+     "use_lifecycle_manager"
+    ],
+    "renamed": [
+     [
+      "/slam_toolbox/interactive_mode",
+      "slam_toolbox/interactive_mode",
+      0.98
+     ],
+     [
+      "/slam_toolbox/paused_new_measurements",
+      "slam_toolbox/paused_new_measurements",
+      0.99
+     ]
+    ],
+    "retyped": [],
+    "n_before": 75,
+    "n_after": 77,
+    "verification": {
+     "min_laser_range": "still_present",
+     "/slam_toolbox/interactive_mode": "still_present",
+     "/slam_toolbox/paused_new_measurements": "still_present"
+    }
+   }
+  }
+ },
+ "packs:jazzy->kilted": {
+  "nodes_compared": 54,
+  "nodes_only_before": [
+   "opennav_following/opennav_following"
+  ],
+  "nodes_only_after": [
+   "action_tutorials_cpp/fibonacci_action_client",
+   "action_tutorials_cpp/fibonacci_action_server",
+   "action_tutorials_py/fibonacci_action_client",
+   "action_tutorials_py/fibonacci_action_server",
+   "nav2_costmap_2d/nav2_costmap_2d",
+   "nav2_simple_commander/example_route"
+  ],
+  "params_before": 2119,
+  "changes": {
+   "nav2_amcl/amcl": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 12,
+    "n_after": 13,
+    "verification": {}
+   },
+   "nav2_behaviors/behavior_server": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "*.acceleration_limit",
+     "*.deceleration_limit",
+     "*.minimum_speed",
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 83,
+    "n_after": 86,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_bt_navigator/bt_navigator": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "filter_duration",
+     "service_introspection_mode",
+     "waypoint_statuses_blackboard_id"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 79,
+    "n_after": 81,
+    "verification": {
+     "action_server_result_timeout": "unknown",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_collision_monitor/collision_detector": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 104,
+    "n_after": 105,
+    "verification": {}
+   },
+   "nav2_collision_monitor/collision_monitor": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 104,
+    "n_after": 105,
+    "verification": {}
+   },
+   "nav2_controller/controller_server": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 91,
+    "n_after": 91,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_costmap_2d/nav2_costmap_2d_cloud": {
+    "removed": [],
+    "added": [
+     "*tf_filter_tolerance",
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 67,
+    "n_after": 69,
+    "verification": {}
+   },
+   "nav2_costmap_2d/nav2_costmap_2d_markers": {
+    "removed": [],
+    "added": [
+     "*tf_filter_tolerance",
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 67,
+    "n_after": 69,
+    "verification": {}
+   },
+   "nav2_lifecycle_manager/lifecycle_manager": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode",
+     "service_timeout"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 17,
+    "n_after": 19,
+    "verification": {}
+   },
+   "nav2_loopback_sim/loopback_simulator": {
+    "removed": [],
+    "added": [
+     "goal_pose.x",
+     "goal_pose.y",
+     "goal_pose.yaw",
+     "start_pose.x",
+     "start_pose.y",
+     "start_pose.yaw"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 15,
+    "n_after": 21,
+    "verification": {}
+   },
+   "nav2_map_server/costmap_filter_info_server": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 24,
+    "n_after": 25,
+    "verification": {}
+   },
+   "nav2_map_server/map_saver_cli": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 24,
+    "n_after": 25,
+    "verification": {}
+   },
+   "nav2_map_server/map_saver_server": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 24,
+    "n_after": 25,
+    "verification": {}
+   },
+   "nav2_map_server/map_server": {
+    "removed": [],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 24,
+    "n_after": 25,
+    "verification": {}
+   },
+   "nav2_planner/planner_server": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 72,
+    "n_after": 72,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_route/route_server": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 141,
+    "n_after": 141,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_smoother/smoother_server": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "*.enforce_path_inversion",
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 81,
+    "n_after": 82,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "nav2_velocity_smoother/velocity_smoother": {
+    "removed": [
+     "stamp_smoothed_velocity_with_smoothing_time"
+    ],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 25,
+    "n_after": 25,
+    "verification": {
+     "stamp_smoothed_velocity_with_smoothing_time": "real"
+    }
+   },
+   "nav2_waypoint_follower/waypoint_follower": {
+    "removed": [
+     "action_server_result_timeout"
+    ],
+    "added": [
+     "service_introspection_mode"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 79,
+    "n_after": 79,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "error_code_names": "unknown"
+    }
+   },
+   "opennav_docking/opennav_docking": {
+    "removed": [
+     "action_server_result_timeout",
+     "dock_plugin2.plugin"
+    ],
+    "added": [
+     "*.dock_direction",
+     "*.rotate_to_dock",
+     "my_dock.dock_direction",
+     "my_dock.rotate_to_dock",
+     "rotate_to_dock_timeout",
+     "rotation_angular_tolerance",
+     "service_introspection_mode",
+     "test.use_collision_detection"
+    ],
+    "renamed": [
+     [
+      "error_code_names",
+      "error_code_name_prefixes",
+      0.8
+     ]
+    ],
+    "retyped": [],
+    "n_before": 145,
+    "n_after": 151,
+    "verification": {
+     "action_server_result_timeout": "real",
+     "dock_plugin2.plugin": "test_artifact",
+     "error_code_names": "unknown"
+    }
+   },
+   "robot_state_publisher/robot_state_publisher": {
+    "removed": [],
+    "added": [
+     "use_robot_description_topic"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 4,
+    "n_after": 5,
+    "verification": {}
+   }
+  }
+ },
+ "ros2_controllers:humble->jazzy": {
+  "nodes_compared": 19,
+  "nodes_only_before": [],
+  "nodes_only_after": [
+   "battery_state_broadcaster/battery_state_broadcaster",
+   "chained_filter_controller/chained_filter",
+   "gps_sensor_broadcaster/gps_sensor_broadcaster",
+   "magnetometer_broadcaster/magnetometer_broadcaster",
+   "omni_wheel_drive_controller/omni_wheel_drive_controller",
+   "parallel_gripper_controller/parallel_gripper_action_controller",
+   "tricycle_controller/tricycle_controller"
+  ],
+  "params_before": 199,
+  "changes": {
+   "ackermann_steering_controller/ackermann_steering_controller": {
+    "removed": [],
+    "added": [
+     "steering_track_width",
+     "traction_track_width",
+     "traction_wheels_radius"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 5,
+    "n_after": 8,
+    "verification": {}
+   },
+   "admittance_controller/admittance_controller": {
+    "removed": [
+     "robot_description"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 25,
+    "n_after": 24,
+    "verification": {
+     "robot_description": "still_present"
+    }
+   },
+   "bicycle_steering_controller/bicycle_steering_controller": {
+    "removed": [],
+    "added": [
+     "traction_wheel_radius"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 3,
+    "n_after": 4,
+    "verification": {}
+   },
+   "diff_drive_controller/diff_drive_controller": {
+    "removed": [
+     "use_stamped_vel",
+     "wheels_per_side"
+    ],
+    "added": [
+     "angular.z.max_acceleration_reverse",
+     "angular.z.max_deceleration",
+     "angular.z.max_deceleration_reverse",
+     "linear.x.max_acceleration_reverse",
+     "linear.x.max_deceleration",
+     "linear.x.max_deceleration_reverse"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 40,
+    "n_after": 44,
+    "verification": {
+     "use_stamped_vel": "real",
+     "wheels_per_side": "real"
+    }
+   },
+   "force_torque_sensor_broadcaster/force_torque_sensor_broadcaster": {
+    "removed": [],
+    "added": [
+     "multiplier.force.x",
+     "multiplier.force.y",
+     "multiplier.force.z",
+     "multiplier.torque.x",
+     "multiplier.torque.y",
+     "multiplier.torque.z",
+     "offset.force.x",
+     "offset.force.y",
+     "offset.force.z",
+     "offset.torque.x",
+     "offset.torque.y",
+     "offset.torque.z",
+     "sensor_filter_chain"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 8,
+    "n_after": 21,
+    "verification": {}
+   },
+   "joint_state_broadcaster/joint_state_broadcaster": {
+    "removed": [],
+    "added": [
+     "use_urdf_to_filter"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 9,
+    "n_after": 10,
+    "verification": {}
+   },
+   "joint_trajectory_controller/joint_trajectory_controller": {
+    "removed": [
+     "gains.<joints>.angle_wraparound",
+     "gains.<joints>.normalize_error",
+     "state_publish_rate"
+    ],
+    "added": [
+     "action_execution_timeout",
+     "constraints.<joints>.max_deceleration_on_cancel",
+     "constraints.decelerate_on_cancel",
+     "gains.<joints>.antiwindup_strategy",
+     "gains.<joints>.error_deadband",
+     "gains.<joints>.i_clamp_max",
+     "gains.<joints>.i_clamp_min",
+     "gains.<joints>.tracking_time_constant",
+     "gains.<joints>.u_clamp_max",
+     "gains.<joints>.u_clamp_min",
+     "interpolate_from_desired_state",
+     "speed_scaling.command_interface",
+     "speed_scaling.initial_scaling_factor",
+     "speed_scaling.state_interface"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 24,
+    "n_after": 35,
+    "verification": {
+     "gains.<joints>.angle_wraparound": "real",
+     "gains.<joints>.normalize_error": "real",
+     "state_publish_rate": "real"
+    }
+   },
+   "mecanum_drive_controller/mecanum_drive_controller": {
+    "removed": [
+     "use_stamped_vel"
+    ],
+    "added": [
+     "angular.z.max_acceleration",
+     "angular.z.max_acceleration_reverse",
+     "angular.z.max_deceleration",
+     "angular.z.max_deceleration_reverse",
+     "angular.z.max_jerk",
+     "angular.z.max_velocity",
+     "angular.z.min_jerk",
+     "angular.z.min_velocity",
+     "linear.x.max_acceleration",
+     "linear.x.max_acceleration_reverse",
+     "linear.x.max_deceleration",
+     "linear.x.max_deceleration_reverse",
+     "linear.x.max_jerk",
+     "linear.x.max_velocity",
+     "linear.x.min_jerk",
+     "linear.x.min_velocity",
+     "linear.y.max_acceleration",
+     "linear.y.max_acceleration_reverse",
+     "linear.y.max_deceleration",
+     "linear.y.max_deceleration_reverse",
+     "linear.y.max_jerk",
+     "linear.y.max_velocity",
+     "linear.y.min_jerk",
+     "linear.y.min_velocity",
+     "tf_frame_prefix",
+     "tf_frame_prefix_enable"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 20,
+    "n_after": 45,
+    "verification": {
+     "use_stamped_vel": "real"
+    }
+   },
+   "pid_controller/pid_controller": {
+    "removed": [],
+    "added": [
+     "enable_feedforward",
+     "gains.<dof_names>.activate_state_publisher",
+     "gains.<dof_names>.antiwindup_strategy",
+     "gains.<dof_names>.error_deadband",
+     "gains.<dof_names>.save_i_term",
+     "gains.<dof_names>.tracking_time_constant",
+     "gains.<dof_names>.u_clamp_max",
+     "gains.<dof_names>.u_clamp_min",
+     "reset_commands_at_deactivation",
+     "set_current_state_as_first_setpoint"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 13,
+    "n_after": 23,
+    "verification": {}
+   },
+   "range_sensor_broadcaster/range_sensor_broadcaster": {
+    "removed": [],
+    "added": [
+     "variance"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 6,
+    "n_after": 7,
+    "verification": {}
+   },
+   "steering_controllers_library/steering_controllers_library": {
+    "removed": [
+     "use_stamped_vel"
+    ],
+    "added": [
+     "steering_joints_names",
+     "steering_joints_state_names",
+     "traction_joints_names",
+     "traction_joints_state_names"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 16,
+    "n_after": 19,
+    "verification": {
+     "use_stamped_vel": "real"
+    }
+   },
+   "tricycle_steering_controller/tricycle_steering_controller": {
+    "removed": [],
+    "added": [
+     "traction_track_width",
+     "traction_wheels_radius"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 4,
+    "n_after": 6,
+    "verification": {}
+   }
+  }
+ },
+ "ros2_controllers:jazzy->kilted": {
+  "nodes_compared": 25,
+  "nodes_only_before": [
+   "gripper_controllers/gripper_action_controller"
+  ],
+  "nodes_only_after": [],
+  "params_before": 347,
+  "changes": {
+   "ackermann_steering_controller/ackermann_steering_controller": {
+    "removed": [
+     "front_wheel_track",
+     "front_wheels_radius",
+     "rear_wheel_track",
+     "rear_wheels_radius"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 8,
+    "n_after": 4,
+    "verification": {
+     "front_wheel_track": "real",
+     "front_wheels_radius": "real",
+     "rear_wheel_track": "real",
+     "rear_wheels_radius": "real"
+    }
+   },
+   "bicycle_steering_controller/bicycle_steering_controller": {
+    "removed": [
+     "front_wheel_radius",
+     "rear_wheel_radius"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 4,
+    "n_after": 2,
+    "verification": {
+     "front_wheel_radius": "real",
+     "rear_wheel_radius": "real"
+    }
+   },
+   "diff_drive_controller/diff_drive_controller": {
+    "removed": [
+     "angular.z.has_acceleration_limits",
+     "angular.z.has_jerk_limits",
+     "angular.z.has_velocity_limits",
+     "angular.z.min_acceleration",
+     "linear.x.has_acceleration_limits",
+     "linear.x.has_jerk_limits",
+     "linear.x.has_velocity_limits",
+     "linear.x.min_acceleration"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 44,
+    "n_after": 36,
+    "verification": {
+     "angular.z.has_acceleration_limits": "real",
+     "angular.z.has_jerk_limits": "real",
+     "angular.z.has_velocity_limits": "real",
+     "angular.z.min_acceleration": "real",
+     "linear.x.has_acceleration_limits": "real",
+     "linear.x.has_jerk_limits": "real",
+     "linear.x.has_velocity_limits": "real",
+     "linear.x.min_acceleration": "real"
+    }
+   },
+   "imu_sensor_broadcaster/imu_sensor_broadcaster": {
+    "removed": [],
+    "added": [
+     "rotation_offset.pitch",
+     "rotation_offset.roll",
+     "rotation_offset.yaw"
+    ],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 5,
+    "n_after": 8,
+    "verification": {}
+   },
+   "joint_trajectory_controller/joint_trajectory_controller": {
+    "removed": [
+     "gains.<joints>.i_clamp",
+     "open_loop_control"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 35,
+    "n_after": 33,
+    "verification": {
+     "gains.<joints>.i_clamp": "real",
+     "open_loop_control": "real"
+    }
+   },
+   "pid_controller/pid_controller": {
+    "removed": [
+     "enable_feedforward",
+     "gains.<dof_names>.antiwindup"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 23,
+    "n_after": 21,
+    "verification": {
+     "enable_feedforward": "real",
+     "gains.<dof_names>.antiwindup": "real"
+    }
+   },
+   "pose_broadcaster/pose_broadcaster": {
+    "removed": [
+     "tf.publish_rate"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 5,
+    "n_after": 4,
+    "verification": {
+     "tf.publish_rate": "real"
+    }
+   },
+   "steering_controllers_library/steering_controllers_library": {
+    "removed": [
+     "front_steering",
+     "front_wheels_names",
+     "front_wheels_state_names",
+     "rear_wheels_names",
+     "rear_wheels_state_names"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 19,
+    "n_after": 14,
+    "verification": {
+     "front_steering": "real",
+     "front_wheels_names": "real",
+     "front_wheels_state_names": "real",
+     "rear_wheels_names": "real",
+     "rear_wheels_state_names": "real"
+    }
+   },
+   "tricycle_steering_controller/tricycle_steering_controller": {
+    "removed": [
+     "front_wheels_radius",
+     "rear_wheels_radius",
+     "wheel_track"
+    ],
+    "added": [],
+    "renamed": [],
+    "retyped": [],
+    "n_before": 6,
+    "n_after": 3,
+    "verification": {
+     "front_wheels_radius": "real",
+     "rear_wheels_radius": "real",
+     "wheel_track": "real"
+    }
+   }
+  }
+ }
+}

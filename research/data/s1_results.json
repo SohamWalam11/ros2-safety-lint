@@ -1,0 +1,282 @@
+{
+ "population": 4489,
+ "set_A": 172,
+ "set_B": 300,
+ "labelled_A": 172,
+ "labelled_B": 300,
+ "agreement": {
+  "n": 94,
+  "kappa_misconfig_fix": 0.8921523634694813,
+  "raw_agreement": 0.9468,
+  "kappa_category_on_agreed_yes": 1.0
+ },
+ "precision_flagged_related": {
+  "n": 147,
+  "genuine": 93,
+  "precision": 0.6327
+ },
+ "per_rule_flagged": {
+  "A001": {
+   "flagged": 3,
+   "genuine": 0
+  },
+  "A002": {
+   "flagged": 6,
+   "genuine": 6
+  },
+  "C004": {
+   "flagged": 1,
+   "genuine": 1
+  },
+  "C008": {
+   "flagged": 1,
+   "genuine": 1
+  },
+  "F002": {
+   "flagged": 1,
+   "genuine": 1
+  },
+  "L001": {
+   "flagged": 14,
+   "genuine": 13
+  },
+  "L002": {
+   "flagged": 132,
+   "genuine": 84
+  },
+  "L003": {
+   "flagged": 2,
+   "genuine": 0
+  },
+  "L004": {
+   "flagged": 5,
+   "genuine": 4
+  },
+  "L005": {
+   "flagged": 2,
+   "genuine": 1
+  },
+  "N003": {
+   "flagged": 3,
+   "genuine": 3
+  },
+  "N006": {
+   "flagged": 1,
+   "genuine": 1
+  },
+  "P002": {
+   "flagged": 2,
+   "genuine": 2
+  },
+  "P003": {
+   "flagged": 33,
+   "genuine": 19
+  },
+  "P005": {
+   "flagged": 34,
+   "genuine": 0
+  },
+  "R001": {
+   "flagged": 8,
+   "genuine": 6
+  },
+  "S001": {
+   "flagged": 9,
+   "genuine": 7
+  },
+  "S002": {
+   "flagged": 14,
+   "genuine": 3
+  },
+  "T001": {
+   "flagged": 17,
+   "genuine": 8
+  },
+  "T002": {
+   "flagged": 9,
+   "genuine": 0
+  }
+ },
+ "recall_all": {
+  "detected": 82,
+  "genuine_in_A": 109,
+  "genuine_rate_B": 0.4267,
+  "est_genuine_total": 1950.9,
+  "recall": 0.042,
+  "ci95": [
+   0.0373,
+   0.0481
+  ]
+ },
+ "recall_static": {
+  "detected": 82,
+  "genuine_in_A": 109,
+  "genuine_rate_B": 0.4033,
+  "est_genuine_total": 1850.2,
+  "recall": 0.0443,
+  "ci95": [
+   0.0394,
+   0.0511
+  ]
+ },
+ "recall_excl_cmake_only": {
+  "detected": 80,
+  "genuine_in_A": 102,
+  "genuine_rate_B": 0.23,
+  "est_genuine_total": 1094.9,
+  "recall": 0.0731,
+  "ci95": [
+   0.0617,
+   0.091
+  ]
+ },
+ "recall_silent": {
+  "detected": 9,
+  "genuine_in_A": 13,
+  "genuine_rate_B": 0.0467,
+  "est_genuine_total": 214.5,
+  "recall": 0.042,
+  "ci95": [
+   0.0286,
+   0.0702
+  ]
+ },
+ "recall_by_category": {
+  "Embedded DSL": {
+   "detected": 2,
+   "genuine_in_A": 3,
+   "genuine_rate_B": 0.01,
+   "est_genuine_total": 46.2,
+   "recall": 0.0433,
+   "ci95": [
+    0.0193,
+    0.6667
+   ]
+  },
+  "Launch": {
+   "detected": 9,
+   "genuine_in_A": 11,
+   "genuine_rate_B": 0.0133,
+   "est_genuine_total": 68.6,
+   "recall": 0.1313,
+   "ci95": [
+    0.0641,
+    0.3545
+   ]
+  },
+  "Names": {
+   "detected": 2,
+   "genuine_in_A": 3,
+   "genuine_rate_B": 0.01,
+   "est_genuine_total": 46.2,
+   "recall": 0.0433,
+   "ci95": [
+    0.0193,
+    0.6667
+   ]
+  },
+  "Nodes": {
+   "detected": 6,
+   "genuine_in_A": 6,
+   "genuine_rate_B": 0.0033,
+   "est_genuine_total": 20.4,
+   "recall": 0.2943,
+   "ci95": [
+    0.122,
+    1.0
+   ]
+  },
+  "Other Challenges": {
+   "detected": 0,
+   "genuine_in_A": 0,
+   "genuine_rate_B": 0.0067,
+   "est_genuine_total": 28.8,
+   "recall": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "Packaging": {
+   "detected": 57,
+   "genuine_in_A": 75,
+   "genuine_rate_B": 0.3533,
+   "est_genuine_total": 1600.3,
+   "recall": 0.0356,
+   "ci95": [
+    0.0311,
+    0.0416
+   ]
+  },
+  "Parameters": {
+   "detected": 5,
+   "genuine_in_A": 9,
+   "genuine_rate_B": 0.03,
+   "est_genuine_total": 138.5,
+   "recall": 0.0361,
+   "ci95": [
+    0.0222,
+    0.0751
+   ]
+  },
+  "Timeliness": {
+   "detected": 1,
+   "genuine_in_A": 2,
+   "genuine_rate_B": 0.0,
+   "est_genuine_total": 2.0,
+   "recall": 0.5,
+   "ci95": [
+    0.5,
+    0.5
+   ]
+  }
+ },
+ "recall_all_nopack": {
+  "detected": 92,
+  "genuine_in_A": 109,
+  "genuine_rate_B": 0.4267,
+  "est_genuine_total": 1950.9,
+  "recall": 0.0472,
+  "ci95": [
+   0.0419,
+   0.0539
+  ]
+ },
+ "recall_static_nopack": {
+  "detected": 92,
+  "genuine_in_A": 109,
+  "genuine_rate_B": 0.4033,
+  "est_genuine_total": 1850.2,
+  "recall": 0.0497,
+  "ci95": [
+   0.0442,
+   0.0573
+  ]
+ },
+ "genuine_by_category_weighted": {
+  "Packaging": 1600.3,
+  "Parameters": 138.5,
+  "Launch": 68.6,
+  "Names": 46.2,
+  "Embedded DSL": 46.2,
+  "Other Challenges": 28.8,
+  "Nodes": 20.4,
+  "Timeliness": 2
+ },
+ "genuine_by_failure_weighted": {
+  "build": 1335.7,
+  "loud": 384.4,
+  "silent": 214.5,
+  "unknown": 16.4
+ },
+ "detected_by_category": {
+  "Packaging": 57,
+  "Launch": 9,
+  "Nodes": 6,
+  "Parameters": 5,
+  "Embedded DSL": 2,
+  "Names": 2,
+  "Timeliness": 1
+ },
+ "verified_detections": 93
+}

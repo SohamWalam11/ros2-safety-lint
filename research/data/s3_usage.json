@@ -1,0 +1,2066 @@
+{
+ "targets": [
+  [
+   "nav2_behaviors",
+   "nav2_behaviors/behavior_server",
+   "costmap_topic",
+   "renamed",
+   "local_costmap_topic"
+  ],
+  [
+   "nav2_behaviors",
+   "nav2_behaviors/behavior_server",
+   "footprint_topic",
+   "renamed",
+   "local_footprint_topic"
+  ],
+  [
+   "nav2_controller",
+   "nav2_controller/controller_server",
+   "progress_checker_plugin",
+   "renamed",
+   "progress_checker_plugins"
+  ],
+  [
+   "diff_drive_controller",
+   "diff_drive_controller/diff_drive_controller",
+   "use_stamped_vel",
+   "removed",
+   null
+  ],
+  [
+   "diff_drive_controller",
+   "diff_drive_controller/diff_drive_controller",
+   "wheels_per_side",
+   "removed",
+   null
+  ],
+  [
+   "joint_trajectory_controller",
+   "joint_trajectory_controller/joint_trajectory_controller",
+   "gains.<joints>.angle_wraparound",
+   "removed",
+   null
+  ],
+  [
+   "joint_trajectory_controller",
+   "joint_trajectory_controller/joint_trajectory_controller",
+   "gains.<joints>.normalize_error",
+   "removed",
+   null
+  ],
+  [
+   "joint_trajectory_controller",
+   "joint_trajectory_controller/joint_trajectory_controller",
+   "state_publish_rate",
+   "removed",
+   null
+  ],
+  [
+   "mecanum_drive_controller",
+   "mecanum_drive_controller/mecanum_drive_controller",
+   "use_stamped_vel",
+   "removed",
+   null
+  ],
+  [
+   "steering_controllers_library",
+   "steering_controllers_library/steering_controllers_library",
+   "use_stamped_vel",
+   "removed",
+   null
+  ]
+ ],
+ "hits": [
+  {
+   "repo": "blackcoffeerobotics/bcr_bot",
+   "file": "config/nav2_params.yaml",
+   "line": 312,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "brukg/SO-100-arm",
+   "file": "so_arm_100_moveit_config/config/controllers_5dof.yaml",
+   "line": 28,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "brukg/SO-100-arm",
+   "file": "so_arm_100_moveit_config/config/controllers_7dof.yaml",
+   "line": 28,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "brukg/SO-100-arm",
+   "file": "so_arm_100_moveit_config/config/hardware_controllers.yaml",
+   "line": 36,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "brukg/SO-100-arm",
+   "file": "so_arm_100_moveit_config/config/hardware_controllers.yaml",
+   "line": 72,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_manipulators_description/config/lift/ewellix/control_jtc.yaml",
+   "line": 20,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 10.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_manipulators_description/config/arm/kinova_gen3_6dof/control.yaml",
+   "line": 26,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_manipulators_description/config/arm/kinova_gen3_7dof/control.yaml",
+   "line": 27,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_manipulators_description/config/arm/kinova_gen3_lite/control.yaml",
+   "line": 25,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_manipulators_description/config/arm/universal_robots/control.yaml",
+   "line": 25,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/w200/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/w200/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1  # actually 2, but both are controlled by 1 signal"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/r100/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/r100/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 2"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/r100/control/omni_4wd.yaml",
+   "line": 30,
+   "node": "mecanum_drive_controller/mecanum_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: False"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/j100/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/j100/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1  # actually 2, but both are controlled by 1 signal"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do150/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do150/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 2"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do150/control/omni_4wd.yaml",
+   "line": 30,
+   "node": "mecanum_drive_controller/mecanum_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: False"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do100/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do100/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 2"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/do100/control/omni_4wd.yaml",
+   "line": 30,
+   "node": "mecanum_drive_controller/mecanum_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: False"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/dd150/control/diff_fwd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/dd150/control/diff_fwd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/dd100/control/diff_fwd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/dd100/control/diff_fwd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a300/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 2"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a300/control/diff_fwd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a300/control/diff_rwd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a300/control/omni_4wd.yaml",
+   "line": 30,
+   "node": "mecanum_drive_controller/mecanum_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: True"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a200/control/diff_4wd.yaml",
+   "line": 35,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_common",
+   "file": "clearpath_control/config/a200/control/diff_4wd.yaml",
+   "line": 17,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1  # actually 2, but both are controlled by 1 signal"
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/a200/nav2.yaml",
+   "line": 320,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/a300/nav2.yaml",
+   "line": 319,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/dd100/nav2.yaml",
+   "line": 319,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/dd150/nav2.yaml",
+   "line": 319,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/do100/nav2.yaml",
+   "line": 324,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/do150/nav2.yaml",
+   "line": 324,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/j100/nav2.yaml",
+   "line": 319,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/r100/nav2.yaml",
+   "line": 324,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/clearpath_nav2_demos",
+   "file": "config/w200/nav2.yaml",
+   "line": 319,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "clearpathrobotics/ewellix_lift_common",
+   "file": "ewellix_description/config/control/jtc.yaml",
+   "line": 20,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 10.0"
+  },
+  {
+   "repo": "cps-test-lab/scenario-execution",
+   "file": "simulation/gazebo/tb4_sim_scenario/params/nav2_params.yaml",
+   "line": 309,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "cps-test-lab/scenario-execution",
+   "file": "simulation/gazebo/tb4_sim_scenario/params/nav2_params.yaml",
+   "line": 310,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "cps-test-lab/scenario-execution",
+   "file": "simulation/gazebo/tb4_sim_scenario/params/nav2_params.yaml",
+   "line": 122,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_turtlebot/resource/nav2_params.yaml",
+   "line": 112,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_turtlebot/resource/ros2control.yml",
+   "line": 22,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params.yaml",
+   "line": 302,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params.yaml",
+   "line": 303,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params.yaml",
+   "line": 123,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params_iron.yaml",
+   "line": 306,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params_iron.yaml",
+   "line": 307,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/nav2_params_iron.yaml",
+   "line": 127,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_tiago/resource/ros2_control.yml",
+   "line": 22,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_husarion/resource/rosbot_controllers.yaml",
+   "line": 22,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_husarion/resource/rosbot_xl_controllers.yaml",
+   "line": 22,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params.yaml",
+   "line": 302,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params.yaml",
+   "line": 303,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params.yaml",
+   "line": 123,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params_iron.yaml",
+   "line": 306,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params_iron.yaml",
+   "line": 307,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/nav2_params_iron.yaml",
+   "line": 127,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "cyberbotics/webots_ros2",
+   "file": "webots_ros2_epuck/resource/ros2_control.yml",
+   "line": 22,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "EasyNavigation/easynav_playgrounds",
+   "file": "playground_tiago/easynav_playground_tiago_description/config/tiago_controllers.yaml",
+   "line": 42,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "EasyNavigation/easynav_playgrounds",
+   "file": "playground_summit/easynav_playground_summit_description/config/summit_controllers.yaml",
+   "line": 34,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers.yaml",
+   "line": 70,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers.yaml",
+   "line": 100,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers.yaml",
+   "line": 117,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers_5f.yaml",
+   "line": 68,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers_5f.yaml",
+   "line": 96,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "EliteRobots/Elite_Robots_CS_ROS2_Driver",
+   "file": "elite_robots_driver/config/elite_cs_controllers_5f.yaml",
+   "line": 112,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "husarion/husarion_components_description",
+   "file": "config/kinova_6dof_controllers.yaml",
+   "line": 18,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "husarion/husarion_components_description",
+   "file": "config/kinova_7dof_controllers.yaml",
+   "line": 19,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "husarion/husarion_components_description",
+   "file": "config/ur_controllers.yaml",
+   "line": 18,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "IMRCLab/crazyswarm2",
+   "file": "crazyflie_examples/config/nav2_params.yaml",
+   "line": 9,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/champ_nav2_params.yaml",
+   "line": 237,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/champ_nav2_params.yaml",
+   "line": 238,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/champ_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_nav2_params.yaml",
+   "line": 244,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_nav2_params.yaml",
+   "line": 245,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_vslam_nav2_params.yaml",
+   "line": 244,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_vslam_nav2_params.yaml",
+   "line": 245,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/isaac_vslam_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_fusioncore_icp_nav2_params.yaml",
+   "line": 275,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_fusioncore_icp_nav2_params.yaml",
+   "line": 221,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_fusioncore_icp_nav2_params.yaml",
+   "line": 276,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_nav2_params.yaml",
+   "line": 402,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_nav2_params.yaml",
+   "line": 341,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_nav2_params.yaml",
+   "line": 403,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 399,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 338,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 400,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 409,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 348,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 410,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_scan_nav2_params.yaml",
+   "line": 403,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_scan_nav2_params.yaml",
+   "line": 342,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/turtlebot3_scan_nav2_params.yaml",
+   "line": 404,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 236,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 237,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 250,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 251,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_rgbd_scan_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_scan_nav2_params.yaml",
+   "line": 244,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_scan_nav2_params.yaml",
+   "line": 245,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "introlab/rtabmap_ros",
+   "file": "rtabmap_demos/params/humble/turtlebot3_scan_nav2_params.yaml",
+   "line": 80,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "iRobotEducation/create3_sim",
+   "file": "irobot_create_common/irobot_create_control/config/control.yaml",
+   "line": 40,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_moveit_config/kinova_gen3_lite_moveit_config/config/ros2_controllers.yaml",
+   "line": 34,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_moveit_config/kinova_gen3_7dof_robotiq_2f_85_moveit_config/config/ros2_controllers.yaml",
+   "line": 35,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_moveit_config/kinova_gen3_6dof_robotiq_2f_85_moveit_config/config/ros2_controllers.yaml",
+   "line": 34,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_description/arms/gen3_lite/6dof/config/ros2_controllers.yaml",
+   "line": 34,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_description/arms/gen3/7dof/config/ros2_controllers.yaml",
+   "line": 35,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "Kinovarobotics/ros2_kortex",
+   "file": "kortex_description/arms/gen3/6dof/config/ros2_controllers.yaml",
+   "line": 34,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "kuka-ros/kuka_robot_descriptions",
+   "file": "kuka_resources/config/fake_hardware_config_6_axis.yaml",
+   "line": 26,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "kuka-ros/kuka_robot_descriptions",
+   "file": "kuka_resources/config/fake_hardware_config_6_axis_kl.yaml",
+   "line": 27,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "kuka-ros/kuka_robot_descriptions",
+   "file": "kuka_resources/config/fake_hardware_config_7_axis.yaml",
+   "line": 27,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 50.0"
+  },
+  {
+   "repo": "manankharwar/fusioncore",
+   "file": "fusioncore_ros/config/nav2_params.yaml",
+   "line": 189,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "manankharwar/fusioncore",
+   "file": "fusioncore_ros/config/nav2_params.yaml",
+   "line": 190,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "manankharwar/fusioncore",
+   "file": "fusioncore_ros/config/nav2_params.yaml",
+   "line": 63,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "MRPT/mvsim",
+   "file": "mvsim_tutorial/ros2_control/agricobiot2_controllers.yaml",
+   "line": 48,
+   "node": "steering_controllers_library/steering_controllers_library",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true  # Humble: TwistStamped on ~/reference, as in newer versions"
+  },
+  {
+   "repo": "MRPT/mvsim",
+   "file": "mvsim_tutorial/ros2_control/car_ackermann_controllers.yaml",
+   "line": 51,
+   "node": "steering_controllers_library/steering_controllers_library",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true  # Humble: TwistStamped on ~/reference, as in newer versions"
+  },
+  {
+   "repo": "neobotix/neo_nav2_bringup",
+   "file": "config/navigation.yaml",
+   "line": 306,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "neobotix/neo_nav2_bringup",
+   "file": "config/navigation.yaml",
+   "line": 307,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "neobotix/neo_nav2_bringup",
+   "file": "config/navigation.yaml",
+   "line": 148,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_3/config/nav2_params.yaml",
+   "line": 525,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_3/config/nav2_params.yaml",
+   "line": 477,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_3/config/nav2_params.yaml",
+   "line": 526,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_2/config/nav2_params.yaml",
+   "line": 523,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_2/config/nav2_params.yaml",
+   "line": 475,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "robosoft-ai/SMACC2",
+   "file": "smacc2_sm_reference_library/sm_nav2_gazebo_test_2/config/nav2_params.yaml",
+   "line": 524,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/burger.yaml",
+   "line": 373,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/burger_cam.yaml",
+   "line": 373,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/waffle.yaml",
+   "line": 373,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/waffle_pi.yaml",
+   "line": 373,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/humble/burger.yaml",
+   "line": 107,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/humble/burger_cam.yaml",
+   "line": 107,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/humble/waffle.yaml",
+   "line": 107,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3",
+   "file": "turtlebot3_navigation2/param/humble/waffle_pi.yaml",
+   "line": 106,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_home_service_challenge",
+   "file": "turtlebot3_home_service_challenge_tools/param/turtlebot3_hsc.yaml",
+   "line": 295,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_home_service_challenge",
+   "file": "turtlebot3_home_service_challenge_tools/param/turtlebot3_hsc.yaml",
+   "line": 296,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_home_service_challenge",
+   "file": "turtlebot3_home_service_challenge_tools/param/turtlebot3_hsc.yaml",
+   "line": 116,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3.yaml",
+   "line": 295,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3.yaml",
+   "line": 296,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3.yaml",
+   "line": 116,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3_use_sim_time.yaml",
+   "line": 295,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3_use_sim_time.yaml",
+   "line": 296,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_navigation2/param/turtlebot3_use_sim_time.yaml",
+   "line": 116,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_bringup/config/gazebo_controller_manager.yaml",
+   "line": 41,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 200.0 # Defaults to 50"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_bringup/config/hardware_controller_manager.yaml",
+   "line": 44,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: false"
+  },
+  {
+   "repo": "ROBOTIS-GIT/turtlebot3_manipulation",
+   "file": "turtlebot3_manipulation_bringup/config/hardware_controller_manager.yaml",
+   "line": 98,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 200.0 # Defaults to 50"
+  },
+  {
+   "repo": "ros-controls/gz_ros2_control",
+   "file": "gz_ros2_control_demos/config/diff_drive_controller.yaml",
+   "line": 33,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel: true"
+  },
+  {
+   "repo": "ros-controls/topic_based_hardware_interfaces",
+   "file": "joint_state_topic_hardware_interface/test/rrr/ros2_controllers.yaml",
+   "line": 21,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "ros-industrial/ros2_canopen",
+   "file": "canopen_tests/config/cia402_multichannel_system/ros2_controllers.yaml",
+   "line": 47,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "ros-industrial/ros2_canopen",
+   "file": "canopen_tests/config/cia402_namespaced_system/ros2_controllers.yaml",
+   "line": 36,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "ros-industrial/ros2_canopen",
+   "file": "canopen_tests/config/cia402_system/ros2_controllers.yaml",
+   "line": 36,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/keepout_params.yaml",
+   "line": 226,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/keepout_params.yaml",
+   "line": 227,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/keepout_params.yaml",
+   "line": 287,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_global_params.yaml",
+   "line": 216,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_global_params.yaml",
+   "line": 217,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_global_params.yaml",
+   "line": 277,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_local_params.yaml",
+   "line": 216,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_local_params.yaml",
+   "line": 217,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/costmap_filters/speed_local_params.yaml",
+   "line": 277,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/error_codes/error_code_param.yaml",
+   "line": 8,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/gps_navigation/nav2_no_map_params.yaml",
+   "line": 280,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_system_tests/src/system/nav2_system_params.yaml",
+   "line": 309,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_1.yaml",
+   "line": 211,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_1.yaml",
+   "line": 212,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_1.yaml",
+   "line": 259,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_2.yaml",
+   "line": 210,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_2.yaml",
+   "line": 211,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_2.yaml",
+   "line": 258,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_multirobot_params_all.yaml",
+   "line": 321,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_params.yaml",
+   "line": 451,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_params.yaml",
+   "line": 391,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "ros-planning/navigation2",
+   "file": "nav2_bringup/params/nav2_params.yaml",
+   "line": 452,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "rt-net/raspimouse_sim",
+   "file": "raspimouse_gazebo/config/raspimouse_controllers.yaml",
+   "line": 30,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "use_stamped_vel",
+   "kind": "removed",
+   "replacement": null,
+   "text": "use_stamped_vel : false"
+  },
+  {
+   "repo": "rt-net/raspimouse_sim",
+   "file": "raspimouse_gazebo/config/raspimouse_controllers.yaml",
+   "line": 20,
+   "node": "diff_drive_controller/diff_drive_controller",
+   "param": "wheels_per_side",
+   "kind": "removed",
+   "replacement": null,
+   "text": "wheels_per_side: 1"
+  },
+  {
+   "repo": "rt-net/raspimouse_slam_navigation_ros2",
+   "file": "raspimouse_navigation/params/raspimouse.yaml",
+   "line": 263,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: local_costmap/costmap_raw"
+  },
+  {
+   "repo": "rt-net/raspimouse_slam_navigation_ros2",
+   "file": "raspimouse_navigation/params/raspimouse.yaml",
+   "line": 264,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: local_costmap/published_footprint"
+  },
+  {
+   "repo": "shimz-robotics/mapoi",
+   "file": "mapoi_turtlebot3_example/param/humble/burger.yaml",
+   "line": 112,
+   "node": "nav2_controller/controller_server",
+   "param": "progress_checker_plugin",
+   "kind": "renamed",
+   "replacement": "progress_checker_plugins",
+   "text": "progress_checker_plugin: \"progress_checker\""
+  },
+  {
+   "repo": "shimz-robotics/mapoi",
+   "file": "mapoi_turtlebot3_example/param/jazzy/burger.yaml",
+   "line": 371,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc.yaml",
+   "line": 403,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc.yaml",
+   "line": 352,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc.yaml",
+   "line": 404,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc_predictive.yaml",
+   "line": 457,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "costmap_topic",
+   "kind": "renamed",
+   "replacement": "local_costmap_topic",
+   "text": "costmap_topic: \"local_costmap/costmap_raw\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc_predictive.yaml",
+   "line": 406,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"/local_costmap/published_footprint\""
+  },
+  {
+   "repo": "simone-contorno/prox_mpc",
+   "file": "prox_mpc_demo/config/nav2_prox_mpc_predictive.yaml",
+   "line": 458,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "turtlebot/turtlebot4",
+   "file": "turtlebot4_navigation/config/nav2.yaml",
+   "line": 312,
+   "node": "nav2_behaviors/behavior_server",
+   "param": "footprint_topic",
+   "kind": "renamed",
+   "replacement": "local_footprint_topic",
+   "text": "footprint_topic: \"local_costmap/published_footprint\""
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_Driver",
+   "file": "ur_robot_driver/config/ur_controllers.yaml",
+   "line": 67,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_Driver",
+   "file": "ur_robot_driver/config/ur_controllers.yaml",
+   "line": 110,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_Driver",
+   "file": "ur_robot_driver/config/ur_controllers.yaml",
+   "line": 138,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_GZ_Simulation",
+   "file": "ur_simulation_gz/config/ur_controllers.yaml",
+   "line": 26,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_GZ_Simulation",
+   "file": "ur_simulation_gz/config/ur_controllers.yaml",
+   "line": 42,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  },
+  {
+   "repo": "UniversalRobots/Universal_Robots_ROS2_GZ_Simulation",
+   "file": "ur_simulation_gz/doc/resources/ur_controllers_test.yaml",
+   "line": 26,
+   "node": "joint_trajectory_controller/joint_trajectory_controller",
+   "param": "state_publish_rate",
+   "kind": "removed",
+   "replacement": null,
+   "text": "state_publish_rate: 100.0"
+  }
+ ]
+}
