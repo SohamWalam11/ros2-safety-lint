@@ -1,0 +1,44 @@
+[build-system]
+requires = ["maturin>=1.5,<2"]
+build-backend = "maturin"
+
+[project]
+name = "rosfix"
+description = "Static checker for silent ROS 2 misconfigurations (parameters, topics, QoS, executors, ros2_control, Nav2, launch/packaging, SROS2)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT OR Apache-2.0" }
+keywords = ["ros2", "robotics", "linter", "static-analysis", "launch"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Rust",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Scientific/Engineering :: Robotics"
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/SohamWalam11/ros2-safety-lint"
+
+# `ros2 rosfix …` when ros2cli is available.
+[project.entry-points."ros2cli.command"]
+rosfix = "rosfix.ros2cli:RosfixCommand"
+
+# `ros2 doctor` runs rosfix's middleware environment checks; `ros2 doctor --report` lists them.
+[project.entry-points."ros2doctor.checks"]
+RosfixEnvironmentCheck = "rosfix.ros2doctor:RosfixEnvironmentCheck"
+
+[project.entry-points."ros2doctor.report"]
+RosfixEnvironmentReport = "rosfix.ros2doctor:RosfixEnvironmentReport"
+
+[tool.maturin]
+bindings = "bin"
+manifest-path = "crates/ros2-safety-lint/Cargo.toml"
+python-source = "python"
+module-name = "rosfix"
+strip = true
+exclude = ["crates/ros2-safety-mutate/**"]

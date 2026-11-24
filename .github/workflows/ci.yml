@@ -2,22 +2,64 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   test:
-    name: Run Unit Tests & Linter Audit
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - name: Format
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Tests (unit + CLI end-to-end)
+        run: cargo test --workspace
+      - name: Build with the optional parallel feature
+        if: matrix.os == 'ubuntu-latest'
+        run: cargo build -p rosfix --features parallel
+
+  msrv:
+    name: Minimum supported Rust version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.80
+      - run: cargo build -p rosfix
 
-      - name: Set up Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cargo Check
-        run: cargo check --workspace
-
-      - name: Run 44 Unit Tests
-        run: cargo test --workspace
+  real-world:
+    name: Smoke test on real ROS 2 repositories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release -p rosfix -p ros2-safety-mutate
+      - name: Fetch corpus (shallow)
+        run: |
+          mkdir corpus
+          for r in ros2/demos ROBOTIS-GIT/turtlebot3 ros-navigation/navigation2; do
+            git clone --depth 1 "https://github.com/$r.git" "corpus/$(basename $r)"
+          done
+      - name: Scan (report only)
+        run: |
+          for d in corpus/*; do ./target/release/rosfix "$d" --fail-on never --stats; done
+      - name: Mutation benchmark
+        run: ./target/release/rosfix-bench corpus/* --max-per-op 5 --out bench_results.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bench-results
+          path: bench_results.md

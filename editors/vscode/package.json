@@ -1,0 +1,54 @@
+{
+  "name": "rosfix",
+  "displayName": "rosfix",
+  "description": "ROS 2 misconfiguration checks and verified quick fixes from the rosfix language server",
+  "version": "0.2.3",
+  "publisher": "rosfix",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SohamWalam11/ros2-safety-lint"
+  },
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": ["Linters"],
+  "keywords": ["ros", "ros2", "robotics", "launch", "urdf"],
+  "main": "./extension.js",
+  "activationEvents": [
+    "workspaceContains:**/package.xml"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "rosfix.restart",
+        "title": "rosfix: Restart language server"
+      }
+    ],
+    "configuration": {
+      "title": "rosfix",
+      "properties": {
+        "rosfix.path": {
+          "type": "string",
+          "default": "rosfix",
+          "description": "The rosfix executable: a name on PATH or an absolute path."
+        },
+        "rosfix.extraArgs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Extra options for `rosfix lsp`, for example [\"--distro\", \"jazzy\"]."
+        },
+        "rosfix.trace.server": {
+          "type": "string",
+          "enum": ["off", "messages", "verbose"],
+          "default": "off",
+          "description": "Log the messages between VS Code and the language server."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "9.0.1"
+  }
+}

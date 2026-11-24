@@ -1,0 +1,22 @@
+# pre-commit hooks for rosfix.
+#   - repo: https://github.com/SohamWalam11/ros2-safety-lint
+#     rev: v1.0.0
+#     hooks:
+#       - id: rosfix          # uses the PyPI wheel (no Rust toolchain needed)
+- id: rosfix
+  name: rosfix (ROS 2 static checks)
+  description: Check ROS 2 launch files, parameters, packaging and configs for silent misconfigurations.
+  entry: rosfix
+  args: [".", "--fail-on", "error"]
+  language: python
+  additional_dependencies: ["rosfix"]
+  pass_filenames: false
+  files: '\.(py|xml|launch|yaml|yml|urdf|xacro|cpp|hpp|h|cc|rviz)$|(^|/)(package\.xml|CMakeLists\.txt|setup\.cfg)$'
+- id: rosfix-system
+  name: rosfix (installed binary)
+  description: Same checks using a rosfix binary already on PATH.
+  entry: rosfix
+  args: [".", "--fail-on", "error"]
+  language: system
+  pass_filenames: false
+  files: '\.(py|xml|launch|yaml|yml|urdf|xacro|cpp|hpp|h|cc|rviz)$|(^|/)(package\.xml|CMakeLists\.txt|setup\.cfg)$'

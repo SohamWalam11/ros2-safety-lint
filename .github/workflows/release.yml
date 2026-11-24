@@ -1,0 +1,149 @@
+# Builds and publishes a release. Runs ONLY when a version tag (vX.Y.Z) is pushed by a
+# maintainer — there are no automatic or scheduled releases.
+# The fix ranker's weights (~1 KB) are compiled into every build: there is one build per target.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+  packages: write
+
+jobs:
+  binaries:
+    name: Binaries (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-22.04, target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-22.04-arm, target: aarch64-unknown-linux-gnu }
+          - { os: macos-14, target: aarch64-apple-darwin }
+          - { os: macos-13, target: x86_64-apple-darwin }
+          - { os: windows-2022, target: x86_64-pc-windows-msvc }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: "${{ matrix.target }}" }
+      - name: Build
+        shell: bash
+        run: cargo build --release -p rosfix --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ext=""; [ "${{ runner.os }}" = "Windows" ] && ext=".exe"
+          pack() { # name, binary
+            mkdir -p "dist/$1/bin"; cp "$2" "dist/$1/bin/rosfix$ext"
+            cp README.md LICENSE-MIT LICENSE-APACHE "dist/$1/"
+            (cd dist && if [ -n "$ext" ]; then 7z a -bd "$1.zip" "$1" >/dev/null; else tar czf "$1.tar.gz" "$1"; fi)
+            rm -rf "dist/$1"
+          }
+          pack "rosfix-${{ matrix.target }}" "target/${{ matrix.target }}/release/rosfix$ext"
+      - uses: actions/upload-artifact@v4
+        with: { name: "bin-${{ matrix.target }}", path: dist/* }
+
+  wheels:
+    name: Wheels (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-22.04, target: x86_64, manylinux: auto }
+          - { os: ubuntu-22.04, target: aarch64, manylinux: auto }
+          - { os: macos-14, target: aarch64 }
+          - { os: macos-13, target: x86_64 }
+          - { os: windows-2022, target: x64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          manylinux: ${{ matrix.manylinux || 'off' }}
+          args: --release --out dist
+      - uses: actions/upload-artifact@v4
+        with: { name: "wheels-${{ matrix.os }}-${{ matrix.target }}", path: dist/*.whl }
+
+  sdist:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: PyO3/maturin-action@v1
+        with: { command: sdist, args: --out dist }
+      - uses: actions/upload-artifact@v4
+        with: { name: sdist, path: dist/*.tar.gz }
+
+  docker:
+    name: Docker (${{ matrix.distro }})
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        distro: [humble, jazzy, kilted]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: ROS_DISTRO=${{ matrix.distro }}
+          tags: ghcr.io/${{ github.repository_owner }}/rosfix:${{ matrix.distro }}-lite,ghcr.io/${{ github.repository_owner }}/rosfix:${{ github.ref_name }}-${{ matrix.distro }}-lite
+
+  publish:
+    needs: [binaries, wheels, sdist]
+    runs-on: ubuntu-22.04
+    environment: release
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: artifacts, merge-multiple: true }
+      - name: Checksums
+        run: cd artifacts && sha256sum * > SHA256SUMS
+      - uses: actions/attest-build-provenance@v2
+        with: { subject-path: "artifacts/*" }
+      - name: GitHub release
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release create "${{ github.ref_name }}" artifacts/* --repo "${{ github.repository }}" --title "${{ github.ref_name }}" --notes-file /dev/null --draft
+      - name: Collect Python distributions
+        run: |
+          mkdir pydist
+          cp artifacts/*.whl pydist/
+          ls artifacts/rosfix-[0-9]*.tar.gz >/dev/null 2>&1 && cp artifacts/rosfix-[0-9]*.tar.gz pydist/ || true
+      - name: PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with: { packages-dir: pydist/, skip-existing: true }
+
+  # Uploads the fix ranker (model repo) and the knowledge packs (dataset repo) to Hugging Face,
+  # from the tagged sources, so the published weights and packs match the released binaries.
+  # Skipped (not failed) unless the repository has an HF_TOKEN secret with write access.
+  # The Hugging Face account defaults to SohamW11; override it with the HF_USER variable.
+  huggingface:
+    needs: publish
+    runs-on: ubuntu-22.04
+    environment: release
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      HF_USER: ${{ vars.HF_USER || 'SohamW11' }}
+    steps:
+      - name: Check for HF_TOKEN
+        id: gate
+        run: |
+          if [ -n "$HF_TOKEN" ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else echo "::notice::HF_TOKEN secret not set; skipping the Hugging Face upload"; fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.enabled == 'true'
+        with: { python-version: "3.12" }
+      - name: Install the Hugging Face CLI
+        if: steps.gate.outputs.enabled == 'true'
+        run: pip install --disable-pip-version-check "huggingface_hub>=0.34"
+      - name: Upload model and dataset
+        if: steps.gate.outputs.enabled == 'true'
+        run: bash scripts/publish_hf.sh

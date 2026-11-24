@@ -1,41 +1,31 @@
-name: ROS 2 Safety Static Analysis
+# Template: copy this file into your ROS 2 repository as .github/workflows/rosfix.yml.
+# It is not triggered in this repository (manual dispatch only).
+name: rosfix (ROS 2 static checks)
+
 on:
-  push:
-    branches: [ main, master, rolling, humble ]
-  pull_request:
-    branches: [ main, master, rolling, humble ]
+  workflow_dispatch:
+  # In your own repository use:
+  # push:
+  # pull_request:
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  ros2-safety-lint:
-    name: Run ros2-safety-lint
+  rosfix:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Install Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install ros2-safety-lint
-        run: cargo install --path crates/ros2-safety-lint
-
-      - name: Run Linter and generate SARIF
-        run: |
-          # Create results directory
-          mkdir -p .results
-          # Run the linter on all relevant ROS 2 files
-          ros2-safety-lint --path . --format sarif > .results/ros2-safety-lint.sarif
-        continue-on-error: true
-
-      - name: Upload SARIF report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ros2-safety-lint-sarif
-          path: .results/ros2-safety-lint.sarif
-
-      - name: Upload SARIF to GitHub Security tab
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install rosfix
+        run: cargo install rosfix --locked
+      - name: Run rosfix
+        # Exit code 1 fails the job when warnings/errors are found (configure with --fail-on).
+        run: rosfix . --format sarif --output rosfix.sarif --fail-on error
+      - name: Upload SARIF to code scanning
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
-        continue-on-error: true
         with:
-          sarif_file: .results/ros2-safety-lint.sarif
-          category: ros2-safety-lint
+          sarif_file: rosfix.sarif
+          category: rosfix
