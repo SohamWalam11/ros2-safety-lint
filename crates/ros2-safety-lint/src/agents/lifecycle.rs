@@ -26,10 +26,11 @@ fn is_manager(n: &NodeInstance) -> bool {
 fn is_lifecycle(cx: &Context, n: &NodeInstance) -> bool {
     n.decl.kind == LaunchNodeKind::LifecycleNode
         || n.impls.iter().any(|(f, i)| {
-            cx.ix.code[f].nodes[*i]
-                .base
-                .as_deref()
-                .is_some_and(|b| b.contains("LifecycleNode") || b.contains("lifecycle.Node") || b.contains("lifecycle::Node"))
+            cx.ix.code[f].nodes[*i].base.as_deref().is_some_and(|b| {
+                b.contains("LifecycleNode")
+                    || b.contains("lifecycle.Node")
+                    || b.contains("lifecycle::Node")
+            })
         })
 }
 
@@ -39,12 +40,20 @@ fn effective_fq(cx: &Context, n: &NodeInstance) -> Option<String> {
     if let Some(f) = &n.fq_name {
         return Some(f.clone());
     }
-    let names: BTreeSet<&str> = n.impls.iter().filter_map(|(f, i)| cx.ix.code[f].nodes[*i].default_name.as_deref()).collect();
+    let names: BTreeSet<&str> = n
+        .impls
+        .iter()
+        .filter_map(|(f, i)| cx.ix.code[f].nodes[*i].default_name.as_deref())
+        .collect();
     let names: Vec<&str> = names.into_iter().collect();
     // Executables built from a shared library link every node class of the package; then
     // take the one whose name the executable is named after (`map_saver` → `map_saver_server`).
     let exec = n.exec.as_deref().unwrap_or_default();
-    let named: Vec<&str> = names.iter().copied().filter(|d| exec.starts_with(d)).collect();
+    let named: Vec<&str> = names
+        .iter()
+        .copied()
+        .filter(|d| exec.starts_with(d))
+        .collect();
     match (names.as_slice(), named.as_slice()) {
         ([one], _) | (_, [one]) => Some(join_ns(&n.namespace, one)),
         _ => None,
@@ -52,7 +61,10 @@ fn effective_fq(cx: &Context, n: &NodeInstance) -> Option<String> {
 }
 
 fn autostarts(n: &NodeInstance) -> bool {
-    n.param("autostart").and_then(|b| b.value.as_ref()).and_then(ParamValue::as_bool) == Some(true)
+    n.param("autostart")
+        .and_then(|b| b.value.as_ref())
+        .and_then(ParamValue::as_bool)
+        == Some(true)
 }
 
 impl Agent for LifecycleAgent {
@@ -90,8 +102,12 @@ fn check_root(cx: &Context, root: &RootGraph, out: &mut Vec<Diagnostic>) {
     // Every manager's list must be known, otherwise we cannot tell what is managed.
     let mut lists = Vec::new();
     for m in &managers {
-        let Some(b) = m.param("node_names") else { return };
-        let Some(ParamValue::StrArray(list)) = &b.value else { return };
+        let Some(b) = m.param("node_names") else {
+            return;
+        };
+        let Some(ParamValue::StrArray(list)) = &b.value else {
+            return;
+        };
         lists.push((*m, b, list));
     }
     let launched: BTreeSet<&str> = (0..root.nodes.len()).map(fq).collect();
@@ -119,7 +135,11 @@ fn check_root(cx: &Context, root: &RootGraph, out: &mut Vec<Diagnostic>) {
                 d = d.help(format!("Did you mean `{c}`?"));
             }
             if let Some(span) = value_span(cx.ix, b.value_loc, name) {
-                d = d.repair(span, name.clone(), leaves.iter().map(|s| s.to_string()).collect());
+                d = d.repair(
+                    span,
+                    name.clone(),
+                    leaves.iter().map(|s| s.to_string()).collect(),
+                );
             }
             out.push(d);
         }
@@ -129,7 +149,12 @@ fn check_root(cx: &Context, root: &RootGraph, out: &mut Vec<Diagnostic>) {
     }
     for (i, n) in root.nodes.iter().enumerate() {
         let f = fq(i);
-        if n.conditional || is_manager(n) || managed.contains(f) || autostarts(n) || !is_lifecycle(cx, n) {
+        if n.conditional
+            || is_manager(n)
+            || managed.contains(f)
+            || autostarts(n)
+            || !is_lifecycle(cx, n)
+        {
             continue;
         }
         let m = lists[0].0;
@@ -149,7 +174,10 @@ fn check_root(cx: &Context, root: &RootGraph, out: &mut Vec<Diagnostic>) {
 mod tests {
     use crate::testutil::analyze_files;
 
-    const PKG: (&str, &str) = ("p/package.xml", "<package format=\"3\"><name>p</name></package>");
+    const PKG: (&str, &str) = (
+        "p/package.xml",
+        "<package format=\"3\"><name>p</name></package>",
+    );
     const CMAKE: (&str, &str) = (
         "p/CMakeLists.txt",
         "project(p)\nadd_executable(planner src/p.cpp)\nadd_executable(mapper src/m.cpp)\ninstall(TARGETS planner mapper DESTINATION lib/${PROJECT_NAME})\n",
@@ -166,7 +194,11 @@ mod tests {
         let l = launch("'planer'");
         let d = analyze_files(&[PKG, CMAKE, PLANNER, MAPPER, ("p/launch/a.launch.py", &l)]);
         let m002 = d.iter().find(|x| x.rule == "M002").expect("M002");
-        assert!(m002.message.contains("/planer") && m002.help.as_deref().is_some_and(|h| h.contains("planner")), "{m002:#?}");
+        assert!(
+            m002.message.contains("/planer")
+                && m002.help.as_deref().is_some_and(|h| h.contains("planner")),
+            "{m002:#?}"
+        );
         assert_eq!(d.iter().filter(|x| x.rule == "M001").count(), 2, "{d:#?}");
     }
 

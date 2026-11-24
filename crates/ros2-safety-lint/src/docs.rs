@@ -9,26 +9,98 @@ use std::fmt::Write;
 
 /// (name, one-line description, text); `None` marks a generated topic.
 const TOPICS: &[(&str, &str, Option<&str>)] = &[
-    ("overview", "what rosfix is and how one analysis works", Some(include_str!("../docs/overview.md"))),
-    ("install", "PyPI, release archives, Docker, cargo", Some(include_str!("../docs/install.md"))),
-    ("commands", "every command and option, exit codes", Some(include_str!("../docs/commands.md"))),
-    ("config", "rosfix.toml, rule settings, suppression comments", Some(include_str!("../docs/config.md"))),
-    ("environment", "installed ROS, knowledge packs, distributions", Some(include_str!("../docs/environment.md"))),
-    ("fixes", "automatic fixes and how they are verified", Some(include_str!("../docs/fixes.md"))),
-    ("assist", "the fix assistant and online references", Some(include_str!("../docs/assist.md"))),
-    ("doctor", "checking the shell's ROS 2 environment", Some(include_str!("../docs/doctor.md"))),
-    ("migrate", "finding what breaks on another distribution", Some(include_str!("../docs/migrate.md"))),
-    ("triage", "explaining a failed launch log with the findings", Some(include_str!("../docs/triage.md"))),
-    ("nodl", "reading and writing NoDL node interface documents", Some(include_str!("../docs/nodl.md"))),
-    ("check-bag", "comparing the launch graph with a recording", Some(include_str!("../docs/live.md"))),
-    ("policy", "generating an SROS2 access-control policy", Some(include_str!("../docs/policy.md"))),
-    ("status", "what each agent did and what limits it", Some(include_str!("../docs/status.md"))),
-    ("ci", "GitHub Actions, pre-commit, baselines", Some(include_str!("../docs/ci.md"))),
-    ("editors", "language server, VS Code and watch mode", Some(include_str!("../docs/editors.md"))),
-    ("output", "text, JSON, SARIF and rdjson reports", Some(include_str!("../docs/output.md"))),
+    (
+        "overview",
+        "what rosfix is and how one analysis works",
+        Some(include_str!("../docs/overview.md")),
+    ),
+    (
+        "install",
+        "PyPI, release archives, Docker, cargo",
+        Some(include_str!("../docs/install.md")),
+    ),
+    (
+        "commands",
+        "every command and option, exit codes",
+        Some(include_str!("../docs/commands.md")),
+    ),
+    (
+        "config",
+        "rosfix.toml, rule settings, suppression comments",
+        Some(include_str!("../docs/config.md")),
+    ),
+    (
+        "environment",
+        "installed ROS, knowledge packs, distributions",
+        Some(include_str!("../docs/environment.md")),
+    ),
+    (
+        "fixes",
+        "automatic fixes and how they are verified",
+        Some(include_str!("../docs/fixes.md")),
+    ),
+    (
+        "assist",
+        "the fix assistant and online references",
+        Some(include_str!("../docs/assist.md")),
+    ),
+    (
+        "doctor",
+        "checking the shell's ROS 2 environment",
+        Some(include_str!("../docs/doctor.md")),
+    ),
+    (
+        "migrate",
+        "finding what breaks on another distribution",
+        Some(include_str!("../docs/migrate.md")),
+    ),
+    (
+        "triage",
+        "explaining a failed launch log with the findings",
+        Some(include_str!("../docs/triage.md")),
+    ),
+    (
+        "nodl",
+        "reading and writing NoDL node interface documents",
+        Some(include_str!("../docs/nodl.md")),
+    ),
+    (
+        "check-bag",
+        "comparing the launch graph with a recording",
+        Some(include_str!("../docs/live.md")),
+    ),
+    (
+        "policy",
+        "generating an SROS2 access-control policy",
+        Some(include_str!("../docs/policy.md")),
+    ),
+    (
+        "status",
+        "what each agent did and what limits it",
+        Some(include_str!("../docs/status.md")),
+    ),
+    (
+        "ci",
+        "GitHub Actions, pre-commit, baselines",
+        Some(include_str!("../docs/ci.md")),
+    ),
+    (
+        "editors",
+        "language server, VS Code and watch mode",
+        Some(include_str!("../docs/editors.md")),
+    ),
+    (
+        "output",
+        "text, JSON, SARIF and rdjson reports",
+        Some(include_str!("../docs/output.md")),
+    ),
     ("agents", "the agents and the rules each one reports", None),
     ("rules", "every rule with its full explanation", None),
-    ("limits", "what static analysis cannot see", Some(include_str!("../docs/limits.md"))),
+    (
+        "limits",
+        "what static analysis cannot see",
+        Some(include_str!("../docs/limits.md")),
+    ),
 ];
 
 /// The topic names, for completion in `rosfix shell`.
@@ -51,13 +123,23 @@ fn agents_page() -> String {
         "# Agents\n\nEach agent checks one problem area and runs only when the workspace contains\nsomething it checks. `--agents a,b` runs only the named agents; core always runs.\n",
     );
     for a in all_agents() {
-        let ids: Vec<&str> = RULES.iter().filter(|r| r.agent == a.id()).map(|r| r.id).collect();
+        let ids: Vec<&str> = RULES
+            .iter()
+            .filter(|r| r.agent == a.id())
+            .map(|r| r.id)
+            .collect();
         let _ = write!(out, "\n## {}\n\n{}\n", a.id(), a.title());
         if !ids.is_empty() {
             let _ = writeln!(out, "Rules: {}", ids.join(", "));
         }
         for r in RULES.iter().filter(|r| r.agent == a.id()) {
-            let _ = writeln!(out, "    {}  {:<7}  {}", r.id, r.severity.as_str(), r.summary);
+            let _ = writeln!(
+                out,
+                "    {}  {:<7}  {}",
+                r.id,
+                r.severity.as_str(),
+                r.summary
+            );
         }
     }
     out
@@ -69,7 +151,11 @@ fn rules_page() -> String {
         RULES.len()
     );
     for r in RULES {
-        let off = if r.enabled_by_default { "" } else { ", off by default" };
+        let off = if r.enabled_by_default {
+            ""
+        } else {
+            ", off by default"
+        };
         let _ = write!(
             out,
             "\n## {} {}\n\nAgent {}, {}{off}.\n\n{}\n\n{}\n",
@@ -134,7 +220,11 @@ mod tests {
         let rules = render(Some("rules")).unwrap();
         let agents = render(Some("agents")).unwrap();
         for r in RULES {
-            assert!(rules.contains(&format!("## {} {}", r.id, r.name)), "{}", r.id);
+            assert!(
+                rules.contains(&format!("## {} {}", r.id, r.name)),
+                "{}",
+                r.id
+            );
             assert!(agents.contains(&format!("    {}  ", r.id)), "{}", r.id);
         }
     }
@@ -144,7 +234,22 @@ mod tests {
     fn commands_page_matches_the_cli() {
         let page = render(Some("commands")).unwrap();
         for c in [
-            "check", "fix", "watch", "lsp", "graph", "rules", "explain", "baseline", "init", "doctor", "migrate", "triage", "nodl export", "check-bag", "policy", "status",
+            "check",
+            "fix",
+            "watch",
+            "lsp",
+            "graph",
+            "rules",
+            "explain",
+            "baseline",
+            "init",
+            "doctor",
+            "migrate",
+            "triage",
+            "nodl export",
+            "check-bag",
+            "policy",
+            "status",
             "docs",
         ] {
             assert!(page.contains(&format!("rosfix {c}")), "{c}");

@@ -326,7 +326,9 @@ int main() { rclcpp::executors::MultiThreadedExecutor ex; ex.add_node(std::make_
             format!("import time\nimport rclpy\nfrom rclpy.node import Node\nfrom rclpy.action import ActionServer\nclass S(Node):\n    def __init__(self):\n        super().__init__('s')\n        self._a = ActionServer(self, Fib, 'fib', self.execute_callback)\n    def execute_callback(self, goal):\n        time.sleep(1)\n        return Fib.Result()\ndef main():\n    rclpy.init()\n    n = S()\n{main}\n")
         };
         let pkg = ("p/package.xml", "<package format=\"3\"><name>p</name><export><build_type>ament_python</build_type></export></package>");
-        let mt = server("    ex = rclpy.executors.MultiThreadedExecutor()\n    rclpy.spin(n, executor=ex)");
+        let mt = server(
+            "    ex = rclpy.executors.MultiThreadedExecutor()\n    rclpy.spin(n, executor=ex)",
+        );
         let d = analyze_files(&[pkg, ("p/p/s.py", &mt)]);
         assert!(d.iter().all(|x| x.rule != "E002"), "{d:#?}");
         let st = server("    rclpy.spin(n)");

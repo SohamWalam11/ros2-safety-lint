@@ -31,14 +31,18 @@ pub fn guard_constraints(src: &str) -> Vec<(String, Constraint)> {
     // parameters is ambiguous and dropped.
     let mut bound: HashMap<String, Option<(String, usize)>> = HashMap::new();
     let mut bind = |var: &str, param: &str, at: usize| {
-        let e = bound.entry(var.to_string()).or_insert_with(|| Some((param.to_string(), at)));
+        let e = bound
+            .entry(var.to_string())
+            .or_insert_with(|| Some((param.to_string(), at)));
         if let Some((p, _)) = e {
             if p != param {
                 *e = None;
             }
         }
     };
-    let assign = re(r#"(\w+)\s*=\s*(?:this\s*->\s*)?(?:\w+\s*->\s*)?(?:declare_parameter|get_parameter_or)\s*(?:<[^;()]*>)?\s*\(\s*"([^"\s]+)""#);
+    let assign = re(
+        r#"(\w+)\s*=\s*(?:this\s*->\s*)?(?:\w+\s*->\s*)?(?:declare_parameter|get_parameter_or)\s*(?:<[^;()]*>)?\s*\(\s*"([^"\s]+)""#,
+    );
     for c in assign.captures_iter(src) {
         bind(&c[1], &c[2], c.get(0).map_or(0, |m| m.start()));
     }
@@ -46,15 +50,21 @@ pub fn guard_constraints(src: &str) -> Vec<(String, Constraint)> {
     for c in get_into.captures_iter(src) {
         bind(&c[2], &c[1], c.get(0).map_or(0, |m| m.start()));
     }
-    let get_as = re(r#"(\w+)\s*=\s*(?:this\s*->\s*)?(?:\w+\s*->\s*)?get_parameter\s*\(\s*"([^"\s]+)"\s*\)\s*\.\s*(?:as_double|as_int|get_value\s*<[^>]*>)\s*\(\s*\)"#);
+    let get_as = re(
+        r#"(\w+)\s*=\s*(?:this\s*->\s*)?(?:\w+\s*->\s*)?get_parameter\s*\(\s*"([^"\s]+)"\s*\)\s*\.\s*(?:as_double|as_int|get_value\s*<[^>]*>)\s*\(\s*\)"#,
+    );
     for c in get_as.captures_iter(src) {
         bind(&c[1], &c[2], c.get(0).map_or(0, |m| m.start()));
     }
 
-    let guard = re(r"if\s*\(\s*(\w+)\s*(<=|<|>=|>)\s*(-?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?)[fFlLuU]?\s*\)\s*\{?\s*(?:RCLCPP_(?:ERROR|FATAL)\w*\s*\([^;]*\)\s*;\s*)?throw\b");
+    let guard = re(
+        r"if\s*\(\s*(\w+)\s*(<=|<|>=|>)\s*(-?\d+(?:\.\d*)?(?:[eE][-+]?\d+)?)[fFlLuU]?\s*\)\s*\{?\s*(?:RCLCPP_(?:ERROR|FATAL)\w*\s*\([^;]*\)\s*;\s*)?throw\b",
+    );
     let mut out: Vec<(String, Constraint)> = Vec::new();
     for c in guard.captures_iter(src) {
-        let Some(Some((param, at))) = bound.get(&c[1]) else { continue };
+        let Some(Some((param, at))) = bound.get(&c[1]) else {
+            continue;
+        };
         let pos = c.get(0).map_or(0, |m| m.start());
         if pos < *at || src[*at..pos].contains("SetParametersResult") {
             continue;
@@ -62,10 +72,22 @@ pub fn guard_constraints(src: &str) -> Vec<(String, Constraint)> {
         let Ok(v) = c[3].parse::<f64>() else { continue };
         // The node throws when the condition holds: it requires the opposite.
         let k = match &c[2] {
-            "<=" => Constraint::Lower { bound: v, inclusive: false },
-            "<" => Constraint::Lower { bound: v, inclusive: true },
-            ">=" => Constraint::Upper { bound: v, inclusive: false },
-            ">" => Constraint::Upper { bound: v, inclusive: true },
+            "<=" => Constraint::Lower {
+                bound: v,
+                inclusive: false,
+            },
+            "<" => Constraint::Lower {
+                bound: v,
+                inclusive: true,
+            },
+            ">=" => Constraint::Upper {
+                bound: v,
+                inclusive: false,
+            },
+            ">" => Constraint::Upper {
+                bound: v,
+                inclusive: true,
+            },
             _ => continue,
         };
         if !out.iter().any(|(p, x)| p == param && *x == k) {
@@ -103,8 +125,20 @@ class N : public rclcpp::Node { public: N() : Node("n") {
         assert_eq!(
             c,
             vec![
-                ("depth".to_string(), Constraint::Upper { bound: 100.0, inclusive: true }),
-                ("rate".to_string(), Constraint::Lower { bound: 0.0, inclusive: false }),
+                (
+                    "depth".to_string(),
+                    Constraint::Upper {
+                        bound: 100.0,
+                        inclusive: true
+                    }
+                ),
+                (
+                    "rate".to_string(),
+                    Constraint::Lower {
+                        bound: 0.0,
+                        inclusive: false
+                    }
+                ),
             ],
             "only throwing guards after the binding; a warning or a callback guard says nothing"
         );

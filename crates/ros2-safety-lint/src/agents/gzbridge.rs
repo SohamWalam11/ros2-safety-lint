@@ -36,14 +36,23 @@ const MAPPINGS: &[(&str, &str)] = &[
     ("geometry_msgs/msg/PoseArray", "Pose_V"),
     ("geometry_msgs/msg/PoseStamped", "Pose"),
     ("geometry_msgs/msg/PoseWithCovariance", "PoseWithCovariance"),
-    ("geometry_msgs/msg/PoseWithCovarianceStamped", "PoseWithCovariance"),
+    (
+        "geometry_msgs/msg/PoseWithCovarianceStamped",
+        "PoseWithCovariance",
+    ),
     ("geometry_msgs/msg/Quaternion", "Quaternion"),
     ("geometry_msgs/msg/Transform", "Pose"),
     ("geometry_msgs/msg/TransformStamped", "Pose"),
     ("geometry_msgs/msg/Twist", "Twist"),
     ("geometry_msgs/msg/TwistStamped", "Twist"),
-    ("geometry_msgs/msg/TwistWithCovariance", "TwistWithCovariance"),
-    ("geometry_msgs/msg/TwistWithCovarianceStamped", "TwistWithCovariance"),
+    (
+        "geometry_msgs/msg/TwistWithCovariance",
+        "TwistWithCovariance",
+    ),
+    (
+        "geometry_msgs/msg/TwistWithCovarianceStamped",
+        "TwistWithCovariance",
+    ),
     ("geometry_msgs/msg/Wrench", "Wrench"),
     ("geometry_msgs/msg/WrenchStamped", "Wrench"),
     ("geometry_msgs/msg/Vector3", "Vector3d"),
@@ -64,8 +73,14 @@ const MAPPINGS: &[(&str, &str)] = &[
     ("ros_gz_interfaces/msg/GuiCamera", "GUICamera"),
     ("ros_gz_interfaces/msg/JointWrench", "JointWrench"),
     ("ros_gz_interfaces/msg/Light", "Light"),
-    ("ros_gz_interfaces/msg/LogicalCameraImage", "LogicalCameraImage"),
-    ("ros_gz_interfaces/msg/LogPlaybackStatistics", "LogPlaybackStatistics"),
+    (
+        "ros_gz_interfaces/msg/LogicalCameraImage",
+        "LogicalCameraImage",
+    ),
+    (
+        "ros_gz_interfaces/msg/LogPlaybackStatistics",
+        "LogPlaybackStatistics",
+    ),
     ("ros_gz_interfaces/msg/MaterialColor", "MaterialColor"),
     ("ros_gz_interfaces/msg/ParamVec", "Param"),
     ("ros_gz_interfaces/msg/ParamVec", "Param_V"),
@@ -98,9 +113,15 @@ const MAPPINGS: &[(&str, &str)] = &[
     ("std_msgs/msg/String", "StringMsg"),
     ("tf2_msgs/msg/TFMessage", "Pose_V"),
     ("trajectory_msgs/msg/JointTrajectory", "JointTrajectory"),
-    ("vision_msgs/msg/Detection2DArray", "AnnotatedAxisAligned2DBox_V"),
+    (
+        "vision_msgs/msg/Detection2DArray",
+        "AnnotatedAxisAligned2DBox_V",
+    ),
     ("vision_msgs/msg/Detection2D", "AnnotatedAxisAligned2DBox"),
-    ("vision_msgs/msg/Detection3DArray", "AnnotatedOriented3DBox_V"),
+    (
+        "vision_msgs/msg/Detection3DArray",
+        "AnnotatedOriented3DBox_V",
+    ),
     ("vision_msgs/msg/Detection3D", "AnnotatedOriented3DBox"),
 ];
 
@@ -124,7 +145,16 @@ const KEYS: &[&str] = &[
     "ign_type_name",
 ];
 const DIRECTIONS: &[&str] = &["BIDIRECTIONAL", "GZ_TO_ROS", "ROS_TO_GZ"];
-const QOS_PROFILES: &[&str] = &["CLOCK", "SENSOR_DATA", "PARAMETERS", "SERVICES", "PARAMETER_EVENTS", "ROSOUT", "SYSTEM_DEFAULT", "BEST_AVAILABLE"];
+const QOS_PROFILES: &[&str] = &[
+    "CLOCK",
+    "SENSOR_DATA",
+    "PARAMETERS",
+    "SERVICES",
+    "PARAMETER_EVENTS",
+    "ROSOUT",
+    "SYSTEM_DEFAULT",
+    "BEST_AVAILABLE",
+];
 const BRIDGE_PACKAGES: &[&str] = &["ros_gz_bridge", "ros_ign_bridge"];
 
 const INPUTS: &[FileKind] = &[
@@ -144,10 +174,16 @@ const INPUTS: &[FileKind] = &[
 
 /// A YAML file whose top level is a sequence of bridge entries.
 pub fn is_bridge_config(text: &str) -> bool {
-    if !(text.contains("ros_type_name") || text.contains("gz_type_name") || text.contains("ign_type_name")) {
+    if !(text.contains("ros_type_name")
+        || text.contains("gz_type_name")
+        || text.contains("ign_type_name"))
+    {
         return false;
     }
-    matches!(yaml::parse(text).ok().as_deref(), Some([YNode::Seq { .. }, ..]))
+    matches!(
+        yaml::parse(text).ok().as_deref(),
+        Some([YNode::Seq { .. }, ..])
+    )
 }
 
 impl Agent for GzBridgeAgent {
@@ -161,11 +197,16 @@ impl Agent for GzBridgeAgent {
         INPUTS
     }
     fn relevant(&self, cx: &Context) -> bool {
-        cx.ix.kinds.contains(&FileKind::GzBridge) || cx.graph.instances().any(|(_, _, n)| is_bridge_node(n))
+        cx.ix.kinds.contains(&FileKind::GzBridge)
+            || cx.graph.instances().any(|(_, _, n)| is_bridge_node(n))
     }
     fn run(&self, cx: &Context, out: &mut Vec<Diagnostic>) {
-        for f in (0..cx.ix.kinds.len()).filter(|i| cx.ix.kinds[*i] == FileKind::GzBridge && !cx.ix.external_files.contains(i)) {
-            let Ok(docs) = yaml::parse(&cx.ix.file(f).text) else { continue };
+        for f in (0..cx.ix.kinds.len())
+            .filter(|i| cx.ix.kinds[*i] == FileKind::GzBridge && !cx.ix.external_files.contains(i))
+        {
+            let Ok(docs) = yaml::parse(&cx.ix.file(f).text) else {
+                continue;
+            };
             for entry in docs.first().map(YNode::items).unwrap_or_default() {
                 check_entry(f, entry, out);
             }
@@ -176,7 +217,10 @@ impl Agent for GzBridgeAgent {
                 continue;
             }
             for arg in n.arguments.iter().flatten() {
-                if arg.contains('@') && !templated(arg) && seen.insert((n.decl.loc.file, n.decl.loc.start, arg.clone())) {
+                if arg.contains('@')
+                    && !templated(arg)
+                    && seen.insert((n.decl.loc.file, n.decl.loc.start, arg.clone()))
+                {
                     check_argument(cx, n.decl.loc, arg, out);
                     check_direction(cx, r, n, arg, out);
                 }
@@ -187,7 +231,13 @@ impl Agent for GzBridgeAgent {
 
 /// G005: a one-way bridge pointing against the ROS side of the topic, in a launch graph
 /// whose every other node's endpoints are known.
-fn check_direction(cx: &Context, root: usize, bridge: &crate::resolve::NodeInstance, arg: &str, out: &mut Vec<Diagnostic>) {
+fn check_direction(
+    cx: &Context,
+    root: usize,
+    bridge: &crate::resolve::NodeInstance,
+    arg: &str,
+    out: &mut Vec<Diagnostic>,
+) {
     use crate::facts::EndpointKind;
     let Ok(s) = parse_argument(arg) else { return };
     let dir = arg[s.ros_off + s.ros.len()..].chars().next();
@@ -198,7 +248,11 @@ fn check_direction(cx: &Context, root: usize, bridge: &crate::resolve::NodeInsta
     if g.partial {
         return;
     }
-    let mut topic = crate::resolve::expand_name(&arg[..s.ros_off - 1], &bridge.namespace, bridge.name.as_deref().unwrap_or("ros_gz_bridge"));
+    let mut topic = crate::resolve::expand_name(
+        &arg[..s.ros_off - 1],
+        &bridge.namespace,
+        bridge.name.as_deref().unwrap_or("ros_gz_bridge"),
+    );
     if let Some((_, to, _)) = bridge.remaps.iter().find(|(from, _, _)| *from == topic) {
         topic = to.clone();
     }
@@ -224,12 +278,17 @@ fn check_direction(cx: &Context, root: usize, bridge: &crate::resolve::NodeInsta
         ),
         _ => return,
     };
-    let loc = value_span(cx.ix, bridge.decl.loc, arg).filter(|l| cx.ix.file(l.file).slice(*l) == arg).unwrap_or(bridge.decl.loc);
+    let loc = value_span(cx.ix, bridge.decl.loc, arg)
+        .filter(|l| cx.ix.file(l.file).slice(*l) == arg)
+        .unwrap_or(bridge.decl.loc);
     out.push(Diagnostic::new("G005", loc, message).help(help));
 }
 
 fn is_bridge_node(n: &crate::resolve::NodeInstance) -> bool {
-    n.pkg.as_deref().is_some_and(|p| BRIDGE_PACKAGES.contains(&p)) && n.exec.as_deref() == Some("parameter_bridge")
+    n.pkg
+        .as_deref()
+        .is_some_and(|p| BRIDGE_PACKAGES.contains(&p))
+        && n.exec.as_deref() == Some("parameter_bridge")
 }
 
 /// A value filled in later (Jinja `{{ … }}`, launch `$(…)`, xacro `${…}`).
@@ -243,7 +302,11 @@ fn guess(typed: &str, allowed: &[&'static str]) -> Option<&'static str> {
     if let Some(a) = allowed.iter().find(|a| **a == typed) {
         return Some(a);
     }
-    let prefixed: Vec<&'static str> = allowed.iter().copied().filter(|a| a.starts_with(typed)).collect();
+    let prefixed: Vec<&'static str> = allowed
+        .iter()
+        .copied()
+        .filter(|a| a.starts_with(typed))
+        .collect();
     if prefixed.len() == 1 && typed.len() >= 3 {
         return Some(prefixed[0]);
     }
@@ -253,7 +316,12 @@ fn guess(typed: &str, allowed: &[&'static str]) -> Option<&'static str> {
 /// The span of a scalar's text, without quotes.
 fn inner(n: &YNode) -> (usize, usize) {
     match n {
-        YNode::Scalar { quoted: true, start, end, .. } if end - start >= 2 => (start + 1, end - 1),
+        YNode::Scalar {
+            quoted: true,
+            start,
+            end,
+            ..
+        } if end - start >= 2 => (start + 1, end - 1),
         _ => (n.start(), n.end()),
     }
 }
@@ -267,7 +335,8 @@ struct TypeIssue {
 }
 
 fn gz_name(gz: &str) -> Option<&str> {
-    gz.strip_prefix("gz.msgs.").or_else(|| gz.strip_prefix("ignition.msgs."))
+    gz.strip_prefix("gz.msgs.")
+        .or_else(|| gz.strip_prefix("ignition.msgs."))
 }
 
 fn pair_ok(ros: &str, gz: &str) -> bool {
@@ -284,7 +353,11 @@ fn check_types(ros: &str, gz: &str) -> Option<TypeIssue> {
     };
     match (ros_ok, gz_name(gz)) {
         (true, Some(name)) => {
-            let partners: Vec<String> = MAPPINGS.iter().filter(|(r, _)| *r == ros).map(|(_, g)| format!("gz.msgs.{g}")).collect();
+            let partners: Vec<String> = MAPPINGS
+                .iter()
+                .filter(|(r, _)| *r == ros)
+                .map(|(_, g)| format!("gz.msgs.{g}"))
+                .collect();
             let gz_known = MAPPINGS.iter().any(|(_, g)| *g == name);
             if pair_ok(ros, name) || partners.is_empty() || !gz_known {
                 return None;
@@ -358,21 +431,46 @@ fn check_entry(f: FileId, e: &YNode, out: &mut Vec<Diagnostic>) {
         );
         if let Some(c) = guess(key, KEYS) {
             let (s, en) = inner(k);
-            d = d.help(format!("Did you mean `{c}`?")).safe_fix(format!("Rename the key to `{c}`"), f, s, en, c);
+            d = d.help(format!("Did you mean `{c}`?")).safe_fix(
+                format!("Rename the key to `{c}`"),
+                f,
+                s,
+                en,
+                c,
+            );
         }
         out.push(d);
     }
-    let first = e.entries().first().map_or(Loc::new(f, e.start(), e.start()), |(k, _)| Loc::new(f, k.start(), k.end()));
-    let topic = match text("ros_topic_name").or_else(|| text("topic_name")).or_else(|| text("gz_topic_name")) {
+    let first = e
+        .entries()
+        .first()
+        .map_or(Loc::new(f, e.start(), e.start()), |(k, _)| {
+            Loc::new(f, k.start(), k.end())
+        });
+    let topic = match text("ros_topic_name")
+        .or_else(|| text("topic_name"))
+        .or_else(|| text("gz_topic_name"))
+    {
         Some(t) => format!("the entry for `{t}`"),
         None => "this entry".to_string(),
     };
     let mut invalid = |loc: Loc, why: String| {
-        out.push(Diagnostic::new("G002", loc, format!("the bridge skips {topic}: {why}")));
+        out.push(Diagnostic::new(
+            "G002",
+            loc,
+            format!("the bridge skips {topic}: {why}"),
+        ));
     };
     for other in ["ros_topic_name", "gz_topic_name"] {
-        if let (Some(_), Some((k, _))) = (text("topic_name"), e.entry(other).filter(|(_, v)| v.as_str().is_some_and(|s| !s.is_empty()))) {
-            invalid(Loc::new(f, k.start(), k.end()), format!("`topic_name` and `{other}` cannot both be set"));
+        if let (Some(_), Some((k, _))) = (
+            text("topic_name"),
+            e.entry(other)
+                .filter(|(_, v)| v.as_str().is_some_and(|s| !s.is_empty())),
+        ) {
+            invalid(
+                Loc::new(f, k.start(), k.end()),
+                format!("`topic_name` and `{other}` cannot both be set"),
+            );
         }
     }
     let legacy = e.get("ign_type_name").is_some() || e.get("ign_topic_name").is_some();
@@ -385,25 +483,42 @@ fn check_entry(f: FileId, e: &YNode, out: &mut Vec<Diagnostic>) {
     } else if !legacy {
         for k in ["ros_type_name", "gz_type_name"] {
             if text(k).is_none() {
-                invalid(first, format!("`{k}` is missing; both `ros_type_name` and `gz_type_name` must be set"));
+                invalid(
+                    first,
+                    format!(
+                        "`{k}` is missing; both `ros_type_name` and `gz_type_name` must be set"
+                    ),
+                );
             }
         }
     }
     for (key, allowed) in [("direction", DIRECTIONS), ("qos_profile", QOS_PROFILES)] {
         let Some(v) = e.get(key) else { continue };
         let Some(value) = v.as_str() else { continue };
-        if allowed.contains(&value) || templated(value) || (key == "qos_profile" && value.is_empty()) {
+        if allowed.contains(&value)
+            || templated(value)
+            || (key == "qos_profile" && value.is_empty())
+        {
             continue;
         }
         let mut d = Diagnostic::new(
             "G002",
             Loc::new(f, v.start(), v.end()),
-            format!("the bridge skips {topic}: `{value}` is not a valid {key} ({})", allowed.join(", ")),
+            format!(
+                "the bridge skips {topic}: `{value}` is not a valid {key} ({})",
+                allowed.join(", ")
+            ),
         );
         let upper = value.trim().to_ascii_uppercase().replace('-', "_");
         if let Some(c) = guess(&upper, allowed) {
             let (s, en) = inner(v);
-            d = d.help(format!("Did you mean `{c}`?")).safe_fix(format!("Write `{c}`"), f, s, en, c);
+            d = d.help(format!("Did you mean `{c}`?")).safe_fix(
+                format!("Write `{c}`"),
+                f,
+                s,
+                en,
+                c,
+            );
         }
         out.push(d);
     }
@@ -436,7 +551,10 @@ struct Spec<'a> {
 /// The argument parsing of `parameter_bridge.cpp`; Err is the case where it prints its usage
 /// text and exits.
 fn parse_argument(a: &str) -> Result<Spec<'_>, &'static str> {
-    let d = a.find('@').filter(|d| *d > 0).ok_or("no topic name before the first `@`")?;
+    let d = a
+        .find('@')
+        .filter(|d| *d > 0)
+        .ok_or("no topic name before the first `@`")?;
     let rest_off = d + 1;
     let rest = &a[rest_off..];
     let p = match rest.find('@').filter(|p| *p > 0) {
@@ -457,8 +575,17 @@ fn parse_argument(a: &str) -> Result<Spec<'_>, &'static str> {
     if ros.contains("/srv/") {
         return match direction {
             Some("[") | Some("]") => Err("a service bridge cannot have a direction"),
-            Some(_) if after.find('@').filter(|q| *q > 0).is_none() => Err("a service needs `@GZ_REQUEST_TYPE@GZ_REPLY_TYPE` after its ROS type"),
-            _ => Ok(Spec { ros, ros_off: rest_off, gz: "", gz_off, no_direction: false, service: true }),
+            Some(_) if after.find('@').filter(|q| *q > 0).is_none() => {
+                Err("a service needs `@GZ_REQUEST_TYPE@GZ_REPLY_TYPE` after its ROS type")
+            }
+            _ => Ok(Spec {
+                ros,
+                ros_off: rest_off,
+                gz: "",
+                gz_off,
+                no_direction: false,
+                service: true,
+            }),
         };
     }
     if after.is_empty() {
@@ -467,7 +594,14 @@ fn parse_argument(a: &str) -> Result<Spec<'_>, &'static str> {
     if after.contains('@') {
         return Err("too many `@` separators");
     }
-    Ok(Spec { ros, ros_off: rest_off, gz: after, gz_off, no_direction: p.is_none(), service: false })
+    Ok(Spec {
+        ros,
+        ros_off: rest_off,
+        gz: after,
+        gz_off,
+        no_direction: p.is_none(),
+        service: false,
+    })
 }
 
 /// G001 and G003 for one `parameter_bridge` argument.
@@ -510,7 +644,10 @@ mod tests {
     use super::*;
     use crate::testutil::analyze_files;
 
-    const PKG: (&str, &str) = ("sim/package.xml", "<package format=\"3\"><name>sim</name></package>");
+    const PKG: (&str, &str) = (
+        "sim/package.xml",
+        "<package format=\"3\"><name>sim</name></package>",
+    );
 
     fn launch(args: &str) -> Vec<Diagnostic> {
         let py = format!(
@@ -523,7 +660,10 @@ mod tests {
     fn argument_parsing_matches_parameter_bridge() {
         assert!(parse_argument("/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock").is_ok());
         assert!(parse_argument("/cmd@geometry_msgs/msg/Twist]gz.msgs.Twist").is_ok());
-        assert!(parse_argument("/s@ros_gz_interfaces/srv/ControlWorld@gz.msgs.WorldControl@gz.msgs.Boolean").is_ok_and(|s| s.service));
+        assert!(parse_argument(
+            "/s@ros_gz_interfaces/srv/ControlWorld@gz.msgs.WorldControl@gz.msgs.Boolean"
+        )
+        .is_ok_and(|s| s.service));
         assert!(parse_argument("/s@ros_gz_interfaces/srv/ControlWorld").is_ok_and(|s| s.service));
         assert!(parse_argument("/bat@sensor_msgs/msg/BatteryState@").is_err());
         assert!(parse_argument("@std_msgs/msg/String@gz.msgs.StringMsg").is_err());
@@ -537,8 +677,16 @@ mod tests {
         let d = launch("'/scan@sensor_msgs/msg/LaserScan[gz.msgs.PointCloudPacked', '/bat@sensor_msgs/msg/BatteryState@', '/chatter@std_msgs/String@gz.msgs.StringMsg', '/cmd_vel@geometry_msgs/msg/Twist]gz::msgs::Twist', '/ok@std_msgs/msg/String@ignition.msgs.StringMsg'");
         let g: Vec<&Diagnostic> = d.iter().filter(|x| x.rule.starts_with('G')).collect();
         assert_eq!(g.len(), 4, "{g:#?}");
-        let by = |r: &str, s: &str| g.iter().find(|x| x.rule == r && x.message.contains(s)).copied().unwrap_or_else(|| panic!("{r} {s}: {g:#?}"));
-        assert!(by("G001", "PointCloudPacked").help.as_deref().is_some_and(|h| h.contains("gz.msgs.LaserScan")));
+        let by = |r: &str, s: &str| {
+            g.iter()
+                .find(|x| x.rule == r && x.message.contains(s))
+                .copied()
+                .unwrap_or_else(|| panic!("{r} {s}: {g:#?}"))
+        };
+        assert!(by("G001", "PointCloudPacked")
+            .help
+            .as_deref()
+            .is_some_and(|h| h.contains("gz.msgs.LaserScan")));
         by("G003", "BatteryState");
         assert!(by("G001", "std_msgs/String").fix.is_some());
         assert!(by("G001", "gz::msgs::Twist").fix.is_some());
@@ -553,11 +701,22 @@ mod tests {
 - ros_topic_name: \"{{ ns }}/cmd\"\n  ros_type_name: geometry_msgs/msg/Twist\n  gz_type_name: gz.msgs.Twist\n  direction: ROS_TO_GZ\n";
         let d = analyze_files(&[PKG, ("sim/config/bridge.yaml", yaml)]);
         let g: Vec<&Diagnostic> = d.iter().filter(|x| x.rule.starts_with('G')).collect();
-        let by = |r: &str, s: &str| g.iter().find(|x| x.rule == r && x.message.contains(s)).copied().unwrap_or_else(|| panic!("{r} {s}: {g:#?}"));
+        let by = |r: &str, s: &str| {
+            g.iter()
+                .find(|x| x.rule == r && x.message.contains(s))
+                .copied()
+                .unwrap_or_else(|| panic!("{r} {s}: {g:#?}"))
+        };
         assert!(by("G002", "`gz_to_ros`").fix.is_some());
         by("G002", "`topic_name` and `ros_topic_name`");
         by("G001", "gz.msgs.Image");
-        assert!(by("G002", "`SENSOR`").fix.as_ref().is_some_and(|f| f.edits[0].replacement == "SENSOR_DATA"), "{g:#?}");
+        assert!(
+            by("G002", "`SENSOR`")
+                .fix
+                .as_ref()
+                .is_some_and(|f| f.edits[0].replacement == "SENSOR_DATA"),
+            "{g:#?}"
+        );
         assert!(by("G004", "`ros_topic`").fix.is_some());
         by("G002", "`gz_type_name` is missing");
         assert_eq!(g.len(), 6, "{g:#?}");
@@ -576,7 +735,11 @@ mod tests {
             ])
         };
         let d = files("]");
-        assert!(d.iter().any(|x| x.rule == "G005" && x.message.contains("only subscribe to `/scan`")), "{d:#?}");
+        assert!(
+            d.iter()
+                .any(|x| x.rule == "G005" && x.message.contains("only subscribe to `/scan`")),
+            "{d:#?}"
+        );
         let d = files("[");
         assert!(!d.iter().any(|x| x.rule == "G005"), "{d:#?}");
     }

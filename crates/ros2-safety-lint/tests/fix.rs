@@ -46,8 +46,14 @@ int main(int argc, char** argv) { rclcpp::init(argc, argv); rclcpp::spin(std::ma
         "fx/config/driver.yaml",
         "# Driver parameters\ndriver:\n  ros__parameters:\n    wheel_radius: 1\n    wheel_base: 1  # rosfix: ignore[P004]\n    frame_name: 42\n    max_linear_velocty: 0.5\n    max_vel: 2.0\n",
     );
-    add("fx/config/extra.yaml", "drivr:\n  ros__parameters:\n    max_angular_velocity: 1.5\n");
-    add("fx/config/typo.yaml", "driver:\n  ros__parametres:\n    wheel_radius: 0.2\n");
+    add(
+        "fx/config/extra.yaml",
+        "drivr:\n  ros__parameters:\n    max_angular_velocity: 1.5\n",
+    );
+    add(
+        "fx/config/typo.yaml",
+        "driver:\n  ros__parametres:\n    wheel_radius: 0.2\n",
+    );
     add(
         "fx/launch/bringup.launch.py",
         &format!(
@@ -56,7 +62,10 @@ int main(int argc, char** argv) { rclcpp::init(argc, argv); rclcpp::spin(std::ma
     );
 
     // ---- slim: one-line package.xml (L002 must insert inside <package>)
-    add("slim/package.xml", "<package format=\"3\"><name>slim</name></package>");
+    add(
+        "slim/package.xml",
+        "<package format=\"3\"><name>slim</name></package>",
+    );
     add("slim/CMakeLists.txt", "project(slim)\nfind_package(ament_cmake REQUIRED)\nfind_package(geometry_msgs REQUIRED)\nament_package()\n");
 
     // ---- crlf: Windows line endings must survive (L002)
@@ -69,8 +78,14 @@ int main(int argc, char** argv) { rclcpp::init(argc, argv); rclcpp::spin(std::ma
     add("pyfx/setup.cfg", "[metadata]\nname=pyfx\n");
 
     // ---- nav: Nav2 configuration (N002 N003 N006)
-    add("nav/package.xml", "<package format=\"3\"><name>nav</name></package>");
-    add("nav/urdf/robot.urdf", "<robot name=\"r\"><link name=\"base_link\"/></robot>");
+    add(
+        "nav/package.xml",
+        "<package format=\"3\"><name>nav</name></package>",
+    );
+    add(
+        "nav/urdf/robot.urdf",
+        "<robot name=\"r\"><link name=\"base_link\"/></robot>",
+    );
     add(
         "nav/config/nav2.yaml",
         "controller_server:\n  ros__parameters:\n    controller_frequncy: 20.0\n    controller_plugins: [\"FollowPath\"]\n    FollowPath:\n      plugin: \"nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitControler\"\n      desired_linear_vel: 0.5\nlocal_costmap:\n  local_costmap:\n    ros__parameters:\n      global_frame: odom\n      robot_base_frame: base_lnk\n      robot_radius: 0.3\n      plugins: [\"inflation_layer\"]\n      inflation_layer:\n        plugin: \"nav2_costmap_2d::InflationLayer\"\n        inflation_radius: 0.55\n        cost_scalling_factor: 3.0\n",
@@ -131,7 +146,11 @@ fn snapshot(root: &Path) -> BTreeMap<String, Vec<u8>> {
             if p.is_dir() {
                 walk(root, &p, out);
             } else {
-                let rel = p.strip_prefix(root).unwrap().to_string_lossy().replace('\\', "/");
+                let rel = p
+                    .strip_prefix(root)
+                    .unwrap()
+                    .to_string_lossy()
+                    .replace('\\', "/");
                 out.insert(rel, std::fs::read(&p).unwrap());
             }
         }
@@ -144,7 +163,11 @@ fn snapshot(root: &Path) -> BTreeMap<String, Vec<u8>> {
 /// Runs the binary hermetically: no installed ROS, no distribution, no colour.
 fn rosfix(root: &Path, args: &[&str]) -> (i32, String, String) {
     // `baseline` writes no report, so it has no --no-color.
-    let color = if args.first() == Some(&"baseline") { None } else { Some("--no-color") };
+    let color = if args.first() == Some(&"baseline") {
+        None
+    } else {
+        Some("--no-color")
+    };
     let out = Command::new(env!("CARGO_BIN_EXE_rosfix"))
         .args(args)
         .arg(root)
@@ -194,7 +217,11 @@ fn expected_after() -> BTreeMap<&'static str, String> {
     let edit = |rel: &str, pairs: &[(&str, &str)]| {
         let mut t = original[rel].clone();
         for (from, to) in pairs {
-            assert_eq!(t.matches(from).count(), 1, "{rel}: `{from}` must occur once");
+            assert_eq!(
+                t.matches(from).count(),
+                1,
+                "{rel}: `{from}` must occur once"
+            );
             t = t.replacen(from, to, 1);
         }
         t
@@ -210,8 +237,17 @@ fn expected_after() -> BTreeMap<&'static str, String> {
             ],
         ),
     );
-    m.insert("fx/config/extra.yaml", edit("fx/config/extra.yaml", &[("drivr:", "driver:")]));
-    m.insert("fx/config/typo.yaml", edit("fx/config/typo.yaml", &[("ros__parametres:", "ros__parameters:")]));
+    m.insert(
+        "fx/config/extra.yaml",
+        edit("fx/config/extra.yaml", &[("drivr:", "driver:")]),
+    );
+    m.insert(
+        "fx/config/typo.yaml",
+        edit(
+            "fx/config/typo.yaml",
+            &[("ros__parametres:", "ros__parameters:")],
+        ),
+    );
     m.insert(
         "fx/package.xml",
         edit(
@@ -226,18 +262,27 @@ fn expected_after() -> BTreeMap<&'static str, String> {
         "fx/CMakeLists.txt",
         edit(
             "fx/CMakeLists.txt",
-            &[("ament_package()", "install(DIRECTORY config DESTINATION share/${PROJECT_NAME})\n\nament_package()")],
+            &[(
+                "ament_package()",
+                "install(DIRECTORY config DESTINATION share/${PROJECT_NAME})\n\nament_package()",
+            )],
         ),
     );
     m.insert(
         "slim/package.xml",
-        edit("slim/package.xml", &[("</name>", "</name><depend>geometry_msgs</depend>")]),
+        edit(
+            "slim/package.xml",
+            &[("</name>", "</name><depend>geometry_msgs</depend>")],
+        ),
     );
     m.insert(
         "crlf/package.xml",
         edit(
             "crlf/package.xml",
-            &[("  <depend>rclcpp</depend>\r\n", "  <depend>rclcpp</depend>\r\n  <depend>sensor_msgs</depend>\r\n")],
+            &[(
+                "  <depend>rclcpp</depend>\r\n",
+                "  <depend>rclcpp</depend>\r\n  <depend>sensor_msgs</depend>\r\n",
+            )],
         ),
     );
     m.insert(
@@ -253,7 +298,10 @@ fn expected_after() -> BTreeMap<&'static str, String> {
             "nav/config/nav2.yaml",
             &[
                 ("controller_frequncy:", "controller_frequency:"),
-                ("RegulatedPurePursuitControler\"", "RegulatedPurePursuitController\""),
+                (
+                    "RegulatedPurePursuitControler\"",
+                    "RegulatedPurePursuitController\"",
+                ),
                 ("robot_base_frame: base_lnk", "robot_base_frame: base_link"),
                 ("cost_scalling_factor:", "cost_scaling_factor:"),
             ],
@@ -261,11 +309,20 @@ fn expected_after() -> BTreeMap<&'static str, String> {
     );
     m.insert(
         "arm/config/controllers.yaml",
-        edit("arm/config/controllers.yaml", &[("joint_trajectory_controler/", "joint_trajectory_controller/")]),
+        edit(
+            "arm/config/controllers.yaml",
+            &[(
+                "joint_trajectory_controler/",
+                "joint_trajectory_controller/",
+            )],
+        ),
     );
     m.insert(
         "tfdemo/launch/frames.launch.py",
-        edit("tfdemo/launch/frames.launch.py", &[("'odom_frame': '/odom'", "'odom_frame': 'odom'")]),
+        edit(
+            "tfdemo/launch/frames.launch.py",
+            &[("'odom_frame': '/odom'", "'odom_frame': 'odom'")],
+        ),
     );
     m
 }
@@ -280,7 +337,10 @@ const FIXED_RULES: &[&str] = &[
 #[test]
 fn every_safe_fix_rule_is_planted() {
     let ws = workspace();
-    let (_, out, _) = rosfix(ws.path(), &["check", "--format", "json", "--fail-on", "never"]);
+    let (_, out, _) = rosfix(
+        ws.path(),
+        &["check", "--format", "json", "--fail-on", "never"],
+    );
     let v: serde_json::Value = serde_json::from_str(&out).unwrap();
     let with_safe_fix: BTreeSet<&str> = v["diagnostics"]
         .as_array()
@@ -298,10 +358,17 @@ fn dry_run_writes_nothing_and_prints_the_diff() {
     let ws = workspace();
     let before = snapshot(ws.path());
     let (code, out, err) = rosfix(ws.path(), &["fix"]);
-    assert_eq!(snapshot(ws.path()), before, "a dry run must not change any file");
+    assert_eq!(
+        snapshot(ws.path()),
+        before,
+        "a dry run must not change any file"
+    );
     assert_eq!(code, 1, "findings remain: {err}");
     for rel in expected_after().keys() {
-        assert!(out.contains(&format!("--- a/{rel}\n+++ b/{rel}\n")), "diff misses {rel}:\n{out}");
+        assert!(
+            out.contains(&format!("--- a/{rel}\n+++ b/{rel}\n")),
+            "diff misses {rel}:\n{out}"
+        );
     }
     assert!(err.contains("run `rosfix fix --write` to apply"), "{err}");
     assert!(!err.contains("skipped fix"), "{err}");
@@ -317,7 +384,10 @@ fn write_applies_exactly_the_reviewed_edits() {
     let expected = expected_after();
 
     // The same set of files, and no temporary files left behind.
-    assert_eq!(after.keys().collect::<Vec<_>>(), before.keys().collect::<Vec<_>>());
+    assert_eq!(
+        after.keys().collect::<Vec<_>>(),
+        before.keys().collect::<Vec<_>>()
+    );
     for (rel, bytes) in &after {
         match expected.get(rel.as_str()) {
             Some(want) => assert_eq!(&text(&after, rel), want, "{rel}"),
@@ -380,7 +450,12 @@ fn fixed_findings_disappear_and_nothing_new_appears() {
         assert!(left.is_empty(), "{r} still reported: {left:#?}");
     }
     // The traps are still reported: the suppressed one is hidden, the ambiguous one is not.
-    assert!(after.iter().any(|(r, _, m)| r == "P003" && m.contains("max_vel")), "{after:#?}");
+    assert!(
+        after
+            .iter()
+            .any(|(r, _, m)| r == "P003" && m.contains("max_vel")),
+        "{after:#?}"
+    );
 }
 
 #[test]
@@ -408,7 +483,10 @@ fn machine_readable_report_keeps_stdout_clean() {
     let ws = workspace();
     let (_, out, err) = rosfix(ws.path(), &["fix", "--format", "json"]);
     serde_json::from_str::<serde_json::Value>(&out).expect("stdout is only the JSON report");
-    assert!(err.contains("--- a/fx/config/driver.yaml"), "the diff goes to stderr");
+    assert!(
+        err.contains("--- a/fx/config/driver.yaml"),
+        "the diff goes to stderr"
+    );
     let (_, out, _) = rosfix(ws.path(), &["fix", "--format", "sarif"]);
     let v: serde_json::Value = serde_json::from_str(&out).unwrap();
     assert_eq!(v["version"], "2.1.0");
@@ -418,7 +496,10 @@ fn machine_readable_report_keeps_stdout_clean() {
 fn exit_code_counts_only_what_remains_after_writing() {
     // A workspace whose only findings are fixable: after --write nothing is left.
     let dir = tempfile::tempdir().unwrap();
-    for (rel, text) in files().into_iter().filter(|(r, _)| r.starts_with("slim/") || r.starts_with("pyfx/")) {
+    for (rel, text) in files()
+        .into_iter()
+        .filter(|(r, _)| r.starts_with("slim/") || r.starts_with("pyfx/"))
+    {
         let p = dir.path().join(rel);
         std::fs::create_dir_all(p.parent().unwrap()).unwrap();
         std::fs::write(p, text).unwrap();
@@ -443,7 +524,10 @@ fn baseline_hidden_findings_are_not_fixed() {
     let base = out.path().join("b.json");
     rosfix(ws.path(), &["baseline", "-o", base.to_str().unwrap()]);
     let before = snapshot(ws.path());
-    let (_, _, err) = rosfix(ws.path(), &["fix", "--write", "--baseline", base.to_str().unwrap()]);
+    let (_, _, err) = rosfix(
+        ws.path(),
+        &["fix", "--write", "--baseline", base.to_str().unwrap()],
+    );
     assert!(err.contains("no automatic fixes available"), "{err}");
     assert_eq!(snapshot(ws.path()), before);
 }

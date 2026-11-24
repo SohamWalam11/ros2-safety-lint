@@ -193,12 +193,17 @@ fn p003_p004(cx: &Context, inst: &NodeInstance, out: &mut Vec<Diagnostic>) {
         // An unevaluated value (e.g. `{"ns": ParameterBuilder(..).to_dict()}`) may be a dict
         // that expands to `ns.*`: if the node declares parameters under `ns.`, it is not undeclared.
         // Only Python launch values can be such dicts: XML/YAML `<param value=…>` is a scalar.
-        let from_python = cx.ix.kinds.get(b.key_loc.file) == Some(&crate::workspace::FileKind::LaunchPy);
+        let from_python =
+            cx.ix.kinds.get(b.key_loc.file) == Some(&crate::workspace::FileKind::LaunchPy);
         let opaque = from_python && matches!(b.value, None | Some(ParamValue::Unknown));
         let prefix = format!("{}.", b.name);
         // Dotted names are open (plugins, a listener with an unknown prefix): the dict may
         // expand to any of them.
-        if decl.is_none() && opaque && (inst.params_open_dotted || decls.iter().any(|d| d.name.literal().starts_with(&prefix))) {
+        if decl.is_none()
+            && opaque
+            && (inst.params_open_dotted
+                || decls.iter().any(|d| d.name.literal().starts_with(&prefix)))
+        {
             continue;
         }
         let can_check_missing =
@@ -373,20 +378,38 @@ fn impl_description(cx: &Context, inst: &NodeInstance) -> String {
 
 /// The other distributions' knowledge packs, decoded once.
 fn other_packs() -> &'static [(&'static str, Option<crate::pack::Pack>)] {
-    static PACKS: std::sync::OnceLock<Vec<(&'static str, Option<crate::pack::Pack>)>> = std::sync::OnceLock::new();
-    PACKS.get_or_init(|| ["humble", "jazzy", "kilted"].into_iter().map(|d| (d, crate::pack::embedded(d))).collect())
+    static PACKS: std::sync::OnceLock<Vec<(&'static str, Option<crate::pack::Pack>)>> =
+        std::sync::OnceLock::new();
+    PACKS.get_or_init(|| {
+        ["humble", "jazzy", "kilted"]
+            .into_iter()
+            .map(|d| (d, crate::pack::embedded(d)))
+            .collect()
+    })
 }
 
 /// P007: a parameter that the node (from an installed package, known through the knowledge
 /// pack) does not declare in this distribution but does in another one: it was renamed or
 /// removed between releases.
-fn renamed_between_distros(cx: &Context, inst: &NodeInstance, name: &str, at: crate::source::Loc, decls: &[&ParamDecl]) -> Option<Diagnostic> {
-    let [(f, i)] = inst.impls.as_slice() else { return None };
+fn renamed_between_distros(
+    cx: &Context,
+    inst: &NodeInstance,
+    name: &str,
+    at: crate::source::Loc,
+    decls: &[&ParamDecl],
+) -> Option<Diagnostic> {
+    let [(f, i)] = inst.impls.as_slice() else {
+        return None;
+    };
     let rel = &cx.ix.file(*f).rel_path;
     let rest = rel.strip_prefix("<rosfix knowledge pack: ")?;
     let (distro, pkg) = rest.split_once(">/")?;
     let key = cx.ix.code.get(f)?.nodes.get(*i)?.class_name.clone()?;
-    let current = if distro == "rolling" { "kilted" } else { distro };
+    let current = if distro == "rolling" {
+        "kilted"
+    } else {
+        distro
+    };
     let elsewhere: Vec<&str> = other_packs()
         .iter()
         .filter(|(d, _)| *d != current)
@@ -403,9 +426,15 @@ fn renamed_between_distros(cx: &Context, inst: &NodeInstance, name: &str, at: cr
     }
     let cap = |d: &str| {
         let mut c = d.chars();
-        c.next().map(|f| f.to_uppercase().collect::<String>() + c.as_str()).unwrap_or_default()
+        c.next()
+            .map(|f| f.to_uppercase().collect::<String>() + c.as_str())
+            .unwrap_or_default()
     };
-    let list = elsewhere.iter().map(|d| cap(d)).collect::<Vec<_>>().join(" and ");
+    let list = elsewhere
+        .iter()
+        .map(|d| cap(d))
+        .collect::<Vec<_>>()
+        .join(" and ");
     let mut d = Diagnostic::new(
         "P007",
         at,
@@ -414,7 +443,13 @@ fn renamed_between_distros(cx: &Context, inst: &NodeInstance, name: &str, at: cr
         format!("`{name}` is not a parameter of `{pkg}/{key}` in this ROS distribution but is in another one; it was renamed or removed, so this value is silently ignored"),
     )
     .help(format!("Declared in {list}, not in {} (the distribution analysed).", cap(distro)));
-    let exact: Vec<&str> = decls.iter().filter_map(|d| match &d.name { NamePattern::Exact(n) => Some(n.as_str()), _ => None }).collect();
+    let exact: Vec<&str> = decls
+        .iter()
+        .filter_map(|d| match &d.name {
+            NamePattern::Exact(n) => Some(n.as_str()),
+            _ => None,
+        })
+        .collect();
     if let Some(c) = closest(name, exact.iter().copied()) {
         d = d.help(format!("Declared in {list}, not in {} (the distribution analysed); there the closest parameter is `{c}`.", cap(distro)));
     }
@@ -455,13 +490,26 @@ mod tests {
                 ("s/launch/a.launch.py".into(), "from launch import LaunchDescription\nfrom launch_ros.actions import Node\nfrom launch_param_builder import ParameterBuilder\ndef generate_launch_description():\n    p = {'moveit_servo': ParameterBuilder('s').yaml('c.yaml').to_dict()}\n    return LaunchDescription([Node(package='s', executable='demo', parameters=[p, {'other': 1}])])\n".into()),
             ]
         };
-        for prefix_src in ["const std::string param_namespace = \"moveit_servo\";", "std::string param_namespace = get_ns();"] {
+        for prefix_src in [
+            "const std::string param_namespace = \"moveit_servo\";",
+            "std::string param_namespace = get_ns();",
+        ] {
             let f = files(prefix_src);
             let refs: Vec<(&str, &str)> = f.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
             let d = analyze_files(&refs);
-            let p003: Vec<&str> = d.iter().filter(|x| x.rule == "P003").map(|x| x.message.as_str()).collect();
-            assert!(p003.iter().all(|m| !m.contains("`moveit_servo`")), "{prefix_src}: {p003:#?}");
-            assert!(p003.iter().any(|m| m.contains("`other`")), "{prefix_src}: {p003:#?}");
+            let p003: Vec<&str> = d
+                .iter()
+                .filter(|x| x.rule == "P003")
+                .map(|x| x.message.as_str())
+                .collect();
+            assert!(
+                p003.iter().all(|m| !m.contains("`moveit_servo`")),
+                "{prefix_src}: {p003:#?}"
+            );
+            assert!(
+                p003.iter().any(|m| m.contains("`other`")),
+                "{prefix_src}: {p003:#?}"
+            );
         }
     }
 
@@ -482,8 +530,16 @@ mod tests {
             ("servo/src/demo.cpp", "#include <rclcpp/rclcpp.hpp>\nint main() {\n  auto node = std::make_shared<rclcpp::Node>(\"servo_demo\");\n  node->declare_parameter(\"rate\", 1.0);\n}\n"),
             ("servo/launch/a.launch.py", "from launch import LaunchDescription\nfrom launch_ros.actions import Node\ndef generate_launch_description():\n    return LaunchDescription([Node(package='servo', executable='demo', parameters=[{'update_period': 0.01}, {'planning_group_name': 'arm'}, {'other': 1}])])\n"),
         ]);
-        let p003: Vec<&str> = d.iter().filter(|x| x.rule == "P003").map(|x| x.message.as_str()).collect();
-        assert!(p003.iter().all(|m| !m.contains("`update_period`") && !m.contains("`planning_group_name`")), "{p003:#?}");
+        let p003: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "P003")
+            .map(|x| x.message.as_str())
+            .collect();
+        assert!(
+            p003.iter()
+                .all(|m| !m.contains("`update_period`") && !m.contains("`planning_group_name`")),
+            "{p003:#?}"
+        );
         assert!(p003.iter().any(|m| m.contains("`other`")), "{p003:#?}");
     }
 
@@ -497,7 +553,11 @@ mod tests {
             ("s/src/a.cpp", "#include <rclcpp/rclcpp.hpp>\nint main() {\n  auto node = std::make_shared<rclcpp::Node>(\"agg\");\n  node->declare_parameter(\"rate\", 1.0);\n  auto l = std::make_shared<p::ParamListener>(node, get_ns());\n}\n"),
             ("s/launch/a.launch.xml", "<launch>\n<arg name=\"verbose\" default=\"false\"/>\n<node pkg=\"s\" exec=\"agg\">\n  <param name=\"run_command\" value=\"ros2 launch x $(var verbose)\"/>\n</node>\n</launch>\n"),
         ]);
-        assert!(d.iter().any(|x| x.rule == "P003" && x.message.contains("`run_command`")), "{d:#?}");
+        assert!(
+            d.iter()
+                .any(|x| x.rule == "P003" && x.message.contains("`run_command`")),
+            "{d:#?}"
+        );
     }
 
     /// Values outside generate_parameter_library validators and descriptor ranges (P006).
@@ -556,11 +616,27 @@ def generate_launch_description():
     joints: []
     max_speed: 3.5
 ");
-        let p006: Vec<&str> = bad.iter().filter(|x| x.rule == "P006").map(|x| x.message.as_str()).collect();
+        let p006: Vec<&str> = bad
+            .iter()
+            .filter(|x| x.rule == "P006")
+            .map(|x| x.message.as_str())
+            .collect();
         assert_eq!(p006.len(), 4, "{p006:#?}");
-        assert!(p006.iter().any(|m| m.contains("wheel_separation") && m.contains("`> 0`")), "{p006:#?}");
-        assert!(p006.iter().any(|m| m.contains("mode") && m.contains("`diff`")), "{p006:#?}");
-        assert!(p006.iter().any(|m| m.contains("max_speed") && m.contains("[0, 2]")), "{p006:#?}");
+        assert!(
+            p006.iter()
+                .any(|m| m.contains("wheel_separation") && m.contains("`> 0`")),
+            "{p006:#?}"
+        );
+        assert!(
+            p006.iter()
+                .any(|m| m.contains("mode") && m.contains("`diff`")),
+            "{p006:#?}"
+        );
+        assert!(
+            p006.iter()
+                .any(|m| m.contains("max_speed") && m.contains("[0, 2]")),
+            "{p006:#?}"
+        );
         let good = run("ctrl:
   ros__parameters:
     wheel_separation: 0.5
@@ -582,10 +658,13 @@ def generate_launch_description():
                 std::fs::write(p, t).unwrap();
             };
             w("bot/package.xml", "<package format=\"3\"><name>bot</name><exec_depend>nav2_controller</exec_depend></package>");
-            w("bot/config/nav2.yaml", "controller_server:
+            w(
+                "bot/config/nav2.yaml",
+                "controller_server:
   ros__parameters:
     progress_checker_plugin: progress_checker
-");
+",
+            );
             w("bot/launch/nav.launch.py", "import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -593,16 +672,39 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     return LaunchDescription([Node(package='nav2_controller', executable='controller_server', name='controller_server', parameters=[os.path.join(get_package_share_directory('bot'), 'config', 'nav2.yaml')])])
 ");
-            let opts = crate::engine::Options { distro: Some(distro.into()), ..Default::default() };
+            let opts = crate::engine::Options {
+                distro: Some(distro.into()),
+                ..Default::default()
+            };
             crate::engine::analyze(dir.path(), &crate::config::Config::default(), &opts).diagnostics
         };
         let jazzy = run("jazzy");
-        let p007 = jazzy.iter().find(|x| x.rule == "P007").unwrap_or_else(|| panic!("{jazzy:#?}"));
-        assert!(!p007.message.contains("Humble") && !p007.message.contains("Jazzy"), "distro names must stay out of the message: {p007:#?}");
-        assert!(p007.help.as_deref().is_some_and(|h| h.contains("Humble") && h.contains("progress_checker_plugins")), "{p007:#?}");
-        assert!(jazzy.iter().all(|x| x.rule != "P003" || !x.message.contains("progress_checker_plugin")), "{jazzy:#?}");
+        let p007 = jazzy
+            .iter()
+            .find(|x| x.rule == "P007")
+            .unwrap_or_else(|| panic!("{jazzy:#?}"));
+        assert!(
+            !p007.message.contains("Humble") && !p007.message.contains("Jazzy"),
+            "distro names must stay out of the message: {p007:#?}"
+        );
+        assert!(
+            p007.help
+                .as_deref()
+                .is_some_and(|h| h.contains("Humble") && h.contains("progress_checker_plugins")),
+            "{p007:#?}"
+        );
+        assert!(
+            jazzy
+                .iter()
+                .all(|x| x.rule != "P003" || !x.message.contains("progress_checker_plugin")),
+            "{jazzy:#?}"
+        );
         let humble = run("humble");
-        assert!(humble.iter().all(|x| x.rule != "P007" && !(x.rule == "P003" && x.message.contains("progress_checker"))), "{humble:#?}");
+        assert!(
+            humble.iter().all(|x| x.rule != "P007"
+                && !(x.rule == "P003" && x.message.contains("progress_checker"))),
+            "{humble:#?}"
+        );
     }
 
     /// A dependency's test code (nav2_util/test/test_node_utils.cpp declares `Foo`) must not
@@ -631,7 +733,11 @@ def generate_launch_description():
     return LaunchDescription([Node(package='app', executable='n', parameters=[{'Foo': 1, 'shared_rate': 2.0}])])
 "),
         ]);
-        let p003: Vec<&str> = d.iter().filter(|x| x.rule == "P003").map(|x| x.message.as_str()).collect();
+        let p003: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "P003")
+            .map(|x| x.message.as_str())
+            .collect();
         assert!(p003.iter().any(|m| m.contains("`Foo`")), "{p003:#?}");
         assert!(p003.iter().all(|m| !m.contains("shared_rate")), "{p003:#?}");
     }

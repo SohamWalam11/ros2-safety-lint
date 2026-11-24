@@ -23,11 +23,19 @@ pub struct Manifest {
 /// Whether a REP 149 `condition` holds on ROS 2. Only comparisons of `$ROS_VERSION` are
 /// evaluated; anything else (distribution conditions, and/or) counts as true.
 fn condition_holds_on_ros2(cond: &str) -> bool {
-    let c: String = cond.chars().filter(|c| !c.is_whitespace() && *c != '"' && *c != '\'').collect();
+    let c: String = cond
+        .chars()
+        .filter(|c| !c.is_whitespace() && *c != '"' && *c != '\'')
+        .collect();
     if c.contains("and") || c.contains("or") {
         return true;
     }
-    match (c.strip_prefix("$ROS_VERSION==").or_else(|| c.strip_suffix("==$ROS_VERSION")), c.strip_prefix("$ROS_VERSION!=").or_else(|| c.strip_suffix("!=$ROS_VERSION"))) {
+    match (
+        c.strip_prefix("$ROS_VERSION==")
+            .or_else(|| c.strip_suffix("==$ROS_VERSION")),
+        c.strip_prefix("$ROS_VERSION!=")
+            .or_else(|| c.strip_suffix("!=$ROS_VERSION")),
+    ) {
         (Some(v), _) => v == "2",
         (_, Some(v)) => v != "2",
         _ => true,
@@ -236,7 +244,11 @@ pub fn parse_setup_py(
                     }
                 }
                 "packages" => {
-                    let loc = Loc::new(file, kw.value.range().start().to_usize(), kw.value.range().end().to_usize());
+                    let loc = Loc::new(
+                        file,
+                        kw.value.range().start().to_usize(),
+                        kw.value.range().end().to_usize(),
+                    );
                     f.packages = match &kw.value {
                         Expr::List(l) => l
                             .elts
@@ -439,7 +451,10 @@ fn walk_spec(
                 has_default: v.get("default_value").is_some(),
                 default_text: None,
                 loc: Loc::new(file, k.start(), k.end()),
-                constraints: v.get("validation").map(spec_constraints).unwrap_or_default(),
+                constraints: v
+                    .get("validation")
+                    .map(spec_constraints)
+                    .unwrap_or_default(),
             });
         } else if v.is_map() {
             walk_spec(file, v, &name, dynamic, out, open);
@@ -460,13 +475,38 @@ fn spec_constraints(v: &YNode) -> Vec<Constraint> {
                 (Some(min), Some(max)) => Some(Constraint::Range { min, max }),
                 _ => None,
             },
-            "gt<>" | "gt_eq<>" => a.first().and_then(num).map(|b| Constraint::Lower { bound: b, inclusive: name == "gt_eq<>" }),
-            "lt<>" | "lt_eq<>" => a.first().and_then(num).map(|b| Constraint::Upper { bound: b, inclusive: name == "lt_eq<>" }),
-            "one_of<>" => a.first().map(|l| Constraint::OneOf(l.items().iter().filter_map(|x| x.as_str().map(str::to_string)).collect())).filter(|c| !matches!(c, Constraint::OneOf(v) if v.is_empty())),
+            "gt<>" | "gt_eq<>" => a.first().and_then(num).map(|b| Constraint::Lower {
+                bound: b,
+                inclusive: name == "gt_eq<>",
+            }),
+            "lt<>" | "lt_eq<>" => a.first().and_then(num).map(|b| Constraint::Upper {
+                bound: b,
+                inclusive: name == "lt_eq<>",
+            }),
+            "one_of<>" => a
+                .first()
+                .map(|l| {
+                    Constraint::OneOf(
+                        l.items()
+                            .iter()
+                            .filter_map(|x| x.as_str().map(str::to_string))
+                            .collect(),
+                    )
+                })
+                .filter(|c| !matches!(c, Constraint::OneOf(v) if v.is_empty())),
             "not_empty<>" => Some(Constraint::NotEmpty),
-            "size_lt<>" => a.first().and_then(num).map(|n| Constraint::Size { min: 0, max: (n as usize).saturating_sub(1) }),
-            "size_gt<>" => a.first().and_then(num).map(|n| Constraint::Size { min: n as usize + 1, max: usize::MAX }),
-            "fixed_size<>" => a.first().and_then(num).map(|n| Constraint::Size { min: n as usize, max: n as usize }),
+            "size_lt<>" => a.first().and_then(num).map(|n| Constraint::Size {
+                min: 0,
+                max: (n as usize).saturating_sub(1),
+            }),
+            "size_gt<>" => a.first().and_then(num).map(|n| Constraint::Size {
+                min: n as usize + 1,
+                max: usize::MAX,
+            }),
+            "fixed_size<>" => a.first().and_then(num).map(|n| Constraint::Size {
+                min: n as usize,
+                max: n as usize,
+            }),
             _ => None,
         };
         out.extend(c);
@@ -499,10 +539,30 @@ mod tests {
       bounds<>: [0.0, 10.0]
 ";
         let (d, _) = parse_param_lib_spec(0, spec);
-        let get = |n: &str| d.iter().find(|x| x.name.literal() == n).map(|x| x.constraints.clone()).unwrap();
-        assert_eq!(get("wheel_separation"), vec![Constraint::Lower { bound: 0.0, inclusive: false }]);
-        assert_eq!(get("mode"), vec![Constraint::OneOf(vec!["a".into(), "b".into()])]);
-        assert_eq!(get("gain"), vec![Constraint::Range { min: 0.0, max: 10.0 }]);
+        let get = |n: &str| {
+            d.iter()
+                .find(|x| x.name.literal() == n)
+                .map(|x| x.constraints.clone())
+                .unwrap()
+        };
+        assert_eq!(
+            get("wheel_separation"),
+            vec![Constraint::Lower {
+                bound: 0.0,
+                inclusive: false
+            }]
+        );
+        assert_eq!(
+            get("mode"),
+            vec![Constraint::OneOf(vec!["a".into(), "b".into()])]
+        );
+        assert_eq!(
+            get("gain"),
+            vec![Constraint::Range {
+                min: 0.0,
+                max: 10.0
+            }]
+        );
     }
 
     #[test]
@@ -516,16 +576,26 @@ mod tests {
 
     #[test]
     fn conditional_dependencies() {
-        let m = parse_manifest(0, r#"<package format="3"><name>p</name>
+        let m = parse_manifest(
+            0,
+            r#"<package format="3"><name>p</name>
 <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
 <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
 <depend condition="$ROS_VERSION != 1">rclcpp</depend>
-<depend condition="$ROS_DISTRO == humble">foo</depend></package>"#)
+<depend condition="$ROS_DISTRO == humble">foo</depend></package>"#,
+        )
         .unwrap();
         let names: Vec<&str> = m.deps.iter().map(|d| d.name.as_str()).collect();
         assert_eq!(names, ["ament_cmake", "rclcpp", "foo"]);
         assert!(m.ros1_support);
-        assert!(!parse_manifest(0, "<package format=\"3\"><name>q</name><depend>rclcpp</depend></package>").unwrap().ros1_support);
+        assert!(
+            !parse_manifest(
+                0,
+                "<package format=\"3\"><name>q</name><depend>rclcpp</depend></package>"
+            )
+            .unwrap()
+            .ros1_support
+        );
     }
 
     #[test]

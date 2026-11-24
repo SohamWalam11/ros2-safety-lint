@@ -44,7 +44,9 @@ impl Agent for UrdfAgent {
         // A macro used several times yields the same element several times.
         let mut seen: HashSet<(Loc, String)> = HashSet::new();
         let mut push = |d: Diagnostic| {
-            if !cx.ix.external_files.contains(&d.loc.file) && seen.insert((d.loc, d.message.clone())) {
+            if !cx.ix.external_files.contains(&d.loc.file)
+                && seen.insert((d.loc, d.message.clone()))
+            {
                 out.push(d);
             }
         };
@@ -93,7 +95,12 @@ impl Agent for UrdfAgent {
             let moving: HashSet<&str> = robot
                 .joints
                 .iter()
-                .filter(|j| matches!(j.joint_type.as_str(), "revolute" | "continuous" | "prismatic" | "floating" | "planar"))
+                .filter(|j| {
+                    matches!(
+                        j.joint_type.as_str(),
+                        "revolute" | "continuous" | "prismatic" | "floating" | "planar"
+                    )
+                })
                 .filter_map(|j| j.child.as_deref())
                 .collect();
             for i in &robot.inertials {
@@ -111,7 +118,14 @@ impl Agent for UrdfAgent {
 /// U001 for any link; U002 only for a link that a moving joint carries (`moving`).
 fn inertial(i: &UrdfInertial, moving: bool, push: &mut impl FnMut(Diagnostic)) {
     let reject = |what: &str| {
-        Diagnostic::new("U001", i.loc, format!("the `<inertial>` of link `{}` {what}; urdfdom rejects the robot description", i.link))
+        Diagnostic::new(
+            "U001",
+            i.loc,
+            format!(
+                "the `<inertial>` of link `{}` {what}; urdfdom rejects the robot description",
+                i.link
+            ),
+        )
     };
     let Some(mass) = i.mass else {
         push(reject("has no `<mass value=…>`"));
@@ -122,7 +136,12 @@ fn inertial(i: &UrdfInertial, moving: bool, push: &mut impl FnMut(Diagnostic)) {
         return;
     };
     const NAMES: [&str; 6] = ["ixx", "ixy", "ixz", "iyy", "iyz", "izz"];
-    let missing: Vec<&str> = NAMES.iter().zip(inertia).filter(|(_, v)| v.is_none()).map(|(n, _)| *n).collect();
+    let missing: Vec<&str> = NAMES
+        .iter()
+        .zip(inertia)
+        .filter(|(_, v)| v.is_none())
+        .map(|(n, _)| *n)
+        .collect();
     if !missing.is_empty() {
         push(
             reject(&format!("has an `<inertia>` without {}", missing.iter().map(|m| format!("`{m}`")).collect::<Vec<_>>().join(", ")))
@@ -143,7 +162,10 @@ fn inertial(i: &UrdfInertial, moving: bool, push: &mut impl FnMut(Diagnostic)) {
             return;
         }
     }
-    let v: Vec<f64> = inertia.iter().filter_map(|x: &UrdfNumber| x.flatten()).collect();
+    let v: Vec<f64> = inertia
+        .iter()
+        .filter_map(|x: &UrdfNumber| x.flatten())
+        .collect();
     if v.len() != 6 {
         return;
     }
@@ -164,16 +186,23 @@ fn inertia_problem(ixx: f64, ixy: f64, ixz: f64, iyy: f64, iyz: f64, izz: f64) -
     // Sylvester's criterion: positive definite iff all leading principal minors are > 0.
     let eps = 1e-9 * scale;
     let m2 = ixx * iyy - ixy * ixy;
-    let det = ixx * (iyy * izz - iyz * iyz) - ixy * (ixy * izz - iyz * ixz) + ixz * (ixy * iyz - iyy * ixz);
+    let det = ixx * (iyy * izz - iyz * iyz) - ixy * (ixy * izz - iyz * ixz)
+        + ixz * (ixy * iyz - iyy * ixz);
     if ixx <= eps || m2 <= eps * scale || det <= eps * scale * scale {
         return Some("the tensor is not positive definite (a moment is 0 or negative)".to_string());
     }
     // Triangle inequality on the principal moments (checked when the tensor is diagonal).
     if ixy == 0.0 && ixz == 0.0 && iyz == 0.0 {
         let tol = 1e-3 * scale;
-        for (a, b, c, n) in [(ixx, iyy, izz, "izz"), (ixx, izz, iyy, "iyy"), (iyy, izz, ixx, "ixx")] {
+        for (a, b, c, n) in [
+            (ixx, iyy, izz, "izz"),
+            (ixx, izz, iyy, "iyy"),
+            (iyy, izz, ixx, "ixx"),
+        ] {
             if a + b + tol < c {
-                return Some(format!("`{n}` = {c} exceeds the sum of the other two moments ({a} + {b})"));
+                return Some(format!(
+                    "`{n}` = {c} exceeds the sum of the other two moments ({a} + {b})"
+                ));
             }
         }
     }
@@ -182,7 +211,9 @@ fn inertia_problem(ixx: f64, ixy: f64, ixz: f64, iyy: f64, iyz: f64, izz: f64) -
 
 /// The package and path a mesh URI names inside the workspace (`package://` or `$(find)`).
 fn package_path(uri: &str) -> Option<(&str, &str)> {
-    let rest = uri.strip_prefix("package://").or_else(|| uri.strip_prefix("@pkg:"))?;
+    let rest = uri
+        .strip_prefix("package://")
+        .or_else(|| uri.strip_prefix("@pkg:"))?;
     let (pkg, path) = rest.split_once('/')?;
     (!pkg.is_empty() && !path.is_empty()).then_some((pkg, path.trim_start_matches('/')))
 }
@@ -223,7 +254,9 @@ fn find_exact(base: &Path, rel: &str) -> Result<(), Option<String>> {
 
 /// True if a file with this name (any case) exists anywhere below `dir`.
 fn name_exists_below(dir: &Path, name: &str, budget: &mut usize) -> bool {
-    let Ok(rd) = std::fs::read_dir(dir) else { return false };
+    let Ok(rd) = std::fs::read_dir(dir) else {
+        return false;
+    };
     for e in rd.flatten() {
         if *budget == 0 {
             return true; // too large to search: assume it exists
@@ -233,7 +266,10 @@ fn name_exists_below(dir: &Path, name: &str, budget: &mut usize) -> bool {
         if e.file_name().to_string_lossy().eq_ignore_ascii_case(name) {
             return true;
         }
-        if p.is_dir() && !e.file_name().to_string_lossy().starts_with('.') && name_exists_below(&p, name, budget) {
+        if p.is_dir()
+            && !e.file_name().to_string_lossy().starts_with('.')
+            && name_exists_below(&p, name, budget)
+        {
             return true;
         }
     }
@@ -281,23 +317,57 @@ mod tests {
 
     fn urdf(body: &str) -> Vec<Diagnostic> {
         let text = format!("<robot name=\"r\"><link name=\"base\"/>{body}</robot>");
-        analyze_files(&[("r/package.xml", "<package format=\"3\"><name>r</name></package>"), ("r/urdf/r.urdf", &text)])
+        analyze_files(&[
+            (
+                "r/package.xml",
+                "<package format=\"3\"><name>r</name></package>",
+            ),
+            ("r/urdf/r.urdf", &text),
+        ])
     }
 
     fn rules(d: &[Diagnostic]) -> Vec<&str> {
-        let mut r: Vec<&str> = d.iter().filter(|x| x.rule.starts_with('U')).map(|x| x.rule).collect();
+        let mut r: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule.starts_with('U'))
+            .map(|x| x.rule)
+            .collect();
         r.sort();
         r
     }
 
     #[test]
     fn limits() {
-        let j = |t: &str, lim: &str| format!("<link name=\"a\"/><joint name=\"j\" type=\"{t}\"><parent link=\"base\"/><child link=\"a\"/>{lim}</joint>");
+        let j = |t: &str, lim: &str| {
+            format!("<link name=\"a\"/><joint name=\"j\" type=\"{t}\"><parent link=\"base\"/><child link=\"a\"/>{lim}</joint>")
+        };
         assert_eq!(rules(&urdf(&j("revolute", ""))), ["U001"]);
-        assert_eq!(rules(&urdf(&j("prismatic", "<limit lower=\"0\" upper=\"1\" effort=\"1\"/>"))), ["U001"]);
-        assert_eq!(rules(&urdf(&j("revolute", "<limit effort=\"1\" velocity=\"1\"/>"))), ["U004"]);
-        assert_eq!(rules(&urdf(&j("revolute", "<limit lower=\"1\" upper=\"-1\" effort=\"1\" velocity=\"1\"/>"))), ["U004"]);
-        assert!(rules(&urdf(&j("revolute", "<limit lower=\"-1.57\" upper=\"1.57\" effort=\"1\" velocity=\"1\"/>"))).is_empty());
+        assert_eq!(
+            rules(&urdf(&j(
+                "prismatic",
+                "<limit lower=\"0\" upper=\"1\" effort=\"1\"/>"
+            ))),
+            ["U001"]
+        );
+        assert_eq!(
+            rules(&urdf(&j(
+                "revolute",
+                "<limit effort=\"1\" velocity=\"1\"/>"
+            ))),
+            ["U004"]
+        );
+        assert_eq!(
+            rules(&urdf(&j(
+                "revolute",
+                "<limit lower=\"1\" upper=\"-1\" effort=\"1\" velocity=\"1\"/>"
+            ))),
+            ["U004"]
+        );
+        assert!(rules(&urdf(&j(
+            "revolute",
+            "<limit lower=\"-1.57\" upper=\"1.57\" effort=\"1\" velocity=\"1\"/>"
+        )))
+        .is_empty());
         assert!(rules(&urdf(&j("continuous", ""))).is_empty());
         assert!(rules(&urdf(&j("fixed", ""))).is_empty());
     }
@@ -309,10 +379,18 @@ mod tests {
         };
         let full = "ixx=\"0.1\" ixy=\"0\" ixz=\"0\" iyy=\"0.1\" iyz=\"0\" izz=\"0.1\"";
         assert!(rules(&urdf(&l(&format!("<mass value=\"1\"/><inertia {full}/>")))).is_empty());
-        assert_eq!(rules(&urdf(&l("<mass value=\"1\"/><inertia ixx=\"0.1\" iyy=\"0.1\" izz=\"0.1\"/>"))), ["U001"]);
+        assert_eq!(
+            rules(&urdf(&l(
+                "<mass value=\"1\"/><inertia ixx=\"0.1\" iyy=\"0.1\" izz=\"0.1\"/>"
+            ))),
+            ["U001"]
+        );
         assert_eq!(rules(&urdf(&l(&format!("<inertia {full}/>")))), ["U001"]);
         assert_eq!(rules(&urdf(&l("<mass value=\"1\"/>"))), ["U001"]);
-        assert_eq!(rules(&urdf(&l(&format!("<mass value=\"0\"/><inertia {full}/>")))), ["U002"]);
+        assert_eq!(
+            rules(&urdf(&l(&format!("<mass value=\"0\"/><inertia {full}/>")))),
+            ["U002"]
+        );
         assert_eq!(rules(&urdf(&l("<mass value=\"1\"/><inertia ixx=\"0\" ixy=\"0\" ixz=\"0\" iyy=\"0\" iyz=\"0\" izz=\"0\"/>"))), ["U002"]);
         assert_eq!(rules(&urdf(&l("<mass value=\"1\"/><inertia ixx=\"0.1\" ixy=\"0\" ixz=\"0\" iyy=\"0.1\" iyz=\"0\" izz=\"0.5\"/>"))), ["U002"]);
         // A frame link on a fixed joint is merged into its parent: its mass does not matter,
@@ -320,8 +398,14 @@ mod tests {
         let fixed = |inertial: &str| {
             format!("<link name=\"f\"><inertial>{inertial}</inertial></link><joint name=\"jf\" type=\"fixed\"><parent link=\"base\"/><child link=\"f\"/></joint>")
         };
-        assert!(rules(&urdf(&fixed(&format!("<mass value=\"0\"/><inertia {full}/>")))).is_empty());
-        assert_eq!(rules(&urdf(&fixed("<mass value=\"0\"/><inertia ixx=\"0\"/>"))), ["U001"]);
+        assert!(rules(&urdf(&fixed(&format!(
+            "<mass value=\"0\"/><inertia {full}/>"
+        ))))
+        .is_empty());
+        assert_eq!(
+            rules(&urdf(&fixed("<mass value=\"0\"/><inertia ixx=\"0\"/>"))),
+            ["U001"]
+        );
         // Values that cannot be evaluated are not judged.
         assert!(rules(&urdf(&l("<mass value=\"${m}\"/><inertia ixx=\"${i}\" ixy=\"0\" ixz=\"0\" iyy=\"0.1\" iyz=\"0\" izz=\"0.1\"/>"))).is_empty());
     }
@@ -349,14 +433,21 @@ mod tests {
             m("package://other_pkg/meshes/x.stl"),
         );
         let d = analyze_files(&[
-            ("bot/package.xml", "<package format=\"3\"><name>bot</name></package>"),
+            (
+                "bot/package.xml",
+                "<package format=\"3\"><name>bot</name></package>",
+            ),
             ("bot/meshes/visual/Base.STL", "solid"),
             ("bot/meshes/visual/arm.dae", "<x/>"),
             ("bot/urdf/b.urdf", &text),
         ]);
         let u: Vec<&Diagnostic> = d.iter().filter(|x| x.rule == "U003").collect();
         assert_eq!(u.len(), 2, "{u:#?}");
-        assert!(u.iter().any(|x| x.message.contains("meshes/visual/Base.STL") && x.fix.is_some()), "{u:#?}");
+        assert!(
+            u.iter()
+                .any(|x| x.message.contains("meshes/visual/Base.STL") && x.fix.is_some()),
+            "{u:#?}"
+        );
         assert!(u.iter().any(|x| x.message.contains("gone.stl")), "{u:#?}");
     }
 }

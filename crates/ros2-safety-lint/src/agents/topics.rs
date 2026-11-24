@@ -122,8 +122,7 @@ fn counterpart(k: EndpointKind) -> Option<EndpointKind> {
 fn near_misses(cx: &Context, root: &RootGraph, v: &RootView, out: &mut Vec<Diagnostic>) {
     // BTreeMap: candidates are visited in name order, so the provider named in a T001 message
     // (and therefore the finding's fingerprint) is the same on every run.
-    let mut by_kind: HashMap<EndpointKind, BTreeMap<&str, Vec<&ResolvedEndpoint>>> =
-        HashMap::new();
+    let mut by_kind: HashMap<EndpointKind, BTreeMap<&str, Vec<&ResolvedEndpoint>>> = HashMap::new();
     for (_, e) in &v.eps {
         by_kind
             .entry(e.kind)

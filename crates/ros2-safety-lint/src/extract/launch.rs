@@ -219,7 +219,11 @@ fn xml_children(
                     .map_or(true, |s| s != "false" && s != "False");
                 let inner = xml_children(file, dir, n, partial);
                 // `<group if=…>` / `unless=…`: everything inside runs only on that branch.
-                let inner = if conditional { mark_conditional(inner) } else { inner };
+                let inner = if conditional {
+                    mark_conditional(inner)
+                } else {
+                    inner
+                };
                 items.push(LaunchItem::Group {
                     namespace: ns,
                     items: inner,
@@ -822,7 +826,10 @@ fn eval(
         }
         // `PathSubstitution(FindPackageShare("p")) / "config" / "x.yaml"`, `pathlib.Path(..) / ..`
         Expr::BinOp(b) if matches!(b.op, ast::Operator::Div) => {
-            match (eval(ctx, &b.left, env, added, cond), eval(ctx, &b.right, env, added, cond)) {
+            match (
+                eval(ctx, &b.left, env, added, cond),
+                eval(ctx, &b.right, env, added, cond),
+            ) {
                 (PyVal::S(LVal::PathJoin(mut parts)), PyVal::S(r)) => {
                     parts.push(r);
                     PyVal::S(simplify(LVal::PathJoin(parts)))
@@ -898,8 +905,12 @@ fn eval_call(
             }
         }
         // The directory of the current launch file (same encoding as `dirname(__file__)`).
-        "ThisLaunchFileDir" if c.args.is_empty() => PyVal::S(LVal::Lit(format!("{WS_PREFIX}{}", ctx.dir))),
-        "PathSubstitution" | "Path" | "PurePath" if c.args.len() == 1 => eval(ctx, &c.args[0], env, added, cond),
+        "ThisLaunchFileDir" if c.args.is_empty() => {
+            PyVal::S(LVal::Lit(format!("{WS_PREFIX}{}", ctx.dir)))
+        }
+        "PathSubstitution" | "Path" | "PurePath" if c.args.len() == 1 => {
+            eval(ctx, &c.args[0], env, added, cond)
+        }
         "PathJoinSubstitution" => match c.args.first().map(|a| eval(ctx, a, env, added, cond)) {
             Some(PyVal::List(l)) => PyVal::S(simplify(LVal::PathJoin(
                 l.iter().map(|v| v.to_lval()).collect(),
@@ -1015,7 +1026,11 @@ fn eval_call(
                     }
                 }
                 // A conditional container loads its components only on that branch.
-                return PyVal::Desc(if is_cond { mark_conditional(items) } else { items });
+                return PyVal::Desc(if is_cond {
+                    mark_conditional(items)
+                } else {
+                    items
+                });
             }
             PyVal::Item(Box::new(LaunchItem::Node(decl)))
         }
@@ -1024,9 +1039,19 @@ fn eval_call(
                 Some(PyVal::List(l)) => {
                     let items: Vec<LaunchItem> = l
                         .into_iter()
-                        .filter_map(|v| if let PyVal::Item(i) = v { Some(*i) } else { None })
+                        .filter_map(|v| {
+                            if let PyVal::Item(i) = v {
+                                Some(*i)
+                            } else {
+                                None
+                            }
+                        })
                         .collect();
-                    PyVal::Desc(if is_cond { mark_conditional(items) } else { items })
+                    PyVal::Desc(if is_cond {
+                        mark_conditional(items)
+                    } else {
+                        items
+                    })
                 }
                 _ => PyVal::Unknown,
             }
@@ -1578,7 +1603,11 @@ def generate_launch_description():
         let ns = nodes(&lf.items);
         assert_eq!(
             ns[0].arguments[1],
-            LVal::PathJoin(vec![LVal::PkgShare("p".into()), LVal::lit("config"), LVal::lit("c.yaml")]),
+            LVal::PathJoin(vec![
+                LVal::PkgShare("p".into()),
+                LVal::lit("config"),
+                LVal::lit("c.yaml")
+            ]),
             "{:#?}",
             ns[0].arguments
         );

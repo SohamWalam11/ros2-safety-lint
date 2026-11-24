@@ -181,10 +181,7 @@ pub fn run(
         let new_errors: Vec<&Diagnostic> = after
             .diagnostics
             .iter()
-            .filter(|d| {
-                breaks(d)
-                    && touched.contains(&after.index.file(d.loc.file).rel_path)
-            })
+            .filter(|d| breaks(d) && touched.contains(&after.index.file(d.loc.file).rel_path))
             .filter(|d| {
                 !old_errors.contains(&(
                     after.index.file(d.loc.file).rel_path.clone(),
@@ -203,7 +200,13 @@ pub fn run(
         let old_all: HashSet<(String, &str, &str)> = a
             .diagnostics
             .iter()
-            .map(|d| (a.index.file(d.loc.file).rel_path.clone(), d.rule, d.message.as_str()))
+            .map(|d| {
+                (
+                    a.index.file(d.loc.file).rel_path.clone(),
+                    d.rule,
+                    d.message.as_str(),
+                )
+            })
             .collect();
         let new_all: Vec<(String, &Diagnostic)> = after
             .diagnostics
@@ -218,7 +221,10 @@ pub fn run(
             let file_rel = a.index.file(f.edits[0].file).rel_path.clone();
             let on_written_text = new_all.iter().find(|(rel, d)| {
                 spans.iter().any(|(j, fid, s, e)| {
-                    *j == i && *rel == a.index.file(*fid).rel_path && d.loc.start <= *e && d.loc.end >= *s
+                    *j == i
+                        && *rel == a.index.file(*fid).rel_path
+                        && d.loc.start <= *e
+                        && d.loc.end >= *s
                 })
             });
             if still.contains(&(f.rule, f.message.as_str())) {
@@ -234,7 +240,10 @@ pub fn run(
                 report.rejected.push((f, why));
                 dropped = true;
             } else if let Some((_, d)) = on_written_text {
-                let why = format!("the text it writes is reported itself ({}): {}", d.rule, d.message);
+                let why = format!(
+                    "the text it writes is reported itself ({}): {}",
+                    d.rule, d.message
+                );
                 report.rejected.push((f, why));
                 dropped = true;
             } else {
@@ -308,10 +317,21 @@ mod tests {
             rule: "L002",
             message: String::new(),
             description: String::new(),
-            edits: vec![TextEdit { file: 0, start: at, end: at, replacement: s.into() }],
+            edits: vec![TextEdit {
+                file: 0,
+                start: at,
+                end: at,
+                replacement: s.into(),
+            }],
         };
         let fixes = vec![fix(11, "<d>x</d>"), fix(11, "<d>y</d>"), fix(1, "Q")];
-        let patched = apply_edits(text, &fixes.iter().flat_map(|f| f.edits.iter()).collect::<Vec<_>>());
+        let patched = apply_edits(
+            text,
+            &fixes
+                .iter()
+                .flat_map(|f| f.edits.iter())
+                .collect::<Vec<_>>(),
+        );
         for (i, _, s, e) in written_spans(&fixes) {
             assert_eq!(&patched[s..e], fixes[i].edits[0].replacement, "{patched}");
         }

@@ -135,7 +135,11 @@ impl std::fmt::Debug for ExtractCache {
 }
 
 /// MoveIt configuration files that carry no `ros__parameters` level.
-const MOVEIT_YAML: &[&str] = &["kinematics.yaml", "joint_limits.yaml", "moveit_controllers.yaml"];
+const MOVEIT_YAML: &[&str] = &[
+    "kinematics.yaml",
+    "joint_limits.yaml",
+    "moveit_controllers.yaml",
+];
 
 fn classify(rel: &str) -> Option<FileKind> {
     let name = rel.rsplit('/').next().unwrap_or(rel);
@@ -201,7 +205,11 @@ fn refine(kind: FileKind, rel: &str, text: &str) -> Option<FileKind> {
         FileKind::Cpp if extract::cpp::is_relevant(text) => Some(FileKind::Cpp),
         FileKind::Cpp => crate::agents::ros1::ros1_cpp_include(text).map(|_| FileKind::Ros1),
         // A ros2_control joint_limits.yaml with `ros__parameters` is an ordinary parameter file.
-        FileKind::MoveIt if !rel.ends_with("srdf") && !rel.ends_with(".xacro") && params::looks_like_param_file(text) => {
+        FileKind::MoveIt
+            if !rel.ends_with("srdf")
+                && !rel.ends_with(".xacro")
+                && params::looks_like_param_file(text) =>
+        {
             Some(FileKind::ParamYaml)
         }
         other => Some(other),
@@ -451,7 +459,8 @@ pub fn index(root: &Path, config: &Config, opts: &IndexOptions) -> Index {
                 if cf.rosidl.is_some() {
                     pk.rosidl = cf.rosidl;
                 }
-                pk.uninstalled_component_libs.extend(cf.uninstalled_component_libs);
+                pk.uninstalled_component_libs
+                    .extend(cf.uninstalled_component_libs);
                 pk.install_sources.extend(cf.install_sources);
                 for x in cf.plugin_xmls {
                     if !pk.plugin_xmls.contains(&x) {
@@ -571,19 +580,33 @@ pub fn index(root: &Path, config: &Config, opts: &IndexOptions) -> Index {
     // Imports in Python launch files are runtime dependencies too (`launch_ros`, `nav2_common`,
     // …). `launch` and `ament_index_python` come with `launch_ros`, so they are not required.
     static IMPORT: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
-    let import = IMPORT.get_or_init(|| regex::Regex::new(r"(?m)^[ 	]*(?:from[ 	]+([A-Za-z_]\w*)|import[ 	]+([A-Za-z_]\w*))").expect("valid regex"));
+    let import = IMPORT.get_or_init(|| {
+        regex::Regex::new(r"(?m)^[ 	]*(?:from[ 	]+([A-Za-z_]\w*)|import[ 	]+([A-Za-z_]\w*))")
+            .expect("valid regex")
+    });
     for id in ix.launches.keys() {
-        let (Some(p), FileKind::LaunchPy) = (ix.file_pkg[*id], ix.kinds[*id]) else { continue };
+        let (Some(p), FileKind::LaunchPy) = (ix.file_pkg[*id], ix.kinds[*id]) else {
+            continue;
+        };
         let f = ix.sources.get(*id);
         if config.is_test_path(&f.rel_path) {
             continue;
         }
         for c in import.captures_iter(&f.text) {
-            let Some(m) = c.get(1).or_else(|| c.get(2)) else { continue };
+            let Some(m) = c.get(1).or_else(|| c.get(2)) else {
+                continue;
+            };
             if matches!(m.as_str(), "launch" | "ament_index_python") {
                 continue;
             }
-            uses.push((p, PackageUse { name: m.as_str().to_string(), kind: UseKind::LaunchImport, loc: Loc::new(*id, m.start(), m.end()) }));
+            uses.push((
+                p,
+                PackageUse {
+                    name: m.as_str().to_string(),
+                    kind: UseKind::LaunchImport,
+                    loc: Loc::new(*id, m.start(), m.end()),
+                },
+            ));
         }
     }
     for (p, u) in uses {

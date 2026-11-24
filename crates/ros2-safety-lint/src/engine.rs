@@ -118,13 +118,30 @@ pub fn analyze(root: &Path, config: &Config, opts: &Options) -> Analysis {
     let now_files = fingerprints(&index);
     // Launch graphs can be reused when only launch/parameter/robot files changed: node
     // implementations (code, manifests, build files) must be the same as last time.
-    let reusable = opts.previous.as_deref().filter(|p| p.files.len() == now_files.len() && p.files.iter().zip(&now_files).all(|(a, b)| a.0 == b.0 && a.1 == b.1));
+    let reusable = opts.previous.as_deref().filter(|p| {
+        p.files.len() == now_files.len()
+            && p.files
+                .iter()
+                .zip(&now_files)
+                .all(|(a, b)| a.0 == b.0 && a.1 == b.1)
+    });
     let changed_ids: std::collections::HashSet<usize> = reusable
-        .map(|p| p.files.iter().zip(&now_files).enumerate().filter(|(_, (a, b))| a.2 != b.2).map(|(i, _)| i).collect())
+        .map(|p| {
+            p.files
+                .iter()
+                .zip(&now_files)
+                .enumerate()
+                .filter(|(_, (a, b))| a.2 != b.2)
+                .map(|(i, _)| i)
+                .collect()
+        })
         .unwrap_or_default();
     let code_changed = changed_ids.iter().any(|i| {
         use workspace::FileKind as K;
-        matches!(now_files[*i].1, K::Cpp | K::Python | K::Manifest | K::CMakeLists | K::SetupPy | K::SetupCfg | K::Other)
+        matches!(
+            now_files[*i].1,
+            K::Cpp | K::Python | K::Manifest | K::CMakeLists | K::SetupPy | K::SetupCfg | K::Other
+        )
     });
     let graph = match reusable {
         Some(p) if !code_changed => resolve::build_reusing(&index, Some((&p.roots, &changed_ids))),
@@ -181,8 +198,16 @@ fn add_include_context(ix: &Index, graph: &Graph, diags: &mut [Diagnostic]) {
         }
     }
     for d in diags.iter_mut() {
-        let Some(locs) = by_file.get(&d.loc.file) else { continue };
-        let name = ix.file(d.loc.file).rel_path.rsplit('/').next().unwrap_or("").to_string();
+        let Some(locs) = by_file.get(&d.loc.file) else {
+            continue;
+        };
+        let name = ix
+            .file(d.loc.file)
+            .rel_path
+            .rsplit('/')
+            .next()
+            .unwrap_or("")
+            .to_string();
         for (i, l) in locs.iter().enumerate().take(SHOWN) {
             if d.related.iter().any(|r| r.loc == *l) {
                 continue;
@@ -192,7 +217,10 @@ fn add_include_context(ix: &Index, graph: &Graph, diags: &mut [Diagnostic]) {
             } else {
                 String::new()
             };
-            d.related.push(crate::diag::Related { loc: *l, message: format!("`{name}` is included here{more}") });
+            d.related.push(crate::diag::Related {
+                loc: *l,
+                message: format!("`{name}` is included here{more}"),
+            });
         }
     }
 }
@@ -208,7 +236,11 @@ fn suppressed(file: &SourceFile, line: usize, rule: &str) -> bool {
         let text = file.line_text(l);
         if l != line {
             let t = text.trim_start();
-            if !(t.starts_with('#') || t.starts_with("//") || t.starts_with("<!--") || t.starts_with("/*")) {
+            if !(t.starts_with('#')
+                || t.starts_with("//")
+                || t.starts_with("<!--")
+                || t.starts_with("/*"))
+            {
                 continue;
             }
         }
@@ -331,7 +363,11 @@ mod tests {
             ("q/config/p.yaml", yaml),
             ("q/launch/l.launch.xml", "<launch><node pkg=\"q\" exec=\"n\"><param from=\"$(find-pkg-share q)/config/p.yaml\"/></node></launch>"),
         ]);
-        let mut v: Vec<String> = d.iter().filter(|x| x.rule == "P004").map(|x| x.message.split('`').nth(1).unwrap_or("").to_string()).collect();
+        let mut v: Vec<String> = d
+            .iter()
+            .filter(|x| x.rule == "P004")
+            .map(|x| x.message.split('`').nth(1).unwrap_or("").to_string())
+            .collect();
         v.sort();
         v
     }
@@ -347,8 +383,16 @@ mod tests {
             ("q/launch/child.launch.xml", child),
             ("q/launch/parent.launch.xml", parent),
         ]);
-        let l001 = d.iter().find(|x| x.rule == "L001").unwrap_or_else(|| panic!("{d:#?}"));
-        let inc: Vec<&str> = l001.related.iter().map(|r| r.message.as_str()).filter(|m| m.contains("is included here")).collect();
+        let l001 = d
+            .iter()
+            .find(|x| x.rule == "L001")
+            .unwrap_or_else(|| panic!("{d:#?}"));
+        let inc: Vec<&str> = l001
+            .related
+            .iter()
+            .map(|r| r.message.as_str())
+            .filter(|m| m.contains("is included here"))
+            .collect();
         assert_eq!(inc, ["`child.launch.xml` is included here"], "{l001:#?}");
     }
 

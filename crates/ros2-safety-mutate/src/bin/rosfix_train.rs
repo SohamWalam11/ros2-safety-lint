@@ -274,7 +274,14 @@ fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
                 if cur == *target {
                     continue;
                 }
-                cases.extend(make_case(op, fold, target, cur.clone(), &pool, Some(target)));
+                cases.extend(make_case(
+                    op,
+                    fold,
+                    target,
+                    cur.clone(),
+                    &pool,
+                    Some(target),
+                ));
                 // Same mistake, but the intended name is not offered (e.g. it belongs to
                 // another node or another distribution): the ranker must abstain.
                 if rng.below(2) == 0 {
@@ -515,10 +522,16 @@ struct FoldRun {
 /// `test`. Calibration and test keep only cases whose name never occurs in training.
 fn run_fold(cases: &[Case], test: u8, epochs: usize, rng: &mut Rng) -> FoldRun {
     let calib = (test + 1) % FOLDS;
-    let train_set: Vec<&Case> = cases.iter().filter(|c| c.fold != test && c.fold != calib).collect();
+    let train_set: Vec<&Case> = cases
+        .iter()
+        .filter(|c| c.fold != test && c.fold != calib)
+        .collect();
     let seen: BTreeSet<&str> = train_set.iter().map(|c| c.target.as_str()).collect();
     let unseen = |fold: u8| -> Vec<&Case> {
-        cases.iter().filter(|c| c.fold == fold && !seen.contains(c.target.as_str())).collect()
+        cases
+            .iter()
+            .filter(|c| c.fold == fold && !seen.contains(c.target.as_str()))
+            .collect()
     };
     let calib_set = unseen(calib);
     let test_all: Vec<&Case> = cases.iter().filter(|c| c.fold == test).collect();
@@ -617,7 +630,11 @@ fn main() {
     // which packages happen to be held out.
     let runs: Vec<FoldRun> = (0..FOLDS)
         .map(|k| {
-            let mut fold_rng = if k == 0 { Rng(rng.0) } else { Rng(seed ^ (0x9e37_79b9 * k as u64)) };
+            let mut fold_rng = if k == 0 {
+                Rng(rng.0)
+            } else {
+                Rng(seed ^ (0x9e37_79b9 * k as u64))
+            };
             run_fold(&cases, k, epochs, &mut fold_rng)
         })
         .collect();
@@ -650,8 +667,20 @@ fn main() {
     for (k, r) in runs.iter().enumerate() {
         let t = r.result.get("ALL").copied().unwrap_or_default();
         let n = t.n.max(1) as f64;
-        let v = [t.lex[0] as f64 / n, t.learned[0] as f64 / n, t.lex[2] as f64 / n, t.learned[2] as f64 / n];
-        println!("| {k} | {} | {:.1}% | {:.1}% | {:.2}% | {:.2}% |", t.n, 100.0 * v[0], 100.0 * v[1], 100.0 * v[2], 100.0 * v[3]);
+        let v = [
+            t.lex[0] as f64 / n,
+            t.learned[0] as f64 / n,
+            t.lex[2] as f64 / n,
+            t.learned[2] as f64 / n,
+        ];
+        println!(
+            "| {k} | {} | {:.1}% | {:.1}% | {:.2}% | {:.2}% |",
+            t.n,
+            100.0 * v[0],
+            100.0 * v[1],
+            100.0 * v[2],
+            100.0 * v[3]
+        );
         for (dst, x) in rates.iter_mut().zip(v) {
             dst.push(x);
         }
@@ -663,14 +692,24 @@ fn main() {
     }
     let ms = |v: &[f64]| {
         let m = v.iter().sum::<f64>() / v.len() as f64;
-        let sd = (v.iter().map(|x| (x - m).powi(2)).sum::<f64>() / (v.len() as f64 - 1.0).max(1.0)).sqrt();
+        let sd = (v.iter().map(|x| (x - m).powi(2)).sum::<f64>() / (v.len() as f64 - 1.0).max(1.0))
+            .sqrt();
         format!("{:.1} ± {:.1}%", 100.0 * m, 100.0 * sd)
     };
     let summary = format!(
         "correct {} vs lexical {}, wrong {} vs lexical {}",
-        ms(&rates[1]), ms(&rates[0]), ms(&rates[3]), ms(&rates[2])
+        ms(&rates[1]),
+        ms(&rates[0]),
+        ms(&rates[3]),
+        ms(&rates[2])
     );
-    println!("| mean ± sd | | {} | {} | {} | {} |", ms(&rates[0]), ms(&rates[1]), ms(&rates[2]), ms(&rates[3]));
+    println!(
+        "| mean ± sd | | {} | {} | {} | {} |",
+        ms(&rates[0]),
+        ms(&rates[1]),
+        ms(&rates[2]),
+        ms(&rates[3])
+    );
     println!(
         "\nmodel: {NP} weights + {} normalisation constants ({:.1} KB as f32)",
         2 * N_FEATURES,
@@ -679,7 +718,8 @@ fn main() {
 
     // Ship only if, over all folds' name-disjoint held-out cases, the learned ranker is right
     // more often AND makes no more wrong edits than the lexical one.
-    let ok = total.learned[0] > total.lex[0] && Tally::wrong(total.learned) <= Tally::wrong(total.lex);
+    let ok =
+        total.learned[0] > total.lex[0] && Tally::wrong(total.learned) <= Tally::wrong(total.lex);
     if !ok && !force {
         eprintln!("not written: across {FOLDS} folds the learned ranker does not beat the lexical ranker on name-disjoint held-out cases (use --force)");
         std::process::exit(1);

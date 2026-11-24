@@ -278,7 +278,11 @@ fn graph_views(a: &Analysis) -> Vec<GraphView> {
                 };
                 v.nodes.push((
                     n.display_name(),
-                    format!("{}/{}", n.pkg.as_deref().unwrap_or("?"), n.exec.as_deref().unwrap_or("?")),
+                    format!(
+                        "{}/{}",
+                        n.pkg.as_deref().unwrap_or("?"),
+                        n.exec.as_deref().unwrap_or("?")
+                    ),
                     status,
                     n.conditional,
                 ));
@@ -290,7 +294,11 @@ fn graph_views(a: &Analysis) -> Vec<GraphView> {
                     if t.0.is_none() {
                         t.0 = e.msg_type.clone();
                     }
-                    let side = if e.kind == EndpointKind::Publisher { &mut t.1 } else { &mut t.2 };
+                    let side = if e.kind == EndpointKind::Publisher {
+                        &mut t.1
+                    } else {
+                        &mut t.2
+                    };
                     if !side.contains(&i) {
                         side.push(i);
                     }
@@ -341,7 +349,8 @@ pub fn rdjson(a: &Analysis, verified: Option<&crate::fix::FixReport>) -> String 
         let line_start = t[..byte].rfind('\n').map_or(0, |i| i + 1);
         json!({"line": t[..byte].matches('\n').count() + 1, "column": byte - line_start + 1})
     };
-    let range = |file, s: usize, e: usize| json!({"start": pos(file, s), "end": pos(file, e.max(s))});
+    let range =
+        |file, s: usize, e: usize| json!({"start": pos(file, s), "end": pos(file, e.max(s))});
     let diagnostics: Vec<Value> = a
         .diagnostics
         .iter()
@@ -376,7 +385,9 @@ pub fn rdjson(a: &Analysis, verified: Option<&crate::fix::FixReport>) -> String 
             v
         })
         .collect();
-    serde_json::to_string_pretty(&json!({"source": {"name": "rosfix"}, "diagnostics": diagnostics})).unwrap_or_default() + "\n"
+    serde_json::to_string_pretty(&json!({"source": {"name": "rosfix"}, "diagnostics": diagnostics}))
+        .unwrap_or_default()
+        + "\n"
 }
 
 /// The static callback graph: per launched node, its executor, callback groups, callbacks
@@ -490,7 +501,11 @@ pub fn graph_callbacks(a: &Analysis) -> String {
             })
         })
         .collect();
-    serde_json::to_string_pretty(&json!({ "format": "rosfix-callback-graph", "version": 1, "graphs": graphs })).unwrap_or_default() + "\n"
+    serde_json::to_string_pretty(
+        &json!({ "format": "rosfix-callback-graph", "version": 1, "graphs": graphs }),
+    )
+    .unwrap_or_default()
+        + "\n"
 }
 
 /// The resolved launch graphs in Graphviz DOT: one cluster per launch file, nodes as
@@ -498,20 +513,33 @@ pub fn graph_callbacks(a: &Analysis) -> String {
 pub fn graph_dot(a: &Analysis) -> String {
     // A quoted DOT label; `\n` between the escaped lines is DOT's line break.
     let q = |lines: &[&str]| {
-        let esc: Vec<String> = lines.iter().map(|s| s.replace('\\', "\\\\").replace('"', "\\\"")).collect();
+        let esc: Vec<String> = lines
+            .iter()
+            .map(|s| s.replace('\\', "\\\\").replace('"', "\\\""))
+            .collect();
         format!("\"{}\"", esc.join("\\n"))
     };
-    let mut out = String::from("digraph rosfix {\n  rankdir=LR;\n  node [fontname=\"Helvetica\", fontsize=10];\n");
+    let mut out = String::from(
+        "digraph rosfix {\n  rankdir=LR;\n  node [fontname=\"Helvetica\", fontsize=10];\n",
+    );
     for (g, v) in graph_views(a).iter().enumerate() {
         let title = format!("{}{}", v.file, if v.partial { " (partial)" } else { "" });
-        let _ = writeln!(out, "  subgraph cluster_{g} {{\n    label={};", q(&[&title]));
+        let _ = writeln!(
+            out,
+            "  subgraph cluster_{g} {{\n    label={};",
+            q(&[&title])
+        );
         for (i, (name, exe, status, cond)) in v.nodes.iter().enumerate() {
             let style = match (*status, *cond) {
                 (_, true) => ", style=dashed",
                 ("not_found", _) => ", color=red",
                 _ => "",
             };
-            let label = if name == exe { q(&[name]) } else { q(&[name, exe]) };
+            let label = if name == exe {
+                q(&[name])
+            } else {
+                q(&[name, exe])
+            };
             let _ = writeln!(out, "    g{g}n{i} [shape=box, label={label}{style}];");
         }
         for (t, (name, (ty, pubs, subs))) in v.topics.iter().enumerate() {
@@ -539,14 +567,26 @@ pub fn graph_mermaid(a: &Analysis) -> String {
     let q = |s: &str| format!("\"{}\"", s.replace('"', "#quot;"));
     let mut out = String::from("flowchart LR\n");
     for (g, v) in graph_views(a).iter().enumerate() {
-        let _ = writeln!(out, "  subgraph g{g}[{}]", q(&format!("{}{}", v.file, if v.partial { " (partial)" } else { "" })));
+        let _ = writeln!(
+            out,
+            "  subgraph g{g}[{}]",
+            q(&format!(
+                "{}{}",
+                v.file,
+                if v.partial { " (partial)" } else { "" }
+            ))
+        );
         for (i, (name, exe, status, cond)) in v.nodes.iter().enumerate() {
             let note = match (*status, *cond) {
                 (_, true) => " (conditional)",
                 ("not_found", _) => " (source not found)",
                 _ => "",
             };
-            let label = if name == exe { format!("{name}{note}") } else { format!("{name}<br/>{exe}{note}") };
+            let label = if name == exe {
+                format!("{name}{note}")
+            } else {
+                format!("{name}<br/>{exe}{note}")
+            };
             let _ = writeln!(out, "    g{g}n{i}[{}]", q(&label));
         }
         for (t, (name, (_, pubs, subs))) in v.topics.iter().enumerate() {

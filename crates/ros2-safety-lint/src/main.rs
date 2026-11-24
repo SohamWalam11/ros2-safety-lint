@@ -665,9 +665,15 @@ fn load_config(root: &Path, explicit: Option<&PathBuf>) -> Result<Config, String
 
 fn check_agents(agents: &Option<Vec<String>>) -> Result<(), String> {
     let Some(a) = agents else { return Ok(()) };
-    let known: Vec<&str> = rosfix::agents::all_agents().iter().map(|x| x.id()).collect();
+    let known: Vec<&str> = rosfix::agents::all_agents()
+        .iter()
+        .map(|x| x.id())
+        .collect();
     match a.iter().find(|x| !known.contains(&x.as_str())) {
-        Some(bad) => Err(format!("unknown agent `{bad}` (known: {})", known.join(", "))),
+        Some(bad) => Err(format!(
+            "unknown agent `{bad}` (known: {})",
+            known.join(", ")
+        )),
         None => Ok(()),
     }
 }
@@ -696,7 +702,13 @@ fn emit(body: &str, output: Option<&PathBuf>) -> Result<(), String> {
 }
 
 /// `verified`: the fixes that passed verification, for formats that carry fixes (rdjson).
-fn render(a: &Analysis, format: Format, color: bool, verbose: bool, verified: Option<&rosfix::fix::FixReport>) -> String {
+fn render(
+    a: &Analysis,
+    format: Format,
+    color: bool,
+    verbose: bool,
+    verified: Option<&rosfix::fix::FixReport>,
+) -> String {
     match format {
         Format::Text => report::text(a, &Style { color }, verbose),
         Format::Json => report::json(a),
@@ -706,12 +718,17 @@ fn render(a: &Analysis, format: Format, color: bool, verbose: bool, verified: Op
 }
 
 fn stdout_color(no_color: bool, output: Option<&PathBuf>) -> bool {
-    !no_color && output.is_none() && std::io::stdout().is_terminal() && std::env::var_os("NO_COLOR").is_none()
+    !no_color
+        && output.is_none()
+        && std::io::stdout().is_terminal()
+        && std::env::var_os("NO_COLOR").is_none()
 }
 
 fn stderr_style(no_color: bool) -> Style {
     Style {
-        color: !no_color && std::io::stderr().is_terminal() && std::env::var_os("NO_COLOR").is_none(),
+        color: !no_color
+            && std::io::stderr().is_terminal()
+            && std::env::var_os("NO_COLOR").is_none(),
     }
 }
 
@@ -727,7 +744,11 @@ fn threshold(fail_on: Option<FailOn>, config: &Config) -> Option<Severity> {
 
 /// Exit code 1 when a finding at or above the threshold remains. Findings fixed on disk
 /// by `--write` no longer count.
-fn exit_code(a: &Analysis, threshold: Option<Severity>, fixed: &[(&'static str, String)]) -> ExitCode {
+fn exit_code(
+    a: &Analysis,
+    threshold: Option<Severity>,
+    fixed: &[(&'static str, String)],
+) -> ExitCode {
     let failing = threshold.is_some_and(|t| {
         a.diagnostics
             .iter()
@@ -767,7 +788,9 @@ fn apply_fixes(
                 eprintln!("rosfix: build check inconclusive: the unmodified workspace does not build either\n{log}")
             }
             Ok(rosfix::sandbox::Outcome::Failed(log)) => {
-                return Err(format!("the fixes break a build that worked; nothing was written\n{log}"));
+                return Err(format!(
+                    "the fixes break a build that worked; nothing was written\n{log}"
+                ));
             }
             Err(e) => return Err(format!("--verify-build: {e}")),
         }
@@ -777,8 +800,15 @@ fn apply_fixes(
         eprintln!("rosfix: no automatic fixes available");
     } else if req.write {
         let n = fix::write(&r).map_err(|e| format!("writing fixes: {e}"))?;
-        eprintln!("rosfix: applied {} verified fix(es) to {n} file(s)", r.applied.len());
-        fixed = r.applied.iter().map(|f| (f.rule, f.message.clone())).collect();
+        eprintln!(
+            "rosfix: applied {} verified fix(es) to {n} file(s)",
+            r.applied.len()
+        );
+        fixed = r
+            .applied
+            .iter()
+            .map(|f| (f.rule, f.message.clone()))
+            .collect();
     } else {
         if req.diff_to_stdout {
             print!("{diff}");
@@ -791,7 +821,10 @@ fn apply_fixes(
         );
     }
     for (f, why) in &r.rejected {
-        eprintln!("rosfix: skipped fix for {} ({}): {why}", f.rule, f.description);
+        eprintln!(
+            "rosfix: skipped fix for {} ({}): {why}",
+            f.rule, f.description
+        );
     }
     Ok(fixed)
 }
@@ -813,7 +846,11 @@ fn prepare(cli: &Run) -> Result<(PathBuf, Config, Options), String> {
     } else {
         rosfix::installed::prefixes_from_env()
     };
-    let distro = cli.distro.clone().or_else(|| config.distro.clone()).or_else(env_distro);
+    let distro = cli
+        .distro
+        .clone()
+        .or_else(|| config.distro.clone())
+        .or_else(env_distro);
     let opts = Options {
         jobs: cli.jobs,
         agents: cli.agents.clone(),
@@ -833,7 +870,8 @@ fn prepare(cli: &Run) -> Result<(PathBuf, Config, Options), String> {
 /// Splits a shell line into words: whitespace separates, '…' and "…" group, \ escapes the
 /// next character outside single quotes. Returns None for an unterminated quote.
 fn split_words(line: &str) -> Option<Vec<String>> {
-    let (mut out, mut cur, mut quote, mut in_word) = (Vec::new(), String::new(), None::<char>, false);
+    let (mut out, mut cur, mut quote, mut in_word) =
+        (Vec::new(), String::new(), None::<char>, false);
     let mut chars = line.chars();
     while let Some(c) = chars.next() {
         match (quote, c) {
@@ -898,15 +936,26 @@ struct ShellHelper {
 
 impl rustyline::completion::Completer for ShellHelper {
     type Candidate = rustyline::completion::Pair;
-    fn complete(&self, line: &str, pos: usize, ctx: &rustyline::Context<'_>) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
+    fn complete(
+        &self,
+        line: &str,
+        pos: usize,
+        ctx: &rustyline::Context<'_>,
+    ) -> rustyline::Result<(usize, Vec<Self::Candidate>)> {
         let before = &line[..pos];
         let start = before.rfind(char::is_whitespace).map_or(0, |i| i + 1);
         let word = &before[start..];
-        let words: Vec<&str> = before[..start].split_whitespace().filter(|w| *w != "rosfix").collect();
+        let words: Vec<&str> = before[..start]
+            .split_whitespace()
+            .filter(|w| *w != "rosfix")
+            .collect();
         let pick = |options: &mut dyn Iterator<Item = String>| {
             let mut v: Vec<rustyline::completion::Pair> = options
                 .filter(|o| o.starts_with(word))
-                .map(|o| rustyline::completion::Pair { display: o.clone(), replacement: o })
+                .map(|o| rustyline::completion::Pair {
+                    display: o.clone(),
+                    replacement: o,
+                })
                 .collect();
             v.sort_by(|a, b| a.display.cmp(&b.display));
             v.dedup_by(|a, b| a.display == b.display);
@@ -914,8 +963,22 @@ impl rustyline::completion::Completer for ShellHelper {
         };
         match (words.first().copied(), words.last().copied()) {
             (None, _) => pick(&mut self.commands.iter().cloned()),
-            (_, Some("--format")) => pick(&mut ["text", "json", "sarif", "rdjson", "dot", "mermaid", "callbacks"].iter().map(|s| s.to_string())),
-            (Some("explain"), _) => pick(&mut rosfix::rules::RULES.iter().map(|r| r.id.to_string())),
+            (_, Some("--format")) => pick(
+                &mut [
+                    "text",
+                    "json",
+                    "sarif",
+                    "rdjson",
+                    "dot",
+                    "mermaid",
+                    "callbacks",
+                ]
+                .iter()
+                .map(|s| s.to_string()),
+            ),
+            (Some("explain"), _) => {
+                pick(&mut rosfix::rules::RULES.iter().map(|r| r.id.to_string()))
+            }
             (Some("docs"), _) => pick(&mut rosfix::docs::topic_names().map(str::to_string)),
             _ => self.files.complete(line, pos, ctx),
         }
@@ -932,7 +995,10 @@ impl rustyline::Helper for ShellHelper {}
 /// Where the shell reads its lines: an editor with history and completion on a terminal,
 /// plain lines otherwise (pipes, scripts, tests).
 enum ShellInput {
-    Editor(Box<rustyline::Editor<ShellHelper, rustyline::history::DefaultHistory>>, Option<PathBuf>),
+    Editor(
+        Box<rustyline::Editor<ShellHelper, rustyline::history::DefaultHistory>>,
+        Option<PathBuf>,
+    ),
     Plain(std::io::Lines<std::io::StdinLock<'static>>),
 }
 
@@ -940,14 +1006,21 @@ impl ShellInput {
     fn open() -> ShellInput {
         use std::io::BufRead;
         if std::io::stdin().is_terminal() {
-            if let Ok(mut ed) = rustyline::Editor::<ShellHelper, rustyline::history::DefaultHistory>::new() {
+            if let Ok(mut ed) =
+                rustyline::Editor::<ShellHelper, rustyline::history::DefaultHistory>::new()
+            {
                 let commands = <Cli as clap::CommandFactory>::command()
                     .get_subcommands()
                     .map(|c| c.get_name().to_string())
                     .chain(["cd", "pwd", "history", "help", "exit", "quit"].map(String::from))
                     .collect();
-                ed.set_helper(Some(ShellHelper { commands, files: rustyline::completion::FilenameCompleter::new() }));
-                let file = std::env::var_os("HOME").or_else(|| std::env::var_os("USERPROFILE")).map(|h| PathBuf::from(h).join(".rosfix_history"));
+                ed.set_helper(Some(ShellHelper {
+                    commands,
+                    files: rustyline::completion::FilenameCompleter::new(),
+                }));
+                let file = std::env::var_os("HOME")
+                    .or_else(|| std::env::var_os("USERPROFILE"))
+                    .map(|h| PathBuf::from(h).join(".rosfix_history"));
                 if let Some(f) = &file {
                     let _ = ed.load_history(f);
                 }
@@ -994,8 +1067,16 @@ impl Drop for ShellInput {
 fn shell(path: &Path) -> Result<ExitCode, String> {
     existing(path)?;
     std::env::set_current_dir(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let here = || std::env::current_dir().map(|p| p.display().to_string()).unwrap_or_else(|_| ".".into());
-    println!("rosfix {} shell, workspace {}", env!("CARGO_PKG_VERSION"), here());
+    let here = || {
+        std::env::current_dir()
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|_| ".".into())
+    };
+    println!(
+        "rosfix {} shell, workspace {}",
+        env!("CARGO_PKG_VERSION"),
+        here()
+    );
     println!("Type `help` for the commands, `exit` to leave.\n");
     let mut input = ShellInput::open();
     let mut history: Vec<String> = Vec::new();
@@ -1020,7 +1101,9 @@ fn shell(path: &Path) -> Result<ExitCode, String> {
         if words.first().is_some_and(|w| w == "rosfix") {
             words.remove(0);
         }
-        let Some(first) = words.first().cloned() else { continue };
+        let Some(first) = words.first().cloned() else {
+            continue;
+        };
         match first.as_str() {
             "exit" | "quit" => break,
             "help" | "?" if words.len() == 1 => {
@@ -1080,7 +1163,9 @@ fn shell(path: &Path) -> Result<ExitCode, String> {
         };
         match result {
             Ok(code) if code == ExitCode::SUCCESS => {}
-            Ok(_) => println!("(exit code 1: findings at or above the --fail-on level, or a check that failed)"),
+            Ok(_) => println!(
+                "(exit code 1: findings at or above the --fail-on level, or a check that failed)"
+            ),
             Err(e) => eprintln!("rosfix: error: {e}"),
         }
     }
@@ -1121,22 +1206,38 @@ fn policy(a: PolicyArgs) -> Result<ExitCode, String> {
 }
 
 fn check_bag(a: CheckBagArgs) -> Result<ExitCode, String> {
-    let file = if a.bag.is_dir() { a.bag.join("metadata.yaml") } else { a.bag.clone() };
+    let file = if a.bag.is_dir() {
+        a.bag.join("metadata.yaml")
+    } else {
+        a.bag.clone()
+    };
     let text = std::fs::read_to_string(&file).map_err(|e| format!("{}: {e}", file.display()))?;
-    let observed = rosfix::live::read_observed(&text).map_err(|e| format!("{}: {e}", file.display()))?;
+    let observed =
+        rosfix::live::read_observed(&text).map_err(|e| format!("{}: {e}", file.display()))?;
     let (root, config, opts) = prepare(&Run::new(&a.target))?;
     let analysis = engine::analyze(&root, &config, &opts);
     let items = rosfix::live::compare(&analysis, &observed, a.launch.as_deref())?;
     let body = match a.format {
         TriageFormat::Text => rosfix::live::text(&items, observed.len()),
         TriageFormat::Json => {
-            serde_json::to_string_pretty(&serde_json::json!({"recorded": observed, "items": items})).unwrap_or_default() + "\n"
+            serde_json::to_string_pretty(&serde_json::json!({"recorded": observed, "items": items}))
+                .unwrap_or_default()
+                + "\n"
         }
     };
     emit(&body, a.output.as_ref())?;
     // A type mismatch is a definite inconsistency; the other kinds may be explained by
     // what was recorded or by publishers outside the workspace.
-    Ok(if items.iter().any(|i| i.kind == rosfix::live::Kind::TypeMismatch) { ExitCode::from(1) } else { ExitCode::SUCCESS })
+    Ok(
+        if items
+            .iter()
+            .any(|i| i.kind == rosfix::live::Kind::TypeMismatch)
+        {
+            ExitCode::from(1)
+        } else {
+            ExitCode::SUCCESS
+        },
+    )
 }
 
 fn nodl_export(a: NodlExportArgs) -> Result<ExitCode, String> {
@@ -1152,11 +1253,18 @@ fn nodl_export(a: NodlExportArgs) -> Result<ExitCode, String> {
         }
         Some(dir) => {
             for d in &docs {
-                let p = dir.join(&d.package).join(format!("{}.nodl.yaml", d.executable));
-                std::fs::create_dir_all(p.parent().unwrap_or(dir)).map_err(|e| format!("{}: {e}", p.display()))?;
+                let p = dir
+                    .join(&d.package)
+                    .join(format!("{}.nodl.yaml", d.executable));
+                std::fs::create_dir_all(p.parent().unwrap_or(dir))
+                    .map_err(|e| format!("{}: {e}", p.display()))?;
                 std::fs::write(&p, &d.text).map_err(|e| format!("{}: {e}", p.display()))?;
             }
-            eprintln!("rosfix: wrote {} NoDL document(s) to {}", docs.len(), dir.display());
+            eprintln!(
+                "rosfix: wrote {} NoDL document(s) to {}",
+                docs.len(),
+                dir.display()
+            );
         }
     }
     Ok(ExitCode::SUCCESS)
@@ -1165,7 +1273,8 @@ fn nodl_export(a: NodlExportArgs) -> Result<ExitCode, String> {
 fn triage(a: TriageArgs) -> Result<ExitCode, String> {
     let log = if a.log.as_os_str() == "-" {
         let mut s = String::new();
-        std::io::Read::read_to_string(&mut std::io::stdin(), &mut s).map_err(|e| format!("stdin: {e}"))?;
+        std::io::Read::read_to_string(&mut std::io::stdin(), &mut s)
+            .map_err(|e| format!("stdin: {e}"))?;
         s
     } else {
         let bytes = std::fs::read(&a.log).map_err(|e| format!("{}: {e}", a.log.display()))?;
@@ -1191,13 +1300,18 @@ fn run(cli: Run) -> Result<ExitCode, String> {
                 r.agent,
                 r.severity.as_str(),
                 r.name,
-                if r.enabled_by_default { "" } else { "(off by default)" }
+                if r.enabled_by_default {
+                    ""
+                } else {
+                    "(off by default)"
+                }
             );
         }
         return Ok(ExitCode::SUCCESS);
     }
     if let Some(id) = &cli.explain {
-        let r = rules::find(id).ok_or_else(|| format!("unknown rule `{id}` (see `rosfix rules`)"))?;
+        let r =
+            rules::find(id).ok_or_else(|| format!("unknown rule `{id}` (see `rosfix rules`)"))?;
         println!(
             "{} ({}) — agent: {}, default severity: {}\n\n{}\n\n{}",
             r.id,
@@ -1215,7 +1329,13 @@ fn run(cli: Run) -> Result<ExitCode, String> {
     }
     if cli.lsp {
         let stdin = std::io::stdin();
-        rosfix::session::lsp(&root, config, opts, &mut stdin.lock(), &mut std::io::stdout());
+        rosfix::session::lsp(
+            &root,
+            config,
+            opts,
+            &mut stdin.lock(),
+            &mut std::io::stdout(),
+        );
         return Ok(ExitCode::SUCCESS);
     }
     let mut analysis = engine::analyze(&root, &config, &opts);
@@ -1252,7 +1372,8 @@ fn run(cli: Run) -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
     if let Some(p) = &cli.write_baseline {
-        let n = engine::write_baseline(p, &analysis).map_err(|e| format!("{}: {e}", p.display()))?;
+        let n =
+            engine::write_baseline(p, &analysis).map_err(|e| format!("{}: {e}", p.display()))?;
         eprintln!("rosfix: wrote {n} fingerprint(s) to {}", p.display());
         return Ok(ExitCode::SUCCESS);
     }
@@ -1270,19 +1391,28 @@ fn run(cli: Run) -> Result<ExitCode, String> {
     if (cli.online || config.online) && !analysis.diagnostics.is_empty() {
         if !cfg!(feature = "online") {
             eprintln!("rosfix: note: this build has no online support; skipping --online");
-        } else if let Err(e) =
-            rosfix::assist::online::lookup(&mut analysis, config.searxng_url.clone(), cli.show_queries)
-        {
+        } else if let Err(e) = rosfix::assist::online::lookup(
+            &mut analysis,
+            config.searxng_url.clone(),
+            cli.show_queries,
+        ) {
             eprintln!("rosfix: online lookup failed: {e}");
         }
     }
 
     let color = stdout_color(cli.no_color, cli.output.as_ref());
     // Suggestions in rdjson are only fixes that pass the same verification as `fix`.
-    let verified = (cli.format == Format::Rdjson).then(|| rosfix::fix::run(&root, &config, &opts, &analysis, false));
-    emit(&render(&analysis, cli.format, color, cli.verbose, verified.as_ref()), cli.output.as_ref())?;
+    let verified = (cli.format == Format::Rdjson)
+        .then(|| rosfix::fix::run(&root, &config, &opts, &analysis, false));
+    emit(
+        &render(&analysis, cli.format, color, cli.verbose, verified.as_ref()),
+        cli.output.as_ref(),
+    )?;
     if cli.format == Format::Text || cli.output.is_some() {
-        eprintln!("{}", report::summary(&analysis, &stderr_style(cli.no_color), hidden));
+        eprintln!(
+            "{}",
+            report::summary(&analysis, &stderr_style(cli.no_color), hidden)
+        );
     }
     if cli.stats {
         eprint!("{}", report::agents_table(&analysis));
@@ -1299,7 +1429,11 @@ fn run(cli: Run) -> Result<ExitCode, String> {
         };
         fixed = apply_fixes(&root, &config, &opts, &analysis, &req)?;
     }
-    Ok(exit_code(&analysis, threshold(cli.fail_on, &config), &fixed))
+    Ok(exit_code(
+        &analysis,
+        threshold(cli.fail_on, &config),
+        &fixed,
+    ))
 }
 
 fn migrate(a: MigrateArgs) -> Result<ExitCode, String> {
@@ -1316,7 +1450,10 @@ fn migrate(a: MigrateArgs) -> Result<ExitCode, String> {
     };
     let m = rosfix::migrate::run(&a.path, &config, &base, &from, &a.to)?;
     let color = stdout_color(a.no_color, a.output.as_ref());
-    emit(&render(&m.after, a.format, color, a.verbose, None), a.output.as_ref())?;
+    emit(
+        &render(&m.after, a.format, color, a.verbose, None),
+        a.output.as_ref(),
+    )?;
     eprintln!(
         "rosfix: {} -> {}: {} new finding(s); {} also reported on {} (not shown); {} no longer reported on {}",
         m.from,
@@ -1345,13 +1482,21 @@ fn doctor(format: TriageFormat) -> Result<ExitCode, String> {
     let checks = rosfix::doctor::run(&env);
     match format {
         TriageFormat::Text => print!("{}", rosfix::doctor::text(&checks)),
-        TriageFormat::Json => println!("{}", serde_json::to_string_pretty(&checks).unwrap_or_default()),
+        TriageFormat::Json => println!(
+            "{}",
+            serde_json::to_string_pretty(&checks).unwrap_or_default()
+        ),
     }
-    Ok(if checks.iter().any(|c| c.level == rosfix::doctor::Level::Error) {
-        ExitCode::from(1)
-    } else {
-        ExitCode::SUCCESS
-    })
+    Ok(
+        if checks
+            .iter()
+            .any(|c| c.level == rosfix::doctor::Level::Error)
+        {
+            ExitCode::from(1)
+        } else {
+            ExitCode::SUCCESS
+        },
+    )
 }
 
 fn init(a: InitArgs) -> Result<ExitCode, String> {
@@ -1368,8 +1513,12 @@ fn init(a: InitArgs) -> Result<ExitCode, String> {
         let path = x.path.strip_prefix(&a.path).unwrap_or(&x.path).display();
         let verb = if a.dry_run { "would write" } else { "" };
         match &x.action {
-            rosfix::init::Action::Created => println!("{:<9} {path}", if a.dry_run { verb } else { "created" }),
-            rosfix::init::Action::Replaced => println!("{:<9} {path}", if a.dry_run { verb } else { "replaced" }),
+            rosfix::init::Action::Created => {
+                println!("{:<9} {path}", if a.dry_run { verb } else { "created" })
+            }
+            rosfix::init::Action::Replaced => {
+                println!("{:<9} {path}", if a.dry_run { verb } else { "replaced" })
+            }
             rosfix::init::Action::Kept(why) => println!("{:<9} {path}: {why}", "kept"),
         }
     }
@@ -1382,9 +1531,18 @@ mod tests {
 
     #[test]
     fn shell_words() {
-        assert_eq!(split_words("check src --format json").unwrap(), ["check", "src", "--format", "json"]);
-        assert_eq!(split_words("cd 'My Workspace'").unwrap(), ["cd", "My Workspace"]);
-        assert_eq!(split_words(r#"check "a b"\ c"#).unwrap(), ["check", "a b c"]);
+        assert_eq!(
+            split_words("check src --format json").unwrap(),
+            ["check", "src", "--format", "json"]
+        );
+        assert_eq!(
+            split_words("cd 'My Workspace'").unwrap(),
+            ["cd", "My Workspace"]
+        );
+        assert_eq!(
+            split_words(r#"check "a b"\ c"#).unwrap(),
+            ["check", "a b c"]
+        );
         assert_eq!(split_words("  ").unwrap(), Vec::<String>::new());
         assert!(split_words("cd 'open").is_none());
     }
@@ -1393,16 +1551,24 @@ mod tests {
     fn shell_completion() {
         use rustyline::completion::Completer;
         let h = super::ShellHelper {
-            commands: ["check", "check-bag", "status", "explain", "docs"].map(String::from).to_vec(),
+            commands: ["check", "check-bag", "status", "explain", "docs"]
+                .map(String::from)
+                .to_vec(),
             files: rustyline::completion::FilenameCompleter::new(),
         };
         let history = rustyline::history::DefaultHistory::new();
         let ctx = rustyline::Context::new(&history);
         let names = |line: &str| {
             let (start, v) = h.complete(line, line.len(), &ctx).unwrap();
-            (start, v.into_iter().map(|p| p.replacement).collect::<Vec<_>>())
+            (
+                start,
+                v.into_iter().map(|p| p.replacement).collect::<Vec<_>>(),
+            )
         };
-        assert_eq!(names("che"), (0, vec!["check".to_string(), "check-bag".to_string()]));
+        assert_eq!(
+            names("che"),
+            (0, vec!["check".to_string(), "check-bag".to_string()])
+        );
         assert_eq!(names("rosfix sta").1, ["status"]);
         assert!(names("explain V00").1.contains(&"V003".to_string()));
         assert_eq!(names("docs edi").1, ["editors"]);

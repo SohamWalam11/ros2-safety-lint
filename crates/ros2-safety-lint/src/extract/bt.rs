@@ -9,17 +9,41 @@ pub fn is_relevant(text: &str) -> bool {
 }
 
 /// Elements that are structure, not node types.
-const STRUCTURE: &[&str] = &["root", "BehaviorTree", "TreeNodesModel", "include", "input_port", "output_port", "inout_port", "Metadata", "Item"];
+const STRUCTURE: &[&str] = &[
+    "root",
+    "BehaviorTree",
+    "TreeNodesModel",
+    "include",
+    "input_port",
+    "output_port",
+    "inout_port",
+    "Metadata",
+    "Item",
+];
 
 /// Generic element names whose node type is the `ID` attribute.
-const GENERIC: &[&str] = &["Action", "Condition", "Control", "Decorator", "SubTree", "SubTreePlus"];
+const GENERIC: &[&str] = &[
+    "Action",
+    "Condition",
+    "Control",
+    "Decorator",
+    "SubTree",
+    "SubTreePlus",
+];
 
 pub fn extract(file: FileId, text: &str) -> Result<BtFile, String> {
     let doc = roxmltree::Document::parse(text).map_err(|e| e.to_string())?;
-    let mut f = BtFile { file, ..Default::default() };
+    let mut f = BtFile {
+        file,
+        ..Default::default()
+    };
     for n in doc.descendants().filter(|n| n.is_element()) {
         let tag = n.tag_name().name();
-        let loc = Loc::new(file, n.range().start, n.range().end.min(n.range().start + tag.len() + 1));
+        let loc = Loc::new(
+            file,
+            n.range().start,
+            n.range().end.min(n.range().start + tag.len() + 1),
+        );
         if n.ancestors().any(|a| a.has_tag_name("TreeNodesModel")) {
             // Custom node types declared for Groot: `<Action ID="X"/>` or `<X/>`.
             if let Some(id) = n.attribute("ID") {
@@ -60,14 +84,53 @@ pub fn extract(file: FileId, text: &str) -> Result<BtFile, String> {
 
 /// Node types BehaviorTree.CPP itself provides (v3 and v4).
 pub const BUILTIN_NODES: &[&str] = &[
-    "Sequence", "SequenceStar", "SequenceWithMemory", "ReactiveSequence", "Fallback", "ReactiveFallback",
-    "Parallel", "ParallelAll", "IfThenElse", "WhileDoElse", "Switch2", "Switch3", "Switch4", "Switch5", "Switch6",
-    "ManualSelector", "Inverter", "ForceSuccess", "ForceFailure", "Repeat", "RetryUntilSuccessful",
-    "RetryUntilSuccesful", "KeepRunningUntilFailure", "Delay", "Timeout", "RunOnce", "Precondition",
-    "AlwaysSuccess", "AlwaysFailure", "AlwaysRunning", "SetBlackboard", "UnsetBlackboard", "Script",
-    "ScriptCondition", "Sleep", "LoopInt", "LoopDouble", "LoopString", "LoopBool", "WasEntryUpdated",
-    "SkipUnlessUpdated", "WaitValueUpdate", "EntryUpdated", "BlackboardCheckInt", "BlackboardCheckDouble",
-    "BlackboardCheckString", "BlackboardCheckBool",
+    "Sequence",
+    "SequenceStar",
+    "SequenceWithMemory",
+    "ReactiveSequence",
+    "Fallback",
+    "ReactiveFallback",
+    "Parallel",
+    "ParallelAll",
+    "IfThenElse",
+    "WhileDoElse",
+    "Switch2",
+    "Switch3",
+    "Switch4",
+    "Switch5",
+    "Switch6",
+    "ManualSelector",
+    "Inverter",
+    "ForceSuccess",
+    "ForceFailure",
+    "Repeat",
+    "RetryUntilSuccessful",
+    "RetryUntilSuccesful",
+    "KeepRunningUntilFailure",
+    "Delay",
+    "Timeout",
+    "RunOnce",
+    "Precondition",
+    "AlwaysSuccess",
+    "AlwaysFailure",
+    "AlwaysRunning",
+    "SetBlackboard",
+    "UnsetBlackboard",
+    "Script",
+    "ScriptCondition",
+    "Sleep",
+    "LoopInt",
+    "LoopDouble",
+    "LoopString",
+    "LoopBool",
+    "WasEntryUpdated",
+    "SkipUnlessUpdated",
+    "WaitValueUpdate",
+    "EntryUpdated",
+    "BlackboardCheckInt",
+    "BlackboardCheckDouble",
+    "BlackboardCheckString",
+    "BlackboardCheckBool",
 ];
 
 #[cfg(test)]
@@ -88,7 +151,15 @@ mod tests {
 </root>"#;
         let f = extract(0, xml).unwrap();
         let ids: Vec<&str> = f.nodes.iter().map(|(n, _)| n.as_str()).collect();
-        assert_eq!(ids, vec!["PipelineSequence", "RateController", "ComputePathToPose", "FollowPath"]);
+        assert_eq!(
+            ids,
+            vec![
+                "PipelineSequence",
+                "RateController",
+                "ComputePathToPose",
+                "FollowPath"
+            ]
+        );
         assert_eq!(f.trees, vec!["Main"]);
         assert_eq!(f.subtree_refs[0].0, "Recovery");
         assert_eq!(f.declared, vec!["MyCustom", "IsDocked"]);

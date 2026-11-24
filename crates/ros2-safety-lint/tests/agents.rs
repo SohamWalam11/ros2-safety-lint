@@ -142,8 +142,14 @@ int main(int argc, char** argv) { rclcpp::init(argc, argv); rclcpp::spin(std::ma
     add("arm/config/controllers.yaml", "controller_manager:\n  ros__parameters:\n    vel_ctrl:\n      type: velocity_controllers/JointGroupVelocityController\n    jtc:\n      type: joint_trajectory_controler/JointTrajectoryController\nvel_ctrl:\n  ros__parameters:\n    joints: [wheel_left, wheel_rigth]\n    gain: -2.0\n    update_rate: 500\n");
 
     // ---- velocity_controllers: a controller package with a parameter spec (control: C009)
-    add("velocity_controllers/package.xml", "<package format=\"3\"><name>velocity_controllers</name></package>");
-    add("velocity_controllers/CMakeLists.txt", "project(velocity_controllers)\ngenerate_parameter_library(vc_params src/params.yaml)\n");
+    add(
+        "velocity_controllers/package.xml",
+        "<package format=\"3\"><name>velocity_controllers</name></package>",
+    );
+    add(
+        "velocity_controllers/CMakeLists.txt",
+        "project(velocity_controllers)\ngenerate_parameter_library(vc_params src/params.yaml)\n",
+    );
     add("velocity_controllers/src/params.yaml", "velocity_controllers:\n  gain: {\n    type: double,\n    default_value: 1.0,\n    validation: {\n      gt<>: [0.0]\n    }\n  }\n");
 
     // ---- nav: Nav2 configuration (nav2)
@@ -194,39 +200,60 @@ local_costmap:
 
     // ---- tfdemo: transform tree (tf)
     // ---- arm_moveit: MoveIt configuration for the arm (moveit: V001-V005)
-    add("arm_moveit/package.xml", "<package format=\"3\"><name>arm_moveit</name></package>");
+    add(
+        "arm_moveit/package.xml",
+        "<package format=\"3\"><name>arm_moveit</name></package>",
+    );
     add("arm_moveit/config/arm.srdf", "<robot name=\"arm\"><group name=\"manipulator\"><joint name=\"wheel_left\"/><joint name=\"ghost_joint\"/></group></robot>");
-    add("arm_moveit/config/kinematics.yaml", "manipulater:
+    add(
+        "arm_moveit/config/kinematics.yaml",
+        "manipulater:
   kinematics_solver: kdl_kinematics_plugin/KDLKinematicsPlugin
-");
-    add("arm_moveit/config/joint_limits.yaml", "joint_limits:
+",
+    );
+    add(
+        "arm_moveit/config/joint_limits.yaml",
+        "joint_limits:
   wheel_left:
     has_velocity_limits: true
     max_velocity: 2
   wheel_lft:
     max_velocity: 1.0
-");
-    add("arm_moveit/config/moveit_controllers.yaml", "moveit_simple_controller_manager:
+",
+    );
+    add(
+        "arm_moveit/config/moveit_controllers.yaml",
+        "moveit_simple_controller_manager:
   controller_names:
     - jtc2
-");
+",
+    );
 
     // ---- porting: ROS 1 leftovers in a ROS 2 package, and a catkin package (ros1: O001-O003)
     add("porting/package.xml", "<package format=\"3\"><name>porting</name><buildtool_depend>ament_cmake</buildtool_depend></package>");
-    add("porting/launch/old.launch", "<launch><node pkg=\"porting\" type=\"driver\" name=\"driver\"/></launch>");
-    add("porting/scripts/old_node.py", "import rospy\nrospy.init_node('old')\n");
+    add(
+        "porting/launch/old.launch",
+        "<launch><node pkg=\"porting\" type=\"driver\" name=\"driver\"/></launch>",
+    );
+    add(
+        "porting/scripts/old_node.py",
+        "import rospy\nrospy.init_node('old')\n",
+    );
     add("legacy_driver/package.xml", "<package format=\"2\"><name>legacy_driver</name><buildtool_depend>catkin</buildtool_depend></package>");
 
     // ---- sim_bridge: ros_gz_bridge topics (gzbridge: G001-G004)
     add("sim_bridge/package.xml", "<package format=\"3\"><name>sim_bridge</name><exec_depend>ros_gz_bridge</exec_depend></package>");
-    add("sim_bridge/config/bridge.yaml", "- ros_topic_name: /imu
+    add(
+        "sim_bridge/config/bridge.yaml",
+        "- ros_topic_name: /imu
   ros_type_name: sensor_msgs/msg/Imu
   gz_type_name: gz.msgs.Image
   direction: GZ_TO_ROSS
 - ros_topic: /odom
   ros_type_name: nav_msgs/msg/Odometry
   gz_type_name: gz.msgs.Odometry
-");
+",
+    );
     add(
         "sim_bridge/launch/bridge.launch.py",
         &format!(
@@ -234,7 +261,10 @@ local_costmap:
         ),
     );
 
-    add("tfdemo/package.xml", "<package format=\"3\"><name>tfdemo</name></package>");
+    add(
+        "tfdemo/package.xml",
+        "<package format=\"3\"><name>tfdemo</name></package>",
+    );
     add(
         "tfdemo/launch/frames.launch.py",
         &format!(
@@ -243,7 +273,10 @@ local_costmap:
     );
 
     // ---- lcdemo: lifecycle nodes and their manager (lifecycle)
-    add("lcdemo/package.xml", "<package format=\"3\"><name>lcdemo</name></package>");
+    add(
+        "lcdemo/package.xml",
+        "<package format=\"3\"><name>lcdemo</name></package>",
+    );
     add("lcdemo/CMakeLists.txt", "project(lcdemo)\nadd_executable(planner src/planner.cpp)\nadd_executable(mapper src/mapper.cpp)\ninstall(TARGETS planner mapper DESTINATION lib/${PROJECT_NAME})\ninstall(DIRECTORY launch DESTINATION share/${PROJECT_NAME})\n");
     add("lcdemo/src/planner.cpp", "#include <rclcpp_lifecycle/lifecycle_node.hpp>\nclass Planner : public rclcpp_lifecycle::LifecycleNode { public: Planner() : LifecycleNode(\"planner\") {} };\n");
     add("lcdemo/src/mapper.cpp", "#include <nav2_util/lifecycle_node.hpp>\nclass Mapper : public nav2_util::LifecycleNode { public: Mapper() : LifecycleNode(\"mapper\") {} };\n");
@@ -277,20 +310,35 @@ local_costmap:
     add("comp/src/talker.cpp", "#include <rclcpp/rclcpp.hpp>\nnamespace comp { class Talker : public rclcpp::Node { public: explicit Talker(const rclcpp::NodeOptions & o) : Node(\"talker\", o) {} }; }\n");
 
     // ---- ifaces: an interface package with an unlisted .msg and no group membership (L007, L008)
-    add("ifaces/package.xml", "<package format=\"3\"><name>ifaces</name></package>");
-    add("ifaces/CMakeLists.txt", "project(ifaces)
+    add(
+        "ifaces/package.xml",
+        "<package format=\"3\"><name>ifaces</name></package>",
+    );
+    add(
+        "ifaces/CMakeLists.txt",
+        "project(ifaces)
 find_package(rosidl_default_generators REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME} \"msg/Pose2.msg\")
 ament_package()
-");
-    add("ifaces/msg/Pose2.msg", "float64 x
+",
+    );
+    add(
+        "ifaces/msg/Pose2.msg",
+        "float64 x
 float64 y
-");
-    add("ifaces/msg/Status.msg", "uint8 code
-");
+",
+    );
+    add(
+        "ifaces/msg/Status.msg",
+        "uint8 code
+",
+    );
 
     // ---- netcfg: middleware environment (network: D001 bad domain, D002 RMW typo, D003 missing DDS file)
-    add("netcfg/package.xml", "<package format=\"3\"><name>netcfg</name></package>");
+    add(
+        "netcfg/package.xml",
+        "<package format=\"3\"><name>netcfg</name></package>",
+    );
     add(
         "netcfg/launch/net.launch.py",
         &format!(
@@ -327,12 +375,22 @@ const EXPECTED: &[(&str, &[&str])] = &[
     ("params", &["P001", "P002", "P003", "P004", "P006"]),
     ("topics", &["T001", "T002", "T003"]),
     ("executor", &["E001", "E002"]),
-    ("control", &["C001", "C002", "C003", "C005", "C007", "C008", "C009", "C010"]),
+    (
+        "control",
+        &[
+            "C001", "C002", "C003", "C005", "C007", "C008", "C009", "C010",
+        ],
+    ),
     ("tf", &["F001", "F002", "F003", "F004"]),
     ("lifecycle", &["M001", "M002"]),
     ("launch", &["A001", "A002"]),
     ("network", &["D001", "D002", "D003", "D005"]),
-    ("packaging", &["L001", "L002", "L003", "L004", "L005", "L006", "L007", "L008"]),
+    (
+        "packaging",
+        &[
+            "L001", "L002", "L003", "L004", "L005", "L006", "L007", "L008",
+        ],
+    ),
     ("simtime", &["S001", "S002"]),
     ("qos", &["Q001"]),
     ("nav2", &["N001", "N002", "N003", "N005", "N006"]),

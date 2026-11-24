@@ -370,7 +370,12 @@ pub fn build_reusing(ix: &Index, previous: Option<(&[RootGraph], &HashSet<FileId
     for r in roots {
         if let Some((prev, changed)) = previous {
             if let Some(old) = prev.iter().find(|x| x.root == r) {
-                if !old.files.iter().chain(old.param_deps.iter()).any(|f| changed.contains(f)) {
+                if !old
+                    .files
+                    .iter()
+                    .chain(old.param_deps.iter())
+                    .any(|f| changed.contains(f))
+                {
                     g.roots.push(old.clone());
                     continue;
                 }
@@ -576,7 +581,10 @@ impl<'a> Builder<'a> {
         let (impls, status, spec_params, mut open, open_dotted) = linked;
         let (ns, ns_known) = match &d.namespace {
             Some(n) => match resolve_lval(n, env) {
-                Some(n) => (join_ns(&scope.ns, &n), scope.ns_known || n.trim().starts_with('/')),
+                Some(n) => (
+                    join_ns(&scope.ns, &n),
+                    scope.ns_known || n.trim().starts_with('/'),
+                ),
                 None => {
                     self.root.partial = true;
                     (scope.ns.clone(), false)
@@ -666,7 +674,10 @@ impl<'a> Builder<'a> {
                                         (Some(fq), _) => Some(key_matches(k, fq)),
                                         (None, Some(n)) => {
                                             let a = key_matches(k, &join_ns("/", n));
-                                            let b = key_matches(k, &join_ns("/rosfix_ns_a/rosfix_ns_b", n));
+                                            let b = key_matches(
+                                                k,
+                                                &join_ns("/rosfix_ns_a/rosfix_ns_b", n),
+                                            );
                                             (a == b).then_some(a)
                                         }
                                         (None, None) => None,
@@ -682,7 +693,8 @@ impl<'a> Builder<'a> {
                                             ),
                                             None => s.node_key.clone(),
                                         };
-                                        let wild = format!("**/{}", s.node_key.trim_start_matches('/'));
+                                        let wild =
+                                            format!("**/{}", s.node_key.trim_start_matches('/'));
                                         let hit = |k: &str| matches_node(k).unwrap_or(false);
                                         if matches_node(&key).is_none() {
                                             // Depends on the namespace, which is unknown.
@@ -909,7 +921,12 @@ pub fn link_impl(
     }
     // `ParamListener(node, "ns")` declares the library's parameters as `ns.<name>`.
     for f in &touched {
-        for prefix in ix.code.get(f).map(|c| c.param_prefixes.as_slice()).unwrap_or_default() {
+        for prefix in ix
+            .code
+            .get(f)
+            .map(|c| c.param_prefixes.as_slice())
+            .unwrap_or_default()
+        {
             match prefix {
                 Some(pre) if !pre.is_empty() => spec_params.extend(lib_params.iter().map(|d| {
                     let mut d = d.clone();
@@ -966,7 +983,9 @@ pub fn link_impl(
         if Some(pi) == pkg_idx {
             continue;
         }
-        let Some(dp) = ix.packages.get(pi) else { continue };
+        let Some(dp) = ix.packages.get(pi) else {
+            continue;
+        };
         let decls: Vec<&ParamDecl> = dp
             .param_lib_specs
             .iter()

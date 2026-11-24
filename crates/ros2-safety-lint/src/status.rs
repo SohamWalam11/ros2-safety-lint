@@ -109,7 +109,9 @@ fn limits(a: &Analysis) -> Limits {
     for (_, _, n) in a.graph.instances() {
         match n.impl_status {
             ImplStatus::External if n.impls.is_empty() => {
-                *l.external_unknown.entry(n.pkg.clone().unwrap_or_else(|| "?".into())).or_default() += 1;
+                *l.external_unknown
+                    .entry(n.pkg.clone().unwrap_or_else(|| "?".into()))
+                    .or_default() += 1;
             }
             ImplStatus::Unresolved => l.not_found += 1,
             _ => {}
@@ -212,21 +214,44 @@ fn describe(a: &Analysis, l: &Limits, distro: Option<&str>, s: &mut AgentStatus)
     let n = |v: usize, what: &str| format!("{v} {what}");
     let external: usize = l.external_unknown.values().sum();
     let ext_names = || {
-        let v: Vec<String> = l.external_unknown.iter().take(6).map(|(p, c)| if *c > 1 { format!("{p} ×{c}") } else { p.clone() }).collect();
+        let v: Vec<String> = l
+            .external_unknown
+            .iter()
+            .take(6)
+            .map(|(p, c)| {
+                if *c > 1 {
+                    format!("{p} ×{c}")
+                } else {
+                    p.clone()
+                }
+            })
+            .collect();
         let more = l.external_unknown.len().saturating_sub(6);
-        format!("{}{}", v.join(", "), if more > 0 { format!(", and {more} more") } else { String::new() })
+        format!(
+            "{}{}",
+            v.join(", "),
+            if more > 0 {
+                format!(", and {more} more")
+            } else {
+                String::new()
+            }
+        )
     };
     match s.id {
         "core" => s.checked.push(n(ix.stats.files_parsed, "files parsed")),
         "params" => {
             s.checked.push(n(ix.param_files.len(), "parameter files"));
-            s.checked.push(n(l.nodes_with_params, "launched nodes with parameters bound"));
+            s.checked.push(n(
+                l.nodes_with_params,
+                "launched nodes with parameters bound",
+            ));
             if l.params_open > 0 {
                 s.next.push(format!("{} node(s) accept parameters rosfix cannot enumerate (plugins, dynamic names): only their top-level names are checked", l.params_open));
             }
         }
         "topics" | "qos" => {
-            s.checked.push(n(l.endpoints, "topic endpoints in the launch graphs"));
+            s.checked
+                .push(n(l.endpoints, "topic endpoints in the launch graphs"));
             if l.endpoints_incomplete_nodes > 0 {
                 s.next.push(format!("{} node(s) have an interface rosfix could only partly determine (topic names computed at runtime, plugins, or no statically known node name): checks that need every endpoint of a topic stay silent there", l.endpoints_incomplete_nodes));
             }
@@ -234,13 +259,18 @@ fn describe(a: &Analysis, l: &Limits, distro: Option<&str>, s: &mut AgentStatus)
                 s.next.push(format!("{} endpoint(s) have a QoS not known statically (variables, system defaults without a Fast DDS profile); `rosfix check-bag` can compare with a recording", l.qos_unknown));
             }
         }
-        "executor" => s.checked.push(n(ix.code.len(), "C++/Python source files with ROS code")),
+        "executor" => s
+            .checked
+            .push(n(ix.code.len(), "C++/Python source files with ROS code")),
         "control" | "tf" => s.checked.push(n(ix.robots.len(), "robot descriptions")),
-        "launch" | "lifecycle" | "simtime" | "network" => s.checked.push(n(a.graph.roots.len(), "launch graphs")),
+        "launch" | "lifecycle" | "simtime" | "network" => {
+            s.checked.push(n(a.graph.roots.len(), "launch graphs"))
+        }
         "packaging" => s.checked.push(n(ix.packages.len(), "packages")),
         _ => {}
     }
-    if matches!(s.id, "launch" | "topics" | "simtime" | "lifecycle" | "tf") && l.partial_graphs > 0 {
+    if matches!(s.id, "launch" | "topics" | "simtime" | "lifecycle" | "tf") && l.partial_graphs > 0
+    {
         s.next.push(format!("{} launch graph(s) have dynamic parts (OpaqueFunction, unresolved includes or namespaces): checks that need the whole graph are off there; `rosfix graph` shows which", l.partial_graphs));
     }
     if matches!(s.id, "params" | "topics" | "qos" | "nav2") {
@@ -273,12 +303,24 @@ fn describe(a: &Analysis, l: &Limits, distro: Option<&str>, s: &mut AgentStatus)
             let wants: Vec<String> = crate::agents::all_agents()
                 .into_iter()
                 .find(|g| g.id() == s.id)
-                .map(|g| g.inputs().iter().map(|k| kind_name(*k).to_string()).collect())
+                .map(|g| {
+                    g.inputs()
+                        .iter()
+                        .map(|k| kind_name(*k).to_string())
+                        .collect()
+                })
                 .unwrap_or_default();
             if !wants.is_empty() && wants.len() < 6 {
-                s.next.insert(0, format!("idle: nothing to check; it starts when the workspace has {}", wants.join(", ")));
+                s.next.insert(
+                    0,
+                    format!(
+                        "idle: nothing to check; it starts when the workspace has {}",
+                        wants.join(", ")
+                    ),
+                );
             } else {
-                s.next.insert(0, "idle: nothing in this workspace for it to check".into());
+                s.next
+                    .insert(0, "idle: nothing in this workspace for it to check".into());
             }
         }
         State::NotSelected => s.next.insert(0, "not selected with --agents".into()),
@@ -296,7 +338,9 @@ pub fn text(st: &Status) -> String {
     let _ = writeln!(
         s,
         "ROS distribution: {}; installed prefixes read: {}\n",
-        st.distro.as_deref().unwrap_or("not set (knowledge packs off)"),
+        st.distro
+            .as_deref()
+            .unwrap_or("not set (knowledge packs off)"),
         st.installed_prefixes
     );
     for a in &st.agents {
@@ -319,7 +363,11 @@ pub fn text(st: &Status) -> String {
                 let _ = writeln!(s, "  findings:  none");
             }
         } else {
-            let v: Vec<String> = a.findings.iter().map(|(r, n)| format!("{r} ×{n}")).collect();
+            let v: Vec<String> = a
+                .findings
+                .iter()
+                .map(|(r, n)| format!("{r} ×{n}"))
+                .collect();
             let _ = writeln!(
                 s,
                 "  findings:  {} ({} error, {} warning, {} info)",

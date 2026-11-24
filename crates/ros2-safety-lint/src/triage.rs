@@ -126,22 +126,36 @@ const PATTERNS: &[Pattern] = &[
 ];
 
 fn compiled() -> &'static [(regex::Regex, &'static Pattern)] {
-    static RE: std::sync::OnceLock<Vec<(regex::Regex, &'static Pattern)>> = std::sync::OnceLock::new();
-    RE.get_or_init(|| PATTERNS.iter().map(|p| (regex::Regex::new(p.re).expect("valid pattern"), p)).collect())
+    static RE: std::sync::OnceLock<Vec<(regex::Regex, &'static Pattern)>> =
+        std::sync::OnceLock::new();
+    RE.get_or_init(|| {
+        PATTERNS
+            .iter()
+            .map(|p| (regex::Regex::new(p.re).expect("valid pattern"), p))
+            .collect()
+    })
 }
 
 /// The findings of `a` that explain an error about `subject`: findings of the pattern's rules
 /// whose message mentions the subject (or its last path segment, for node and topic names).
 fn related(a: &Analysis, rules: &[&str], subject: &str) -> Vec<Finding> {
     let leaf = subject.rsplit('/').next().unwrap_or(subject);
-    let mentions = |m: &str| m.contains(&format!("`{subject}`")) || m.contains(subject) || (!leaf.is_empty() && m.contains(&format!("`{leaf}`")));
+    let mentions = |m: &str| {
+        m.contains(&format!("`{subject}`"))
+            || m.contains(subject)
+            || (!leaf.is_empty() && m.contains(&format!("`{leaf}`")))
+    };
     a.diagnostics
         .iter()
         .filter(|d| rules.contains(&d.rule) && mentions(&d.message))
         .map(|d| {
             let f = a.index.file(d.loc.file);
             let (l, c) = f.line_col(d.loc.start);
-            Finding { rule: d.rule, location: format!("{}:{l}:{c}", f.rel_path), message: d.message.clone() }
+            Finding {
+                rule: d.rule,
+                location: format!("{}:{l}:{c}", f.rel_path),
+                message: d.message.clone(),
+            }
         })
         .collect()
 }
@@ -152,7 +166,14 @@ pub fn run(log: &str, analysis: &Analysis) -> Vec<Explained> {
     for (i, line) in log.lines().enumerate() {
         for (re, p) in compiled() {
             let Some(c) = re.captures(line) else { continue };
-            let subject = c.get(1).map(|m| m.as_str().trim_matches(|ch| ch == '\'' || ch == '"').to_string()).unwrap_or_default();
+            let subject = c
+                .get(1)
+                .map(|m| {
+                    m.as_str()
+                        .trim_matches(|ch| ch == '\'' || ch == '"')
+                        .to_string()
+                })
+                .unwrap_or_default();
             out.push(Explained {
                 line: i + 1,
                 log: line.trim().chars().take(300).collect(),
@@ -172,7 +193,11 @@ pub fn render(items: &[Explained]) -> String {
     use std::fmt::Write;
     let mut s = String::new();
     for e in items {
-        let _ = writeln!(s, "log line {}: {}\n  → {} (`{}`)", e.line, e.log, e.problem, e.subject);
+        let _ = writeln!(
+            s,
+            "log line {}: {}\n  → {} (`{}`)",
+            e.line, e.log, e.problem, e.subject
+        );
         if e.findings.is_empty() {
             let _ = writeln!(s, "  no static finding explains it; {}", e.hint);
         }
@@ -182,7 +207,11 @@ pub fn render(items: &[Explained]) -> String {
         s.push('\n');
     }
     let explained = items.iter().filter(|e| !e.findings.is_empty()).count();
-    let _ = writeln!(s, "{} error line(s) recognised, {explained} explained by a finding", items.len());
+    let _ = writeln!(
+        s,
+        "{} error line(s) recognised, {explained} explained by a finding",
+        items.len()
+    );
     s
 }
 
@@ -200,10 +229,23 @@ mod tests {
             std::fs::create_dir_all(p.parent().unwrap()).unwrap();
             std::fs::write(p, t).unwrap();
         };
-        w("p/package.xml", "<package format=\"3\"><name>p</name></package>");
-        w("p/config/nav2.yaml", "amcl:\n  ros__parameters:\n    robot_model_type: \"differential\"\n");
+        w(
+            "p/package.xml",
+            "<package format=\"3\"><name>p</name></package>",
+        );
+        w(
+            "p/config/nav2.yaml",
+            "amcl:\n  ros__parameters:\n    robot_model_type: \"differential\"\n",
+        );
         w("p/launch/a.launch.py", "from launch import LaunchDescription\nfrom launch.substitutions import LaunchConfiguration\nfrom launch_ros.actions import Node\ndef generate_launch_description():\n    return LaunchDescription([Node(package='p', executable='x', parameters=[{'use_sim_time': LaunchConfiguration('use_sim_tme')}])])\n");
-        let a = analyze(dir.path(), &Config::default(), &Options { distro: Some("jazzy".into()), ..Default::default() });
+        let a = analyze(
+            dir.path(),
+            &Config::default(),
+            &Options {
+                distro: Some("jazzy".into()),
+                ..Default::default()
+            },
+        );
         let log = "[INFO] [launch]: All log files can be found below /root/.ros/log\n\
 [ERROR] [launch]: Caught exception in launch (see debug for traceback): launch configuration 'use_sim_tme' does not exist\n\
 [amcl-1] [FATAL] [amcl]: Failed to create motion model: class differential with base class type nav2_amcl::MotionModel does not exist. Declared types are nav2_amcl::DifferentialMotionModel\n\
@@ -211,8 +253,15 @@ mod tests {
 [ERROR] [something]: unrelated message\n";
         let r = run(log, &a);
         assert_eq!(r.len(), 3, "{r:#?}");
-        assert!(r[0].problem.contains("launch argument") && r[0].findings.iter().any(|f| f.rule == "A001"), "{r:#?}");
-        assert!(r[1].subject == "differential" && r[1].findings.iter().any(|f| f.rule == "N008"), "{r:#?}");
+        assert!(
+            r[0].problem.contains("launch argument")
+                && r[0].findings.iter().any(|f| f.rule == "A001"),
+            "{r:#?}"
+        );
+        assert!(
+            r[1].subject == "differential" && r[1].findings.iter().any(|f| f.rule == "N008"),
+            "{r:#?}"
+        );
         assert_eq!(r[2].subject, "amcl");
         let text = render(&r);
         assert!(text.contains("3 error line(s) recognised"), "{text}");

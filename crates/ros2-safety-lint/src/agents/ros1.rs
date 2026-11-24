@@ -25,13 +25,27 @@ use crate::workspace::FileKind;
 pub struct Ros1Agent;
 
 /// Python modules that exist only in ROS 1.
-const ROS1_PY: &[&str] = &["rospy", "roslib", "rosbag", "tf", "actionlib", "dynamic_reconfigure", "rosgraph", "rostest", "roslaunch"];
+const ROS1_PY: &[&str] = &[
+    "rospy",
+    "roslib",
+    "rosbag",
+    "tf",
+    "actionlib",
+    "dynamic_reconfigure",
+    "rosgraph",
+    "rostest",
+    "roslaunch",
+];
 
-const MIGRATE_LAUNCH: &str = "https://docs.ros.org/en/jazzy/How-To-Guides/Migrating-from-ROS1/Migrating-Launch-Files.html";
+const MIGRATE_LAUNCH: &str =
+    "https://docs.ros.org/en/jazzy/How-To-Guides/Migrating-from-ROS1/Migrating-Launch-Files.html";
 
 /// The first ROS 1 module a Python file imports: (module, byte offset of the import line).
 pub fn ros1_python_import(text: &str) -> Option<(&'static str, usize)> {
-    if text.contains("rclpy") || text.contains("except ImportError") || text.contains("except ModuleNotFoundError") {
+    if text.contains("rclpy")
+        || text.contains("except ImportError")
+        || text.contains("except ModuleNotFoundError")
+    {
         return None;
     }
     let mut offset = 0;
@@ -39,7 +53,10 @@ pub fn ros1_python_import(text: &str) -> Option<(&'static str, usize)> {
         let t = line.trim();
         let module = t
             .strip_prefix("import ")
-            .or_else(|| t.strip_prefix("from ").and_then(|r| r.split_once(" import").map(|(m, _)| m)))
+            .or_else(|| {
+                t.strip_prefix("from ")
+                    .and_then(|r| r.split_once(" import").map(|(m, _)| m))
+            })
             .map(|m| m.split([',', ' ', '.']).next().unwrap_or(""));
         if let Some(m) = module {
             if let Some(hit) = ROS1_PY.iter().find(|r| **r == m) {
@@ -56,7 +73,10 @@ pub fn ros1_cpp_include(text: &str) -> Option<usize> {
     if text.contains("rclcpp") {
         return None;
     }
-    ["#include <ros/ros.h>", "#include \"ros/ros.h\""].iter().filter_map(|p| text.find(p)).min()
+    ["#include <ros/ros.h>", "#include \"ros/ros.h\""]
+        .iter()
+        .filter_map(|p| text.find(p))
+        .min()
 }
 
 fn is_ros1_package(p: &Package) -> bool {
@@ -67,7 +87,16 @@ fn is_ros1_package(p: &Package) -> bool {
 fn foreign_path(rel: &str) -> bool {
     rel.split('/').any(|c| {
         c.starts_with('.') && c.len() > 1
-            || matches!(c.to_ascii_lowercase().as_str(), "third_party" | "third-party" | "thirdparty" | "3rdparty" | "vendor" | "external" | "extern")
+            || matches!(
+                c.to_ascii_lowercase().as_str(),
+                "third_party"
+                    | "third-party"
+                    | "thirdparty"
+                    | "3rdparty"
+                    | "vendor"
+                    | "external"
+                    | "extern"
+            )
     })
 }
 
@@ -84,11 +113,20 @@ impl Agent for Ros1Agent {
     fn relevant(&self, cx: &Context) -> bool {
         cx.ix.kinds.contains(&FileKind::Ros1)
             || cx.ix.packages.iter().any(is_ros1_package)
-            || cx.ix.kinds.iter().enumerate().any(|(i, k)| *k == FileKind::LaunchXml && cx.ix.file(i).text.contains(" type="))
+            || cx
+                .ix
+                .kinds
+                .iter()
+                .enumerate()
+                .any(|(i, k)| *k == FileKind::LaunchXml && cx.ix.file(i).text.contains(" type="))
     }
     fn run(&self, cx: &Context, out: &mut Vec<Diagnostic>) {
         // A ROS 2-only package: not catkin, and not declaring ROS 1 support (REP 149).
-        let ros2_pkg = |f: FileId| cx.ix.package_of(f).is_some_and(|p| !is_ros1_package(p) && !p.ros1_support);
+        let ros2_pkg = |f: FileId| {
+            cx.ix
+                .package_of(f)
+                .is_some_and(|p| !is_ros1_package(p) && !p.ros1_support)
+        };
         for f in 0..cx.ix.kinds.len() {
             if cx.ix.external_files.contains(&f) || !ros2_pkg(f) {
                 continue;
@@ -108,13 +146,17 @@ impl Agent for Ros1Agent {
                 }
                 FileKind::Ros1 => {
                     if let Some((m, at)) = ros1_python_import(&file.text) {
-                        let end = file.text[at..].find('\n').map_or(file.text.len(), |e| at + e);
+                        let end = file.text[at..]
+                            .find('\n')
+                            .map_or(file.text.len(), |e| at + e);
                         out.push(
                             Diagnostic::new("O002", Loc::new(f, at, end), format!("this module imports `{m}`, which ROS 2 does not have; running it fails with ModuleNotFoundError"))
                                 .help("Port it to rclpy (and tf2_ros, rosbag2_py, rclpy.action), or delete it."),
                         );
                     } else if let Some(at) = ros1_cpp_include(&file.text) {
-                        let end = file.text[at..].find('\n').map_or(file.text.len(), |e| at + e);
+                        let end = file.text[at..]
+                            .find('\n')
+                            .map_or(file.text.len(), |e| at + e);
                         out.push(
                             Diagnostic::new("O002", Loc::new(f, at, end), "this file includes `ros/ros.h`, which ROS 2 does not have; it cannot compile in a ROS 2 package")
                                 .help("Port it to rclcpp, or delete it."),
@@ -128,11 +170,18 @@ impl Agent for Ros1Agent {
         if cx.ix.packages.iter().any(|p| !is_ros1_package(p)) {
             for p in cx.ix.packages.iter().filter(|p| is_ros1_package(p)) {
                 // colcon does not look for packages inside another package's directory.
-                let nested = cx.ix.packages.iter().any(|o| o.dir != p.dir && (o.dir.is_empty() || p.dir.starts_with(&format!("{}/", o.dir))));
+                let nested = cx.ix.packages.iter().any(|o| {
+                    o.dir != p.dir
+                        && (o.dir.is_empty() || p.dir.starts_with(&format!("{}/", o.dir)))
+                });
                 if cx.ix.external_files.contains(&p.manifest) || nested || foreign_path(&p.dir) {
                     continue;
                 }
-                let loc = p.deps.iter().find(|d| d.name == "catkin").map_or(p.manifest_name_loc, |d| d.loc);
+                let loc = p
+                    .deps
+                    .iter()
+                    .find(|d| d.name == "catkin")
+                    .map_or(p.manifest_name_loc, |d| d.loc);
                 out.push(
                     Diagnostic::new("O003", loc, format!("package `{}` is a catkin (ROS 1) package; colcon builds it with catkin, which fails where only ROS 2 is installed", p.name))
                         .help("Port it to ament_cmake or ament_python, or put an empty COLCON_IGNORE file in its directory."),
@@ -152,7 +201,9 @@ fn ros1_launch_construct(f: FileId, text: &str) -> Option<(&'static str, Loc)> {
     let loc = |n: roxmltree::Node| Loc::new(f, n.range().start, n.range().end);
     for n in root.descendants().filter(|n| n.is_element()) {
         match n.tag_name().name() {
-            "node" if n.attribute("type").is_some() && n.attribute("exec").is_none() => return Some(("`<node type=…>`", loc(n))),
+            "node" if n.attribute("type").is_some() && n.attribute("exec").is_none() => {
+                return Some(("`<node type=…>`", loc(n)))
+            }
             "rosparam" => return Some(("`<rosparam>`", loc(n))),
             _ => {}
         }
@@ -172,11 +223,26 @@ mod tests {
 
     #[test]
     fn python_detection() {
-        assert_eq!(ros1_python_import("#!/usr/bin/env python\nimport rospy\n").map(|x| x.0), Some("rospy"));
-        assert_eq!(ros1_python_import("from tf.transformations import euler_from_quaternion\n").map(|x| x.0), Some("tf"));
-        assert_eq!(ros1_python_import("import tensorflow as tf\nimport rosbag2_py\nfrom rosgraph_msgs.msg import Clock\n"), None);
+        assert_eq!(
+            ros1_python_import("#!/usr/bin/env python\nimport rospy\n").map(|x| x.0),
+            Some("rospy")
+        );
+        assert_eq!(
+            ros1_python_import("from tf.transformations import euler_from_quaternion\n")
+                .map(|x| x.0),
+            Some("tf")
+        );
+        assert_eq!(
+            ros1_python_import(
+                "import tensorflow as tf\nimport rosbag2_py\nfrom rosgraph_msgs.msg import Clock\n"
+            ),
+            None
+        );
         assert_eq!(ros1_python_import("import rclpy\nimport rospy\n"), None);
-        assert_eq!(ros1_python_import("try:\n    import rospy\nexcept ImportError:\n    pass\n"), None);
+        assert_eq!(
+            ros1_python_import("try:\n    import rospy\nexcept ImportError:\n    pass\n"),
+            None
+        );
     }
 
     #[test]
@@ -190,13 +256,23 @@ mod tests {
             ("legacy/package.xml", "<package format=\"2\"><name>legacy</name><buildtool_depend>catkin</buildtool_depend></package>"),
             ("legacy/launch/a.launch", "<launch><node pkg=\"legacy\" type=\"x\" name=\"x\"/></launch>"),
         ]);
-        let o: Vec<(&str, &str)> = d.iter().filter(|x| x.rule.starts_with('O')).map(|x| (x.rule, x.message.as_str())).collect();
+        let o: Vec<(&str, &str)> = d
+            .iter()
+            .filter(|x| x.rule.starts_with('O'))
+            .map(|x| (x.rule, x.message.as_str()))
+            .collect();
         assert_eq!(o.len(), 4, "{o:#?}");
-        assert!(o.iter().any(|(r, m)| *r == "O001" && m.contains("old.launch")));
+        assert!(o
+            .iter()
+            .any(|(r, m)| *r == "O001" && m.contains("old.launch")));
         assert!(o.iter().any(|(r, m)| *r == "O002" && m.contains("`rospy`")));
-        assert!(o.iter().any(|(r, m)| *r == "O002" && m.contains("ros/ros.h")));
+        assert!(o
+            .iter()
+            .any(|(r, m)| *r == "O002" && m.contains("ros/ros.h")));
         // The catkin package itself is reported once, its own launch file is not.
-        assert!(o.iter().any(|(r, m)| *r == "O003" && m.contains("`legacy`")));
+        assert!(o
+            .iter()
+            .any(|(r, m)| *r == "O003" && m.contains("`legacy`")));
     }
 
     #[test]
@@ -213,7 +289,11 @@ mod tests {
             // A catkin package vendored inside another package: colcon never sees it.
             ("p/ros1/roscpp/package.xml", "<package format=\"2\"><name>roscpp</name><buildtool_depend>catkin</buildtool_depend></package>"),
         ]);
-        let o: Vec<(&str, &str)> = d.iter().filter(|x| x.rule.starts_with('O')).map(|x| (x.rule, x.message.as_str())).collect();
+        let o: Vec<(&str, &str)> = d
+            .iter()
+            .filter(|x| x.rule.starts_with('O'))
+            .map(|x| (x.rule, x.message.as_str()))
+            .collect();
         assert!(o.is_empty(), "{o:#?}");
     }
 

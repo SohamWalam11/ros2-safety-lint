@@ -15,7 +15,10 @@ const MERMAID: &str = "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.
 const GRAPH_LIMIT: usize = 150;
 
 fn esc(s: &str) -> String {
-    s.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('"', "&quot;")
+    s.replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
 }
 
 const STYLE: &str = r#"
@@ -55,9 +58,22 @@ pre.mermaid { background: var(--panel); border: 1px solid var(--line); border-ra
 /// The report page.
 pub fn page(a: &Analysis, st: &Status) -> String {
     let mut h = String::new();
-    let root = a.index.root.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| a.index.root.display().to_string());
+    let root = a
+        .index
+        .root
+        .file_name()
+        .map(|n| n.to_string_lossy().into_owned())
+        .unwrap_or_else(|| a.index.root.display().to_string());
     let count = |s: Severity| a.diagnostics.iter().filter(|d| d.severity == s).count();
-    let fixable = a.diagnostics.iter().filter(|d| d.fix.as_ref().is_some_and(|f| f.safety == crate::diag::FixSafety::Safe)).count();
+    let fixable = a
+        .diagnostics
+        .iter()
+        .filter(|d| {
+            d.fix
+                .as_ref()
+                .is_some_and(|f| f.safety == crate::diag::FixSafety::Safe)
+        })
+        .count();
     let _ = write!(
         h,
         "<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<title>rosfix report: {}</title><style>{STYLE}</style></head><body><main>\n",
@@ -83,7 +99,10 @@ pub fn page(a: &Analysis, st: &Status) -> String {
     ];
     h.push_str("<div class=\"cards\">");
     for (n, label, class) in cards {
-        let _ = write!(h, "<div class=\"card\"><b class=\"{class}\">{n}</b><span>{label}</span></div>");
+        let _ = write!(
+            h,
+            "<div class=\"card\"><b class=\"{class}\">{n}</b><span>{label}</span></div>"
+        );
     }
     h.push_str("</div>\n");
 
@@ -94,7 +113,10 @@ pub fn page(a: &Analysis, st: &Status) -> String {
     }
     let mut by_file: BTreeMap<&str, Vec<&crate::diag::Diagnostic>> = BTreeMap::new();
     for d in &a.diagnostics {
-        by_file.entry(a.index.file(d.loc.file).rel_path.as_str()).or_default().push(d);
+        by_file
+            .entry(a.index.file(d.loc.file).rel_path.as_str())
+            .or_default()
+            .push(d);
     }
     for (file, mut ds) in by_file {
         ds.sort_by_key(|d| d.loc.start);
@@ -130,8 +152,16 @@ pub fn page(a: &Analysis, st: &Status) -> String {
             State::Idle => "idle",
             State::NotSelected => "not selected",
         };
-        let class = if matches!(ag.state, State::Idle | State::NotSelected) { " class=\"idle\"" } else { "" };
-        let findings: Vec<String> = ag.findings.iter().map(|(r, n)| format!("{r}&times;{n}")).collect();
+        let class = if matches!(ag.state, State::Idle | State::NotSelected) {
+            " class=\"idle\""
+        } else {
+            ""
+        };
+        let findings: Vec<String> = ag
+            .findings
+            .iter()
+            .map(|(r, n)| format!("{r}&times;{n}"))
+            .collect();
         let _ = write!(
             h,
             "<tr{class}><td><b>{}</b><div class=\"help\">{}</div></td><td>{state}</td><td class=\"mono\">{}</td><td>{}</td><td>",
@@ -176,6 +206,9 @@ pub fn page(a: &Analysis, st: &Status) -> String {
 mod tests {
     #[test]
     fn escapes_markup() {
-        assert_eq!(super::esc("<a href=\"x\">&</a>"), "&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;");
+        assert_eq!(
+            super::esc("<a href=\"x\">&</a>"),
+            "&lt;a href=&quot;x&quot;&gt;&amp;&lt;/a&gt;"
+        );
     }
 }

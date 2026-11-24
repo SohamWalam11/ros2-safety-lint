@@ -49,7 +49,12 @@ impl Agent for MoveItAgent {
         "MoveIt configuration (SRDF, kinematics, joint limits, controllers)"
     }
     fn inputs(&self) -> &'static [FileKind] {
-        &[FileKind::MoveIt, FileKind::Urdf, FileKind::ParamYaml, FileKind::Manifest]
+        &[
+            FileKind::MoveIt,
+            FileKind::Urdf,
+            FileKind::ParamYaml,
+            FileKind::Manifest,
+        ]
     }
     fn relevant(&self, cx: &Context) -> bool {
         cx.ix.kinds.contains(&FileKind::MoveIt)
@@ -70,7 +75,12 @@ impl Agent for MoveItAgent {
             .filter(|p| p.deps.iter().any(|d| d.name.starts_with("moveit")))
             .map(|p| p.dir.clone())
             .collect();
-        moveit_dirs.extend(files.iter().filter(|f| !cx.ix.file(**f).rel_path.contains(".srdf")).map(|f| package_dir(cx, *f)));
+        moveit_dirs.extend(
+            files
+                .iter()
+                .filter(|f| !cx.ix.file(**f).rel_path.contains(".srdf"))
+                .map(|f| package_dir(cx, *f)),
+        );
         // SRDF facts per package directory.
         let mut groups: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
         for &f in &files {
@@ -78,14 +88,22 @@ impl Agent for MoveItAgent {
             if !file.rel_path.contains(".srdf") {
                 continue;
             }
-            if file.rel_path.ends_with(".xacro") && (file.text.contains("xacro:") || file.text.contains("${")) {
+            if file.rel_path.ends_with(".xacro")
+                && (file.text.contains("xacro:") || file.text.contains("${"))
+            {
                 continue;
             }
-            let Ok(doc) = roxmltree::Document::parse(&file.text) else { continue };
+            let Ok(doc) = roxmltree::Document::parse(&file.text) else {
+                continue;
+            };
             let dir = package_dir(cx, f);
             let is_moveit = moveit_dirs.contains(&dir);
             let g = groups.entry(dir).or_default();
-            for n in doc.root_element().children().filter(|n| n.has_tag_name("group")) {
+            for n in doc
+                .root_element()
+                .children()
+                .filter(|n| n.has_tag_name("group"))
+            {
                 if let Some(name) = n.attribute("name") {
                     g.insert(name.to_string());
                 }
@@ -106,7 +124,9 @@ impl Agent for MoveItAgent {
         for &f in &files {
             let file = cx.ix.file(f);
             let name = file.rel_path.rsplit('/').next().unwrap_or("");
-            let Ok(docs) = yaml::parse(&file.text) else { continue };
+            let Ok(docs) = yaml::parse(&file.text) else {
+                continue;
+            };
             let Some(doc) = docs.first() else { continue };
             match name {
                 "kinematics.yaml" => {
@@ -132,8 +152,18 @@ fn robot_names(cx: &Context) -> Option<(HashSet<String>, HashSet<String>)> {
     if cx.ix.robots.is_empty() || cx.ix.robots.iter().any(|r| r.partial) {
         return None;
     }
-    let joints = cx.ix.robots.iter().flat_map(|r| r.joints.iter().map(|j| j.name.clone())).collect();
-    let links = cx.ix.robots.iter().flat_map(|r| r.links.iter().cloned()).collect();
+    let joints = cx
+        .ix
+        .robots
+        .iter()
+        .flat_map(|r| r.joints.iter().map(|j| j.name.clone()))
+        .collect();
+    let links = cx
+        .ix
+        .robots
+        .iter()
+        .flat_map(|r| r.links.iter().cloned())
+        .collect();
     Some((joints, links))
 }
 
@@ -144,18 +174,28 @@ fn templated(name: &str) -> bool {
 
 /// The directory of the package a file belongs to (its MoveIt configuration package).
 fn package_dir(cx: &Context, f: FileId) -> String {
-    cx.ix.package_of(f).map(|p| p.dir.clone()).unwrap_or_default()
+    cx.ix
+        .package_of(f)
+        .map(|p| p.dir.clone())
+        .unwrap_or_default()
 }
 
 fn attr_loc(f: FileId, n: &roxmltree::Node, attr: &str) -> Loc {
-    n.attribute_node(attr).map_or(Loc::new(f, n.range().start, n.range().end), |a| {
-        let r = a.range_value();
-        Loc::new(f, r.start, r.end)
-    })
+    n.attribute_node(attr)
+        .map_or(Loc::new(f, n.range().start, n.range().end), |a| {
+            let r = a.range_value();
+            Loc::new(f, r.start, r.end)
+        })
 }
 
 /// V004: names in the SRDF that the robot description does not have.
-fn srdf_names(f: FileId, doc: &roxmltree::Document, joints: &HashSet<String>, links: &HashSet<String>, out: &mut Vec<Diagnostic>) {
+fn srdf_names(
+    f: FileId,
+    doc: &roxmltree::Document,
+    joints: &HashSet<String>,
+    links: &HashSet<String>,
+    out: &mut Vec<Diagnostic>,
+) {
     let mut check = |n: &roxmltree::Node, attr: &str, is_joint: bool, what: &str| {
         let Some(v) = n.attribute(attr) else { return };
         let known = if is_joint { joints } else { links };
@@ -174,19 +214,42 @@ fn srdf_names(f: FileId, doc: &roxmltree::Document, joints: &HashSet<String>, li
         out.push(d);
     };
     for n in doc.root_element().descendants() {
-        let group = n.ancestors().find(|a| a.has_tag_name("group")).and_then(|g| g.attribute("name")).unwrap_or("");
+        let group = n
+            .ancestors()
+            .find(|a| a.has_tag_name("group"))
+            .and_then(|g| g.attribute("name"))
+            .unwrap_or("");
         match n.tag_name().name() {
-            "joint" if n.parent().is_some_and(|p| p.has_tag_name("group")) => check(&n, "name", true, &format!("group `{group}`")),
-            "link" if n.parent().is_some_and(|p| p.has_tag_name("group")) => check(&n, "name", false, &format!("group `{group}`")),
+            "joint" if n.parent().is_some_and(|p| p.has_tag_name("group")) => {
+                check(&n, "name", true, &format!("group `{group}`"))
+            }
+            "link" if n.parent().is_some_and(|p| p.has_tag_name("group")) => {
+                check(&n, "name", false, &format!("group `{group}`"))
+            }
             "chain" => {
-                check(&n, "base_link", false, &format!("the chain of group `{group}`"));
-                check(&n, "tip_link", false, &format!("the chain of group `{group}`"));
+                check(
+                    &n,
+                    "base_link",
+                    false,
+                    &format!("the chain of group `{group}`"),
+                );
+                check(
+                    &n,
+                    "tip_link",
+                    false,
+                    &format!("the chain of group `{group}`"),
+                );
             }
             "disable_collisions" => {
                 check(&n, "link1", false, "a disabled collision pair");
                 check(&n, "link2", false, "a disabled collision pair");
             }
-            "end_effector" => check(&n, "parent_link", false, &format!("end effector `{}`", n.attribute("name").unwrap_or(""))),
+            "end_effector" => check(
+                &n,
+                "parent_link",
+                false,
+                &format!("end effector `{}`", n.attribute("name").unwrap_or("")),
+            ),
             "passive_joint" => check(&n, "name", true, "a passive joint"),
             _ => {}
         }
@@ -199,7 +262,11 @@ fn kinematics_groups(f: FileId, doc: &YNode, groups: &BTreeSet<String>, out: &mu
     let root = doc.get("robot_description_kinematics").unwrap_or(doc);
     for (k, v) in root.entries() {
         let Some(name) = k.as_str() else { continue };
-        if !v.is_map() || v.get("kinematics_solver").is_none() || groups.contains(name) || templated(name) {
+        if !v.is_map()
+            || v.get("kinematics_solver").is_none()
+            || groups.contains(name)
+            || templated(name)
+        {
             continue;
         }
         let mut d = Diagnostic::new(
@@ -208,7 +275,15 @@ fn kinematics_groups(f: FileId, doc: &YNode, groups: &BTreeSet<String>, out: &mu
             format!("`{name}` is not a planning group of the SRDF, so MoveIt never loads this kinematics solver (\"No kinematics plugins defined\")"),
         );
         match closest(name, groups.iter().map(String::as_str)) {
-            Some(c) => d = d.help(format!("Did you mean `{c}`?")).safe_fix(format!("Rename the group to `{c}`"), f, k.start(), k.end(), c),
+            Some(c) => {
+                d = d.help(format!("Did you mean `{c}`?")).safe_fix(
+                    format!("Rename the group to `{c}`"),
+                    f,
+                    k.start(),
+                    k.end(),
+                    c,
+                )
+            }
             None => {
                 let all: Vec<&str> = groups.iter().map(String::as_str).collect();
                 d = d.help(format!("SRDF groups: {}", all.join(", ")));
@@ -219,8 +294,15 @@ fn kinematics_groups(f: FileId, doc: &YNode, groups: &BTreeSet<String>, out: &mu
 }
 
 /// V002 and V003: joint_limits.yaml entries.
-fn joint_limits(f: FileId, doc: &YNode, joints: Option<&HashSet<String>>, out: &mut Vec<Diagnostic>) {
-    let Some(limits) = doc.get("joint_limits") else { return };
+fn joint_limits(
+    f: FileId,
+    doc: &YNode,
+    joints: Option<&HashSet<String>>,
+    out: &mut Vec<Diagnostic>,
+) {
+    let Some(limits) = doc.get("joint_limits") else {
+        return;
+    };
     for (k, v) in limits.entries() {
         let Some(joint) = k.as_str() else { continue };
         if let Some(j) = joints {
@@ -237,9 +319,26 @@ fn joint_limits(f: FileId, doc: &YNode, joints: Option<&HashSet<String>>, out: &
             }
         }
         for (lk, lv) in v.entries() {
-            let (Some(field), YNode::Scalar { value, quoted: false, start, end }) = (lk.as_str(), lv) else { continue };
-            let Some((_, flag)) = LIMIT_DOUBLES.iter().find(|(n, _)| *n == field) else { continue };
-            let read = flag.is_none_or(|fl| v.get(fl).and_then(YNode::as_str).is_some_and(|b| b.eq_ignore_ascii_case("true")));
+            let (
+                Some(field),
+                YNode::Scalar {
+                    value,
+                    quoted: false,
+                    start,
+                    end,
+                },
+            ) = (lk.as_str(), lv)
+            else {
+                continue;
+            };
+            let Some((_, flag)) = LIMIT_DOUBLES.iter().find(|(n, _)| *n == field) else {
+                continue;
+            };
+            let read = flag.is_none_or(|fl| {
+                v.get(fl)
+                    .and_then(YNode::as_str)
+                    .is_some_and(|b| b.eq_ignore_ascii_case("true"))
+            });
             if read && value.parse::<i64>().is_ok() {
                 out.push(
                     Diagnostic::new(
@@ -261,7 +360,12 @@ fn ros2_control_controllers(cx: &Context) -> HashSet<String> {
     for pf in cx.ix.param_files.values() {
         for s in &pf.sections {
             // Robots may run several managers (`manipulator_controller_manager`, …).
-            if !s.node_key.rsplit('/').next().is_some_and(|n| n.ends_with("controller_manager")) {
+            if !s
+                .node_key
+                .rsplit('/')
+                .next()
+                .is_some_and(|n| n.ends_with("controller_manager"))
+            {
                 continue;
             }
             for e in &s.params {
@@ -275,9 +379,18 @@ fn ros2_control_controllers(cx: &Context) -> HashSet<String> {
 }
 
 /// V005: moveit_controllers.yaml controllers that ros2_control does not define.
-fn moveit_controllers(f: FileId, doc: &YNode, defined: &HashSet<String>, out: &mut Vec<Diagnostic>) {
-    let Some(mgr) = doc.get("moveit_simple_controller_manager") else { return };
-    let Some(names) = mgr.get("controller_names") else { return };
+fn moveit_controllers(
+    f: FileId,
+    doc: &YNode,
+    defined: &HashSet<String>,
+    out: &mut Vec<Diagnostic>,
+) {
+    let Some(mgr) = doc.get("moveit_simple_controller_manager") else {
+        return;
+    };
+    let Some(names) = mgr.get("controller_names") else {
+        return;
+    };
     for n in names.items() {
         let Some(name) = n.as_str() else { continue };
         if defined.contains(name) || templated(name) {
@@ -311,14 +424,23 @@ mod tests {
 
     fn cfg(kin: &str, limits: &str, ctrls: &str) -> Vec<crate::diag::Diagnostic> {
         analyze_files(&[
-            ("arm_description/package.xml", "<package format=\"3\"><name>arm_description</name></package>"),
+            (
+                "arm_description/package.xml",
+                "<package format=\"3\"><name>arm_description</name></package>",
+            ),
             URDF,
-            ("arm_moveit_config/package.xml", "<package format=\"3\"><name>arm_moveit_config</name></package>"),
+            (
+                "arm_moveit_config/package.xml",
+                "<package format=\"3\"><name>arm_moveit_config</name></package>",
+            ),
             ("arm_moveit_config/config/arm.srdf", SRDF),
             ("arm_moveit_config/config/kinematics.yaml", kin),
             ("arm_moveit_config/config/joint_limits.yaml", limits),
             ("arm_moveit_config/config/moveit_controllers.yaml", ctrls),
-            ("arm_bringup/package.xml", "<package format=\"3\"><name>arm_bringup</name></package>"),
+            (
+                "arm_bringup/package.xml",
+                "<package format=\"3\"><name>arm_bringup</name></package>",
+            ),
             CTRL,
         ])
     }
@@ -330,7 +452,12 @@ mod tests {
             "joint_limits:\n  joint1:\n    has_velocity_limits: true\n    max_velocity: 2\n  jiont1:\n    max_velocity: 1.0\n",
             "moveit_simple_controller_manager:\n  controller_names:\n    - arm_controler\n",
         );
-        let by = |r: &str| d.iter().filter(|x| x.rule == r).map(|x| x.message.clone()).collect::<Vec<_>>();
+        let by = |r: &str| {
+            d.iter()
+                .filter(|x| x.rule == r)
+                .map(|x| x.message.clone())
+                .collect::<Vec<_>>()
+        };
         assert_eq!(by("V001").len(), 2, "{d:#?}");
         assert_eq!(by("V002").len(), 1, "{d:#?}");
         assert!(by("V002")[0].contains("`jiont1`"));
@@ -338,13 +465,32 @@ mod tests {
         assert!(by("V003")[0].contains("`joint1.max_velocity`"));
         let v004 = by("V004");
         assert_eq!(v004.len(), 2, "{v004:#?}");
-        assert!(v004.iter().any(|m| m.contains("`joint9`")) && v004.iter().any(|m| m.contains("`link_one`")));
-        assert!(by("V005").iter().any(|m| m.contains("`arm_controler`")), "{d:#?}");
+        assert!(
+            v004.iter().any(|m| m.contains("`joint9`"))
+                && v004.iter().any(|m| m.contains("`link_one`"))
+        );
+        assert!(
+            by("V005").iter().any(|m| m.contains("`arm_controler`")),
+            "{d:#?}"
+        );
         // A close typo gets a safe fix; a name close to no group lists the groups instead.
-        let v001 = |n: &str| d.iter().find(|x| x.rule == "V001" && x.message.contains(n)).unwrap();
+        let v001 = |n: &str| {
+            d.iter()
+                .find(|x| x.rule == "V001" && x.message.contains(n))
+                .unwrap()
+        };
         assert!(v001("`manipulater`").fix.is_some());
-        assert!(v001("`hand_group`").fix.is_none() && v001("`hand_group`").help.as_deref().is_some_and(|h| h.contains("gripper, manipulator")));
-        assert!(d.iter().filter(|x| x.rule == "V003").all(|x| x.fix.is_some()));
+        assert!(
+            v001("`hand_group`").fix.is_none()
+                && v001("`hand_group`")
+                    .help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("gripper, manipulator"))
+        );
+        assert!(d
+            .iter()
+            .filter(|x| x.rule == "V003")
+            .all(|x| x.fix.is_some()));
     }
 
     #[test]
@@ -356,7 +502,14 @@ mod tests {
             "joint_limits:\n  joint1:\n    has_velocity_limits: true\n    max_velocity: 2.0\n    has_acceleration_limits: false\n    max_acceleration: 0\n  ${prefix}joint1:\n    max_velocity: 1.0\n",
             "moveit_simple_controller_manager:\n  controller_names:\n    - arm_controller\n",
         );
-        let ours: Vec<_> = d.iter().filter(|x| x.rule.starts_with('V') && !x.message.contains("joint9") && !x.message.contains("link_one")).collect();
+        let ours: Vec<_> = d
+            .iter()
+            .filter(|x| {
+                x.rule.starts_with('V')
+                    && !x.message.contains("joint9")
+                    && !x.message.contains("link_one")
+            })
+            .collect();
         assert!(ours.is_empty(), "{ours:#?}");
     }
 

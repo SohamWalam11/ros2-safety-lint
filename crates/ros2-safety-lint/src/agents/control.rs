@@ -4,9 +4,9 @@ use super::{Agent, Context};
 use crate::catalog::{is_joint_param, CONTROLLERS};
 use crate::diag::Diagnostic;
 use crate::facts::*;
+use crate::resolve::NodeInstance;
 use crate::source::{FileId, Loc};
 use crate::util::closest;
-use crate::resolve::NodeInstance;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 pub struct ControlAgent;
@@ -28,7 +28,20 @@ impl Agent for ControlAgent {
     fn inputs(&self) -> &'static [crate::workspace::FileKind] {
         use crate::workspace::FileKind as K;
         // Robot descriptions, controller configuration, and the launch graph (spawners).
-        &[K::Manifest, K::CMakeLists, K::SetupPy, K::SetupCfg, K::LaunchPy, K::LaunchXml, K::LaunchYaml, K::ParamYaml, K::Cpp, K::Python, K::Other, K::Urdf]
+        &[
+            K::Manifest,
+            K::CMakeLists,
+            K::SetupPy,
+            K::SetupCfg,
+            K::LaunchPy,
+            K::LaunchXml,
+            K::LaunchYaml,
+            K::ParamYaml,
+            K::Cpp,
+            K::Python,
+            K::Other,
+            K::Urdf,
+        ]
     }
     fn relevant(&self, cx: &Context) -> bool {
         cx.ix.robots.iter().any(|r| !r.control.is_empty())
@@ -84,13 +97,20 @@ fn update_rates(pf: &ParamFile, out: &mut Vec<Diagnostic>) {
         .sections
         .iter()
         .filter(|s| leaf(&s.node_key) == "controller_manager")
-        .find_map(|s| s.params.iter().find(|e| e.name == "update_rate").and_then(rate))
+        .find_map(|s| {
+            s.params
+                .iter()
+                .find(|e| e.name == "update_rate")
+                .and_then(rate)
+        })
     else {
         return;
     };
     for c in controllers(pf) {
         let Some(sec) = c.section else { continue };
-        let Some(e) = sec.params.iter().find(|e| e.name == "update_rate") else { continue };
+        let Some(e) = sec.params.iter().find(|e| e.name == "update_rate") else {
+            continue;
+        };
         let Some(r) = rate(e) else { continue };
         if r > cm {
             out.push(Diagnostic::new(
@@ -115,8 +135,12 @@ fn update_rates(pf: &ParamFile, out: &mut Vec<Diagnostic>) {
 fn param_files_of(cx: &Context, n: &NodeInstance) -> Option<Vec<FileId>> {
     let mut v = Vec::new();
     for src in &n.decl.params {
-        let LaunchParamSource::File { path, .. } = src else { continue };
-        match crate::resolve::resolve_lval(path, &Default::default()).map(|p| crate::resolve::resolve_path(cx.ix, &p)) {
+        let LaunchParamSource::File { path, .. } = src else {
+            continue;
+        };
+        match crate::resolve::resolve_lval(path, &Default::default())
+            .map(|p| crate::resolve::resolve_path(cx.ix, &p))
+        {
             Some(crate::resolve::PathRes::Found(f)) => v.push(f),
             _ => return None,
         }
@@ -127,18 +151,45 @@ fn param_files_of(cx: &Context, n: &NodeInstance) -> Option<Vec<FileId>> {
 /// C010 through the launch graph: the manager's rate (inline, from its parameter files, or
 /// the 100 Hz default) against `update_rate` in controller sections of the manager's and the
 /// spawners' (`--param-file`) parameter files.
-fn graph_update_rates(cx: &Context, m: &NodeInstance, spawners: &[&NodeInstance], seen: &mut BTreeSet<Loc>, out: &mut Vec<Diagnostic>) {
+fn graph_update_rates(
+    cx: &Context,
+    m: &NodeInstance,
+    spawners: &[&NodeInstance],
+    seen: &mut BTreeSet<Loc>,
+    out: &mut Vec<Diagnostic>,
+) {
     let num = |v: &ParamValue| match v {
         ParamValue::Int(i) if *i > 0 => Some(*i as f64),
         ParamValue::Double(d) if *d > 0.0 => Some(*d),
         _ => None,
     };
     let leaf = |k: &str| k.rsplit('/').next().unwrap_or(k).to_string();
-    let Some(m_files) = param_files_of(cx, m) else { return };
-    let inline = m.params.iter().rev().find(|b| b.name == "update_rate").and_then(|b| b.value.as_ref()).and_then(num);
-    let from_file = m_files.iter().filter_map(|f| cx.ix.param_files.get(f)).flat_map(|pf| pf.sections.iter()).filter(|s| leaf(&s.node_key) == "controller_manager").find_map(|s| s.params.iter().find(|e| e.name == "update_rate").and_then(|e| num(&e.value)));
+    let Some(m_files) = param_files_of(cx, m) else {
+        return;
+    };
+    let inline = m
+        .params
+        .iter()
+        .rev()
+        .find(|b| b.name == "update_rate")
+        .and_then(|b| b.value.as_ref())
+        .and_then(num);
+    let from_file = m_files
+        .iter()
+        .filter_map(|f| cx.ix.param_files.get(f))
+        .flat_map(|pf| pf.sections.iter())
+        .filter(|s| leaf(&s.node_key) == "controller_manager")
+        .find_map(|s| {
+            s.params
+                .iter()
+                .find(|e| e.name == "update_rate")
+                .and_then(|e| num(&e.value))
+        });
     // Sources unknown to us (e.g. an unresolved inline value) leave the rate unknown.
-    if m.params.iter().any(|b| b.name == "update_rate" && b.value.as_ref().and_then(num).is_none()) {
+    if m.params
+        .iter()
+        .any(|b| b.name == "update_rate" && b.value.as_ref().and_then(num).is_none())
+    {
         return;
     }
     let cm = inline.or(from_file).unwrap_or(100.0);
@@ -152,11 +203,20 @@ fn graph_update_rates(cx: &Context, m: &NodeInstance, spawners: &[&NodeInstance]
     }
     for pf in files.iter().filter_map(|f| cx.ix.param_files.get(f)) {
         // Files with their own controller_manager rate are checked file by file.
-        if pf.sections.iter().any(|s| leaf(&s.node_key) == "controller_manager" && s.params.iter().any(|e| e.name == "update_rate")) {
+        if pf.sections.iter().any(|s| {
+            leaf(&s.node_key) == "controller_manager"
+                && s.params.iter().any(|e| e.name == "update_rate")
+        }) {
             continue;
         }
-        for sec in pf.sections.iter().filter(|s| leaf(&s.node_key) != "controller_manager") {
-            let Some(e) = sec.params.iter().find(|e| e.name == "update_rate") else { continue };
+        for sec in pf
+            .sections
+            .iter()
+            .filter(|s| leaf(&s.node_key) != "controller_manager")
+        {
+            let Some(e) = sec.params.iter().find(|e| e.name == "update_rate") else {
+                continue;
+            };
             let Some(r) = num(&e.value) else { continue };
             if !seen.insert(e.value_loc) {
                 continue;
@@ -181,11 +241,22 @@ fn graph_update_rates(cx: &Context, m: &NodeInstance, spawners: &[&NodeInstance]
 /// C009: a controller's parameter violates a validator of its generate_parameter_library
 /// spec (found through the controller type's package, e.g. `diff_drive_controller/…`).
 fn spec_constraints(cx: &Context, c: &Controller, out: &mut Vec<Diagnostic>) {
-    let (Some((ty, _, _)), Some(section)) = (&c.ty, c.section) else { return };
-    let Some(pkg) = ty.split('/').next().and_then(|p| cx.ix.package_by_name(p)) else { return };
-    let decls: Vec<&ParamDecl> = pkg.param_lib_specs.iter().filter_map(|s| cx.ix.param_specs.get(s)).flat_map(|(d, _)| d.iter()).collect();
+    let (Some((ty, _, _)), Some(section)) = (&c.ty, c.section) else {
+        return;
+    };
+    let Some(pkg) = ty.split('/').next().and_then(|p| cx.ix.package_by_name(p)) else {
+        return;
+    };
+    let decls: Vec<&ParamDecl> = pkg
+        .param_lib_specs
+        .iter()
+        .filter_map(|s| cx.ix.param_specs.get(s))
+        .flat_map(|(d, _)| d.iter())
+        .collect();
     for e in &section.params {
-        let Some(d) = decls.iter().find(|d| d.name.matches(&e.name)) else { continue };
+        let Some(d) = decls.iter().find(|d| d.name.matches(&e.name)) else {
+            continue;
+        };
         if let Some(why) = d.constraints.iter().find_map(|k| k.violated_by(&e.value)) {
             out.push(
                 Diagnostic::new(
@@ -200,7 +271,8 @@ fn spec_constraints(cx: &Context, c: &Controller, out: &mut Vec<Diagnostic>) {
 }
 
 fn is_spawner(n: &NodeInstance) -> bool {
-    n.pkg.as_deref() == Some("controller_manager") && matches!(n.exec.as_deref(), Some("spawner" | "spawner.py"))
+    n.pkg.as_deref() == Some("controller_manager")
+        && matches!(n.exec.as_deref(), Some("spawner" | "spawner.py"))
 }
 
 fn is_manager(n: &NodeInstance) -> bool {
@@ -218,10 +290,27 @@ struct Spawn {
 /// Parses spawner arguments; None when an argument is unresolved or unrecognised.
 fn parse_spawner(n: &NodeInstance) -> Option<Spawn> {
     const WITH_VALUE: &[&str] = &[
-        "-c", "--controller-manager", "-p", "--param-file", "-t", "--controller-type", "-n", "--namespace",
-        "--controller-manager-timeout", "--switch-timeout", "--service-call-timeout", "--controller-ros-args",
+        "-c",
+        "--controller-manager",
+        "-p",
+        "--param-file",
+        "-t",
+        "--controller-type",
+        "-n",
+        "--namespace",
+        "--controller-manager-timeout",
+        "--switch-timeout",
+        "--service-call-timeout",
+        "--controller-ros-args",
     ];
-    const FLAGS: &[&str] = &["--load-only", "--inactive", "--stopped", "-u", "--unload-on-kill", "--activate-as-group"];
+    const FLAGS: &[&str] = &[
+        "--load-only",
+        "--inactive",
+        "--stopped",
+        "-u",
+        "--unload-on-kill",
+        "--activate-as-group",
+    ];
     let mut args = Vec::new();
     for a in &n.arguments {
         let a = a.as_ref()?;
@@ -232,7 +321,11 @@ fn parse_spawner(n: &NodeInstance) -> Option<Spawn> {
         // list element such as `"-r ~/cmd_vel:=/cmd_vel"` is one value.
         args.push(a.clone());
     }
-    let mut s = Spawn { names: Vec::new(), typed: false, param_file: None };
+    let mut s = Spawn {
+        names: Vec::new(),
+        typed: false,
+        param_file: None,
+    };
     let mut i = 0;
     while i < args.len() {
         let a = args[i].as_str();
@@ -263,11 +356,20 @@ fn defined(cx: &Context, n: &NodeInstance) -> Option<BTreeMap<String, Loc>> {
     let mut defs: BTreeMap<String, Loc> = n
         .params
         .iter()
-        .filter_map(|b| b.name.strip_suffix(".type").filter(|c| !c.contains('.')).map(|c| (c.to_string(), b.key_loc)))
+        .filter_map(|b| {
+            b.name
+                .strip_suffix(".type")
+                .filter(|c| !c.contains('.'))
+                .map(|c| (c.to_string(), b.key_loc))
+        })
         .collect();
     for src in &n.decl.params {
-        let LaunchParamSource::File { path, .. } = src else { continue };
-        let fid = match crate::resolve::resolve_lval(path, &Default::default()).map(|p| crate::resolve::resolve_path(cx.ix, &p)) {
+        let LaunchParamSource::File { path, .. } = src else {
+            continue;
+        };
+        let fid = match crate::resolve::resolve_lval(path, &Default::default())
+            .map(|p| crate::resolve::resolve_path(cx.ix, &p))
+        {
             Some(crate::resolve::PathRes::Found(f)) => f,
             _ => return None,
         };
@@ -284,9 +386,15 @@ fn defined(cx: &Context, n: &NodeInstance) -> Option<BTreeMap<String, Loc>> {
 /// Controllers defined in a spawner `--param-file`: `<name>: ros__parameters: type: …`
 /// sections, or `<name>.type` under `controller_manager`. None when the file is not known.
 fn file_defs(cx: &Context, path: &str) -> Option<BTreeSet<String>> {
-    let crate::resolve::PathRes::Found(fid) = crate::resolve::resolve_path(cx.ix, path) else { return None };
+    let crate::resolve::PathRes::Found(fid) = crate::resolve::resolve_path(cx.ix, path) else {
+        return None;
+    };
     let pf = cx.ix.param_files.get(&fid)?;
-    let mut out: BTreeSet<String> = controllers(pf).into_iter().filter(|c| c.ty.is_some()).map(|c| c.name).collect();
+    let mut out: BTreeSet<String> = controllers(pf)
+        .into_iter()
+        .filter(|c| c.ty.is_some())
+        .map(|c| c.name)
+        .collect();
     for sec in &pf.sections {
         let leaf = sec.node_key.rsplit('/').next().unwrap_or(&sec.node_key);
         if sec.params.iter().any(|e| e.name == "type") {
@@ -335,7 +443,11 @@ fn spawner_checks(cx: &Context, out: &mut Vec<Diagnostic>) {
                 if defs.contains_key(name.as_str()) || from_file.contains(name) {
                     continue;
                 }
-                let known: Vec<&str> = defs.keys().map(String::as_str).chain(from_file.iter().map(String::as_str)).collect();
+                let known: Vec<&str> = defs
+                    .keys()
+                    .map(String::as_str)
+                    .chain(from_file.iter().map(String::as_str))
+                    .collect();
                 let mut d = Diagnostic::new(
                     "C007",
                     sp.decl.loc,
@@ -347,7 +459,11 @@ fn spawner_checks(cx: &Context, out: &mut Vec<Diagnostic>) {
                 out.push(d);
             }
         }
-        if defs.is_empty() || spawners.is_empty() || !all_known || !root.external_includes.is_empty() {
+        if defs.is_empty()
+            || spawners.is_empty()
+            || !all_known
+            || !root.external_includes.is_empty()
+        {
             continue;
         }
         for (name, loc) in &defs {
@@ -663,15 +779,28 @@ mod tests {
     fn spawned_vs_defined_controllers() {
         let d = run("        Node(package='controller_manager', executable='spawner', arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager']),\n        Node(package='controller_manager', executable='spawner', arguments=['diff_drive_controler']),\n");
         let c007 = d.iter().find(|x| x.rule == "C007").expect("C007");
-        assert!(c007.message.contains("diff_drive_controler") && c007.help.as_deref().is_some_and(|h| h.contains("diff_drive_controller")), "{c007:#?}");
+        assert!(
+            c007.message.contains("diff_drive_controler")
+                && c007
+                    .help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("diff_drive_controller")),
+            "{c007:#?}"
+        );
         let c008: Vec<_> = d.iter().filter(|x| x.rule == "C008").collect();
-        assert!(c008.len() == 1 && c008[0].message.contains("`diff_drive_controller`"), "{c008:#?}");
+        assert!(
+            c008.len() == 1 && c008[0].message.contains("`diff_drive_controller`"),
+            "{c008:#?}"
+        );
     }
 
     #[test]
     fn all_spawned_or_unknown_spawners_are_silent() {
         let ok = run("        Node(package='controller_manager', executable='spawner', arguments=['joint_state_broadcaster', 'diff_drive_controller', '--inactive', '--controller-ros-args', '-r ~/cmd_vel:=/cmd_vel']),\n");
-        assert!(ok.iter().all(|x| x.rule != "C007" && x.rule != "C008"), "{ok:#?}");
+        assert!(
+            ok.iter().all(|x| x.rule != "C007" && x.rule != "C008"),
+            "{ok:#?}"
+        );
         // A spawner with an unknown flag: we cannot tell what it starts, so no C008.
         let unk = run("        Node(package='controller_manager', executable='spawner', arguments=['joint_state_broadcaster', '--some-new-flag']),\n");
         assert!(unk.iter().all(|x| x.rule != "C008"), "{unk:#?}");
@@ -714,9 +843,17 @@ def generate_launch_description():
         };
         let bad = run("'joint_state_broadcaster', 'diffbot_base_controler'");
         let c007 = bad.iter().find(|x| x.rule == "C007").expect("C007");
-        assert!(c007.help.as_deref().is_some_and(|h| h.contains("diffbot_base_controller")), "{c007:#?}");
+        assert!(
+            c007.help
+                .as_deref()
+                .is_some_and(|h| h.contains("diffbot_base_controller")),
+            "{c007:#?}"
+        );
         let good = run("'joint_state_broadcaster', 'diffbot_base_controller'");
-        assert!(good.iter().all(|x| x.rule != "C007" && x.rule != "C008"), "{good:#?}");
+        assert!(
+            good.iter().all(|x| x.rule != "C007" && x.rule != "C008"),
+            "{good:#?}"
+        );
     }
 
     /// Controller section values checked against the controller package's
@@ -724,7 +861,8 @@ def generate_launch_description():
     #[test]
     fn controller_spec_validation() {
         let run = |sep: &str| {
-            let cfg = format!("controller_manager:
+            let cfg = format!(
+                "controller_manager:
   ros__parameters:
     base:
       type: diff_drive_controller/DiffDriveController
@@ -732,13 +870,22 @@ base:
   ros__parameters:
     wheel_separation: {sep}
     left_wheel_names: [l]
-");
+"
+            );
             analyze_files(&[
-                ("diff_drive_controller/package.xml", "<package format=\"3\"><name>diff_drive_controller</name></package>"),
-                ("diff_drive_controller/CMakeLists.txt", "project(diff_drive_controller)
+                (
+                    "diff_drive_controller/package.xml",
+                    "<package format=\"3\"><name>diff_drive_controller</name></package>",
+                ),
+                (
+                    "diff_drive_controller/CMakeLists.txt",
+                    "project(diff_drive_controller)
 generate_parameter_library(ddc_params src/p.yaml)
-"),
-                ("diff_drive_controller/src/p.yaml", "diff_drive_controller:
+",
+                ),
+                (
+                    "diff_drive_controller/src/p.yaml",
+                    "diff_drive_controller:
   wheel_separation: {
     type: double,
     default_value: 0.0,
@@ -753,13 +900,22 @@ generate_parameter_library(ddc_params src/p.yaml)
       not_empty<>: []
     }
   }
-"),
-                ("robot/package.xml", "<package format=\"3\"><name>robot</name></package>"),
+",
+                ),
+                (
+                    "robot/package.xml",
+                    "<package format=\"3\"><name>robot</name></package>",
+                ),
                 ("robot/config/c.yaml", &cfg),
             ])
         };
         let bad = run("-0.1");
-        assert!(bad.iter().any(|x| x.rule == "C009" && x.message.contains("wheel_separation") && x.message.contains("`> 0`")), "{bad:#?}");
+        assert!(
+            bad.iter().any(|x| x.rule == "C009"
+                && x.message.contains("wheel_separation")
+                && x.message.contains("`> 0`")),
+            "{bad:#?}"
+        );
         let good = run("0.3");
         assert!(good.iter().all(|x| x.rule != "C009"), "{good:#?}");
     }
@@ -770,8 +926,15 @@ generate_parameter_library(ddc_params src/p.yaml)
             ("p/package.xml", "<package format=\"3\"><name>p</name></package>"),
             ("p/config/c.yaml", "controller_manager:\n  ros__parameters:\n    update_rate: 100\n    fast:\n      type: joint_state_broadcaster/JointStateBroadcaster\n    odd:\n      type: joint_state_broadcaster/JointStateBroadcaster\n    ok:\n      type: joint_state_broadcaster/JointStateBroadcaster\nfast:\n  ros__parameters:\n    update_rate: 500\nodd:\n  ros__parameters:\n    update_rate: 30\nok:\n  ros__parameters:\n    update_rate: 50\n"),
         ]);
-        let c010: Vec<&str> = d.iter().filter(|x| x.rule == "C010").map(|x| x.message.as_str()).collect();
+        let c010: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "C010")
+            .map(|x| x.message.as_str())
+            .collect();
         assert_eq!(c010.len(), 2, "{c010:#?}");
-        assert!(c010.iter().any(|m| m.contains("`fast`")) && c010.iter().any(|m| m.contains("`odd`")), "{c010:#?}");
+        assert!(
+            c010.iter().any(|m| m.contains("`fast`")) && c010.iter().any(|m| m.contains("`odd`")),
+            "{c010:#?}"
+        );
     }
 }

@@ -5,7 +5,10 @@
 //! `*block` / `**block` params), macro calls, `call`, `insert_block`, `if`/`unless`.
 //! Anything else marks the model `partial`, which makes name checks lenient.
 
-use crate::facts::{ControlJoint, RobotModel, Ros2ControlBlock, UrdfInertial, UrdfJoint, UrdfLimit, UrdfMesh, UrdfNumber};
+use crate::facts::{
+    ControlJoint, RobotModel, Ros2ControlBlock, UrdfInertial, UrdfJoint, UrdfLimit, UrdfMesh,
+    UrdfNumber,
+};
 use crate::source::{FileId, Loc};
 use roxmltree::{Document, Node, NodeId};
 use std::collections::HashMap;
@@ -38,7 +41,8 @@ struct X<'a, 'l> {
 
 /// The first child element named `tag`.
 fn child<'x, 'i>(n: Node<'x, 'i>, tag: &str) -> Option<Node<'x, 'i>> {
-    n.children().find(|e| e.is_element() && e.tag_name().name() == tag)
+    n.children()
+        .find(|e| e.is_element() && e.tag_name().name() == tag)
 }
 
 fn is_xacro(n: &Node) -> bool {
@@ -107,7 +111,10 @@ impl<'a, 'l> X<'a, 'l> {
         if let Some(i) = child(link, "inertial") {
             let mass = child(i, "mass").and_then(|m| self.number(m.attribute("value")));
             let inertia = child(i, "inertia").map(|n| {
-                ["ixx", "ixy", "ixz", "iyy", "iyz", "izz"].iter().map(|a| self.number(n.attribute(*a))).collect()
+                ["ixx", "ixy", "ixz", "iyy", "iyz", "izz"]
+                    .iter()
+                    .map(|a| self.number(n.attribute(*a)))
+                    .collect()
             });
             self.model.inertials.push(UrdfInertial {
                 link: name.to_string(),
@@ -116,13 +123,21 @@ impl<'a, 'l> X<'a, 'l> {
                 inertia,
             });
         }
-        for m in link.descendants().filter(|e| e.is_element() && e.tag_name().name() == "mesh") {
-            let Some(a) = m.attribute_node("filename") else { continue };
+        for m in link
+            .descendants()
+            .filter(|e| e.is_element() && e.tag_name().name() == "mesh")
+        {
+            let Some(a) = m.attribute_node("filename") else {
+                continue;
+            };
             let partial = self.model.partial;
             let uri = self.eval(a.value());
             self.model.partial = partial;
             let r = a.range_value();
-            self.model.meshes.push(UrdfMesh { uri, loc: Loc::new(file, r.start, r.end) });
+            self.model.meshes.push(UrdfMesh {
+                uri,
+                loc: Loc::new(file, r.start, r.end),
+            });
         }
     }
 
@@ -311,8 +326,7 @@ impl<'a, 'l> X<'a, 'l> {
                         self.model.partial = true;
                         return;
                     }
-                    let Some(blocks) = self.blocks.last().and_then(|b| b.get(name)).cloned()
-                    else {
+                    let Some(blocks) = self.blocks.last().and_then(|b| b.get(name)).cloned() else {
                         return;
                     };
                     // Block content belongs to the caller: evaluate it in the caller's block
@@ -370,13 +384,16 @@ impl<'a, 'l> X<'a, 'l> {
                     let parent = link_of("parent", self);
                     let child = link_of("child", self);
                     let opaque = c.descendants().any(|e| e.is_element() && is_xacro(&e));
-                    let limit = c.children().find(|e| e.is_element() && e.tag_name().name() == "limit").map(|l| UrdfLimit {
-                        loc: Loc::new(file, l.range().start, l.range().end),
-                        lower: self.number(l.attribute("lower")),
-                        upper: self.number(l.attribute("upper")),
-                        effort: self.number(l.attribute("effort")),
-                        velocity: self.number(l.attribute("velocity")),
-                    });
+                    let limit = c
+                        .children()
+                        .find(|e| e.is_element() && e.tag_name().name() == "limit")
+                        .map(|l| UrdfLimit {
+                            loc: Loc::new(file, l.range().start, l.range().end),
+                            lower: self.number(l.attribute("lower")),
+                            upper: self.number(l.attribute("upper")),
+                            effort: self.number(l.attribute("effort")),
+                            velocity: self.number(l.attribute("velocity")),
+                        });
                     self.model.joints.push(UrdfJoint {
                         name,
                         joint_type: jt,

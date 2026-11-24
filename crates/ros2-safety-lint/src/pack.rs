@@ -104,7 +104,8 @@ const KEYS_KILTED: &[u8] = include_bytes!("../packs/keys/kilted.txt.gz");
 pub fn rosdep_keys(distro: &str) -> Option<&'static std::collections::HashSet<String>> {
     use std::collections::HashSet;
     use std::sync::OnceLock;
-    static CACHE: [OnceLock<Option<HashSet<String>>>; 3] = [OnceLock::new(), OnceLock::new(), OnceLock::new()];
+    static CACHE: [OnceLock<Option<HashSet<String>>>; 3] =
+        [OnceLock::new(), OnceLock::new(), OnceLock::new()];
     let (i, bytes) = match distro {
         "humble" => (0, KEYS_HUMBLE),
         "jazzy" => (1, KEYS_JAZZY),
@@ -114,7 +115,9 @@ pub fn rosdep_keys(distro: &str) -> Option<&'static std::collections::HashSet<St
     CACHE[i]
         .get_or_init(|| {
             let mut s = String::new();
-            flate2::read::GzDecoder::new(bytes).read_to_string(&mut s).ok()?;
+            flate2::read::GzDecoder::new(bytes)
+                .read_to_string(&mut s)
+                .ok()?;
             Some(s.lines().map(str::to_string).collect())
         })
         .as_ref()
@@ -202,7 +205,11 @@ pub fn build(distro: &str, roots: &[(PathBuf, String, String)]) -> Pack {
     for (root, repo, rev) in roots {
         pack.sources.push((repo.clone(), rev.clone()));
         let ix = workspace::index(root, &config, &IndexOptions::default());
-        pack.plugins.extend(ix.packages.iter().flat_map(|p| p.plugin_classes.iter().cloned()));
+        pack.plugins.extend(
+            ix.packages
+                .iter()
+                .flat_map(|p| p.plugin_classes.iter().cloned()),
+        );
         for f in ix.code.keys() {
             let rel = &ix.file(*f).rel_path;
             if !rel.split('/').any(|seg| seg == "test" || seg == "tests") {

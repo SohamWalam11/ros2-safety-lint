@@ -86,10 +86,16 @@ fn in_empty_dir(cx: &Context, rel: &str) -> bool {
 /// it is not installed, so importing it from the install space fails.
 fn python_subpackages(cx: &Context, out: &mut Vec<Diagnostic>) {
     for p in &cx.ix.packages {
-        let Some((listed, loc)) = &p.setup_py_packages else { continue };
+        let Some((listed, loc)) = &p.setup_py_packages else {
+            continue;
+        };
         let mut missing = Vec::new();
         for top in listed.iter().filter(|t| !t.contains('.')) {
-            let rel = if p.dir.is_empty() { top.clone() } else { format!("{}/{top}", p.dir) };
+            let rel = if p.dir.is_empty() {
+                top.clone()
+            } else {
+                format!("{}/{top}", p.dir)
+            };
             for sub in python_packages_under(&cx.ix.root.join(&rel), top, 0) {
                 if !listed.contains(&sub) && !missing.contains(&sub) {
                     missing.push(sub);
@@ -99,7 +105,11 @@ fn python_subpackages(cx: &Context, out: &mut Vec<Diagnostic>) {
         if missing.is_empty() {
             continue;
         }
-        let names = missing.iter().map(|m| format!("`{m}`")).collect::<Vec<_>>().join(", ");
+        let names = missing
+            .iter()
+            .map(|m| format!("`{m}`"))
+            .collect::<Vec<_>>()
+            .join(", ");
         out.push(
             Diagnostic::new(
                 "L012",
@@ -118,12 +128,16 @@ fn python_packages_under(dir: &std::path::Path, name: &str, depth: usize) -> Vec
     if depth > 6 || !dir.join("__init__.py").is_file() {
         return out;
     }
-    let Ok(entries) = std::fs::read_dir(dir) else { return out };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return out;
+    };
     let mut subdirs: Vec<(String, std::path::PathBuf)> = entries
         .flatten()
         .filter(|e| e.path().is_dir())
         .filter_map(|e| Some((e.file_name().to_str()?.to_string(), e.path())))
-        .filter(|(n, _)| !matches!(n.as_str(), "test" | "tests" | "__pycache__") && !n.starts_with('.'))
+        .filter(|(n, _)| {
+            !matches!(n.as_str(), "test" | "tests" | "__pycache__") && !n.starts_with('.')
+        })
         .collect();
     subdirs.sort();
     for (sub, path) in subdirs {
@@ -145,7 +159,9 @@ fn unknown_executables(cx: &Context, out: &mut Vec<Diagnostic>) {
         if n.decl.kind == LaunchNodeKind::Composable {
             // Components have a plugin, not an executable.
             let Some(pkg) = &n.pkg else { continue };
-            let Some(p) = cx.ix.package_by_name(pkg) else { continue };
+            let Some(p) = cx.ix.package_by_name(pkg) else {
+                continue;
+            };
             let Some(plugin) = n
                 .decl
                 .plugin
@@ -157,7 +173,8 @@ fn unknown_executables(cx: &Context, out: &mut Vec<Diagnostic>) {
             // A package whose CMake never calls rclcpp_components_register_node(s) registers
             // no components at all (and its registrations cannot hide in unresolved variables).
             let registers_none = p.plugin_classes.is_empty()
-                && p.cmake_file.is_some_and(|f| !cx.ix.file(f).text.contains("rclcpp_components_register"));
+                && p.cmake_file
+                    .is_some_and(|f| !cx.ix.file(f).text.contains("rclcpp_components_register"));
             if p.executables_complete
                 && (!p.plugin_classes.is_empty() || registers_none)
                 && !p.plugin_classes.contains(&plugin)
@@ -533,7 +550,8 @@ fn insert_dependency(cx: &Context, p: &Package, tag: &str, name: &str) -> Option
         .unwrap_or(p.manifest_name_loc.end);
     let rest_of_line = f.text[anchor..].split('\n').next().unwrap_or("");
     let element = format!("<{tag}>{name}</{tag}>");
-    let (start, replacement) = if rest_of_line.trim().is_empty() && f.text[anchor..].contains('\n') {
+    let (start, replacement) = if rest_of_line.trim().is_empty() && f.text[anchor..].contains('\n')
+    {
         let line_end = anchor + rest_of_line.len() + 1;
         let (line, _) = f.line_col(anchor);
         let indent: String = f
@@ -541,7 +559,11 @@ fn insert_dependency(cx: &Context, p: &Package, tag: &str, name: &str) -> Option
             .chars()
             .take_while(|c| c.is_whitespace())
             .collect();
-        let eol = if rest_of_line.ends_with('\r') { "\r\n" } else { "\n" };
+        let eol = if rest_of_line.ends_with('\r') {
+            "\r\n"
+        } else {
+            "\n"
+        };
         (line_end, format!("{indent}{element}{eol}"))
     } else {
         (anchor, element.clone())
@@ -621,14 +643,23 @@ fn setup_cfg(cx: &Context, out: &mut Vec<Diagnostic>) {
 /// distribution. A near-miss of a real key is a warning (typo); anything else is info, since it
 /// may come from another workspace or a `--skip-keys` list.
 fn rosdep_keys(cx: &Context, out: &mut Vec<Diagnostic>) {
-    let Some(distro) = cx.ix.installed.distro.as_deref() else { return };
-    let Some(keys) = crate::pack::rosdep_keys(distro) else { return };
+    let Some(distro) = cx.ix.installed.distro.as_deref() else {
+        return;
+    };
+    let Some(keys) = crate::pack::rosdep_keys(distro) else {
+        return;
+    };
     let workspace: HashSet<&str> = cx.ix.packages.iter().map(|p| p.name.as_str()).collect();
     for p in &cx.ix.packages {
         let mut seen = HashSet::new();
         for d in &p.deps {
             let n = d.name.as_str();
-            if n.is_empty() || n.contains('$') || workspace.contains(n) || keys.contains(n) || !seen.insert(n) {
+            if n.is_empty()
+                || n.contains('$')
+                || workspace.contains(n)
+                || keys.contains(n)
+                || !seen.insert(n)
+            {
                 continue;
             }
             let near = closest(n, keys.iter().map(String::as_str));
@@ -657,17 +688,27 @@ fn interface_packages(cx: &Context, out: &mut Vec<Diagnostic>) {
         if p.build_type != BuildType::AmentCmake {
             continue;
         }
-        let prefix = if p.dir.is_empty() { String::new() } else { format!("{}/", p.dir) };
+        let prefix = if p.dir.is_empty() {
+            String::new()
+        } else {
+            format!("{}/", p.dir)
+        };
         // Interface files of this package in its msg/, srv/ and action/ folders.
         let own: Vec<String> = cx
             .ix
             .interface_files
             .iter()
             .filter_map(|f| f.strip_prefix(&prefix))
-            .filter(|r| matches!(r.split('/').next(), Some("msg" | "srv" | "action")) && r.matches('/').count() == 1)
+            .filter(|r| {
+                matches!(r.split('/').next(), Some("msg" | "srv" | "action"))
+                    && r.matches('/').count() == 1
+            })
             .map(str::to_string)
             .collect();
-        let cmake_text = p.cmake_file.map(|f| cx.ix.file(f).text.as_str()).unwrap_or_default();
+        let cmake_text = p
+            .cmake_file
+            .map(|f| cx.ix.file(f).text.as_str())
+            .unwrap_or_default();
         let Some(call) = &p.rosidl else {
             // Interface files but no generation at all (ROS 1 and included-cmake setups excluded).
             if !own.is_empty()
@@ -699,8 +740,18 @@ fn interface_packages(cx: &Context, out: &mut Vec<Diagnostic>) {
                 .help("Add `<member_of_group>rosidl_interface_packages</member_of_group>` (and `rosidl_default_generators` / `rosidl_default_runtime` dependencies) to package.xml."),
             );
         }
-        for f in call.files.iter().filter(|f| [".msg", ".srv", ".action"].iter().any(|e| f.ends_with(e))) {
-            if !own.contains(f) && !cx.ix.interface_files.iter().any(|x| *x == format!("{prefix}{f}")) {
+        for f in call
+            .files
+            .iter()
+            .filter(|f| [".msg", ".srv", ".action"].iter().any(|e| f.ends_with(e)))
+        {
+            if !own.contains(f)
+                && !cx
+                    .ix
+                    .interface_files
+                    .iter()
+                    .any(|x| *x == format!("{prefix}{f}"))
+            {
                 out.push(
                     Diagnostic::new("L007", call.loc, format!("`rosidl_generate_interfaces` lists `{f}`, which does not exist in package `{}`; CMake configuration fails", p.name))
                         .severity(Severity::Error),
@@ -723,10 +774,17 @@ fn interface_packages(cx: &Context, out: &mut Vec<Diagnostic>) {
 /// `RCLCPP_COMPONENTS_REGISTER_NODE(<class>)`: the class loader finds no factory for it.
 fn unregistered_component_classes(cx: &Context, out: &mut Vec<Diagnostic>) {
     static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
-    let re = RE.get_or_init(|| regex::Regex::new(r"RCLCPP_COMPONENTS_REGISTER_NODE\s*\(\s*(?:::)?([A-Za-z_][\w:]*)\s*\)").expect("valid regex"));
+    let re = RE.get_or_init(|| {
+        regex::Regex::new(r"RCLCPP_COMPONENTS_REGISTER_NODE\s*\(\s*(?:::)?([A-Za-z_][\w:]*)\s*\)")
+            .expect("valid regex")
+    });
     for (pi, p) in cx.ix.packages.iter().enumerate() {
         let Some(cm) = p.cmake_file else { continue };
-        let registered: Vec<&String> = p.plugin_classes.iter().filter(|c| c.contains("::") && !c.contains('$')).collect();
+        let registered: Vec<&String> = p
+            .plugin_classes
+            .iter()
+            .filter(|c| c.contains("::") && !c.contains('$'))
+            .collect();
         if registered.is_empty() || !cx.ix.file(cm).text.contains("rclcpp_components_register") {
             continue; // (pluginlib-only packages register plugins, not components)
         }
@@ -735,7 +793,11 @@ fn unregistered_component_classes(cx: &Context, out: &mut Vec<Diagnostic>) {
             .code
             .keys()
             .filter(|f| cx.ix.file_pkg.get(**f).copied().flatten() == Some(pi))
-            .flat_map(|f| re.captures_iter(&cx.ix.file(*f).text).map(|c| c[1].to_string()).collect::<Vec<_>>())
+            .flat_map(|f| {
+                re.captures_iter(&cx.ix.file(*f).text)
+                    .map(|c| c[1].to_string())
+                    .collect::<Vec<_>>()
+            })
             .collect();
         let cm_text = &cx.ix.file(cm).text;
         for cls in registered {
@@ -929,12 +991,24 @@ mod tests {
     #[test]
     fn test_and_ros1_launch_files_need_nothing_installed() {
         let d = analyze_files(&[
-            ("p/package.xml", "<package format=\"3\"><name>p</name></package>"),
-            ("p/CMakeLists.txt", "project(p)
+            (
+                "p/package.xml",
+                "<package format=\"3\"><name>p</name></package>",
+            ),
+            (
+                "p/CMakeLists.txt",
+                "project(p)
 ament_package()
-"),
-            ("p/test/rrbot.launch", "<launch><node pkg=\"p\" exec=\"x\"/></launch>"),
-            ("p/test/chomp.test", "<launch><include file=\"$(find p)/test/rrbot.launch\"/></launch>"),
+",
+            ),
+            (
+                "p/test/rrbot.launch",
+                "<launch><node pkg=\"p\" exec=\"x\"/></launch>",
+            ),
+            (
+                "p/test/chomp.test",
+                "<launch><include file=\"$(find p)/test/rrbot.launch\"/></launch>",
+            ),
         ]);
         assert!(d.iter().all(|x| x.rule != "L004"), "{d:#?}");
     }
@@ -943,10 +1017,15 @@ ament_package()
     /// without `RCLCPP_COMPONENTS_REGISTER_NODE` (L006), and a correct package (silent).
     #[test]
     fn component_registration() {
-        let launch = |pkg: &str| format!("from launch import LaunchDescription\nfrom launch_ros.actions import ComposableNodeContainer\nfrom launch_ros.descriptions import ComposableNode\ndef generate_launch_description():\n    return LaunchDescription([ComposableNodeContainer(name='c', namespace='', package='rclcpp_components', executable='component_container', composable_node_descriptions=[ComposableNode(package='{pkg}', plugin='{pkg}::Talker', name='talker')])])\n");
+        let launch = |pkg: &str| {
+            format!("from launch import LaunchDescription\nfrom launch_ros.actions import ComposableNodeContainer\nfrom launch_ros.descriptions import ComposableNode\ndef generate_launch_description():\n    return LaunchDescription([ComposableNodeContainer(name='c', namespace='', package='rclcpp_components', executable='component_container', composable_node_descriptions=[ComposableNode(package='{pkg}', plugin='{pkg}::Talker', name='talker')])])\n")
+        };
         let pkg = |name: &str, cmake: &str, cpp: &str, l: &str| {
             vec![
-                (format!("{name}/package.xml"), format!("<package format=\"3\"><name>{name}</name></package>")),
+                (
+                    format!("{name}/package.xml"),
+                    format!("<package format=\"3\"><name>{name}</name></package>"),
+                ),
                 (format!("{name}/CMakeLists.txt"), cmake.to_string()),
                 (format!("{name}/src/talker.cpp"), cpp.to_string()),
                 (format!("{name}/launch/a.launch.py"), l.to_string()),
@@ -962,12 +1041,23 @@ ament_package()
         files.extend(pkg("b", "project(b)\nadd_library(b SHARED src/talker.cpp)\nrclcpp_components_register_nodes(b \"b::Talker\")\ninstall(TARGETS b DESTINATION lib)\ninstall(DIRECTORY launch DESTINATION share/${PROJECT_NAME})\n", &cpp("b", false), &launch("b")));
         // c: correct
         files.extend(pkg("c", "project(c)\nadd_library(c SHARED src/talker.cpp)\nrclcpp_components_register_nodes(c \"c::Talker\")\ninstall(TARGETS c DESTINATION lib)\ninstall(DIRECTORY launch DESTINATION share/${PROJECT_NAME})\n", &cpp("c", true), &launch("c")));
-        let refs: Vec<(&str, &str)> = files.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
+        let refs: Vec<(&str, &str)> = files
+            .iter()
+            .map(|(a, b)| (a.as_str(), b.as_str()))
+            .collect();
         let d = analyze_files(&refs);
-        let by = |rule: &str, pkg: &str| d.iter().filter(|x| x.rule == rule && x.message.contains(&format!("{pkg}::Talker"))).count();
+        let by = |rule: &str, pkg: &str| {
+            d.iter()
+                .filter(|x| x.rule == rule && x.message.contains(&format!("{pkg}::Talker")))
+                .count()
+        };
         assert_eq!(by("L001", "a"), 1, "{d:#?}");
         assert_eq!(by("L006", "b"), 1, "{d:#?}");
-        assert_eq!(by("L001", "c") + by("L006", "c") + by("L001", "b") + by("L006", "a"), 0, "{d:#?}");
+        assert_eq!(
+            by("L001", "c") + by("L006", "c") + by("L001", "b") + by("L006", "a"),
+            0,
+            "{d:#?}"
+        );
     }
 
     /// Interface packages: unlisted file and missing group (L007, L008); a correct one is silent.
@@ -985,10 +1075,24 @@ ament_package()
         f.extend(pkg("good", "\"msg/A.msg\" \"msg/B.msg\"", true));
         let refs: Vec<(&str, &str)> = f.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
         let d = analyze_files(&refs);
-        let msgs: Vec<&str> = d.iter().filter(|x| x.rule == "L007" || x.rule == "L008").map(|x| x.message.as_str()).collect();
-        assert!(msgs.iter().any(|m| m.contains("`msg/B.msg` is not listed")), "{msgs:#?}");
-        assert!(msgs.iter().any(|m| m.contains("lists `msg/C.msg`")), "{msgs:#?}");
-        assert!(msgs.iter().any(|m| m.contains("package `bad` generates interfaces")), "{msgs:#?}");
+        let msgs: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "L007" || x.rule == "L008")
+            .map(|x| x.message.as_str())
+            .collect();
+        assert!(
+            msgs.iter().any(|m| m.contains("`msg/B.msg` is not listed")),
+            "{msgs:#?}"
+        );
+        assert!(
+            msgs.iter().any(|m| m.contains("lists `msg/C.msg`")),
+            "{msgs:#?}"
+        );
+        assert!(
+            msgs.iter()
+                .any(|m| m.contains("package `bad` generates interfaces")),
+            "{msgs:#?}"
+        );
         assert!(msgs.iter().all(|m| !m.contains("good")), "{msgs:#?}");
     }
 
@@ -1003,16 +1107,40 @@ ament_package()
         };
         w("c/package.xml", "<package format=\"3\"><name>c</name><depend>rclcpp</depend><depend>rclcpp_componets</depend><depend>my_private_driver</depend></package>");
         w("c/CMakeLists.txt", "project(c)\nadd_library(talker SHARED src/t.cpp)\nadd_library(listener SHARED src/l.cpp)\nrclcpp_components_register_nodes(talker \"c::Talker\")\nrclcpp_components_register_nodes(listener \"c::Listener\")\ninstall(TARGETS listener ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)\n");
-        let opts = crate::engine::Options { distro: Some("jazzy".into()), ..Default::default() };
-        let d = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &opts).diagnostics;
+        let opts = crate::engine::Options {
+            distro: Some("jazzy".into()),
+            ..Default::default()
+        };
+        let d = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &opts)
+            .diagnostics;
         let l009: Vec<_> = d.iter().filter(|x| x.rule == "L009").collect();
         assert_eq!(l009.len(), 2, "{l009:#?}");
-        assert!(l009.iter().any(|x| x.message.contains("rclcpp_componets") && x.severity == crate::rules::Severity::Warning && x.help.as_deref().is_some_and(|h| h.contains("rclcpp_components"))), "{l009:#?}");
-        assert!(l009.iter().any(|x| x.message.contains("my_private_driver") && x.severity == crate::rules::Severity::Info), "{l009:#?}");
-        let l010: Vec<&str> = d.iter().filter(|x| x.rule == "L010").map(|x| x.message.as_str()).collect();
+        assert!(
+            l009.iter().any(|x| x.message.contains("rclcpp_componets")
+                && x.severity == crate::rules::Severity::Warning
+                && x.help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("rclcpp_components"))),
+            "{l009:#?}"
+        );
+        assert!(
+            l009.iter().any(|x| x.message.contains("my_private_driver")
+                && x.severity == crate::rules::Severity::Info),
+            "{l009:#?}"
+        );
+        let l010: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "L010")
+            .map(|x| x.message.as_str())
+            .collect();
         assert!(l010.len() == 1 && l010[0].contains("`talker`"), "{l010:#?}");
         // Without a known distribution, rosdep keys are not checked.
-        let none = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &Default::default()).diagnostics;
+        let none = crate::engine::analyze(
+            dir.path(),
+            &crate::config::Config::default(),
+            &Default::default(),
+        )
+        .diagnostics;
         assert!(none.iter().all(|x| x.rule != "L009"), "{none:#?}");
     }
 
@@ -1026,11 +1154,18 @@ ament_package()
             ("p/launch/a.launch.xml", "<launch/>"),
             ("p/include/p/a.h", "#pragma once\n"),
         ]);
-        let mut l011: Vec<&str> = d.iter().filter(|x| x.rule == "L011").map(|x| x.message.as_str()).collect();
+        let mut l011: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "L011")
+            .map(|x| x.message.as_str())
+            .collect();
         l011.sort();
         assert_eq!(l011.len(), 3, "{l011:#?}");
         for missing in ["`config/gone.yaml`", "`maps`", "`scripts/tool.py`"] {
-            assert!(l011.iter().any(|m| m.contains(missing)), "{missing}: {l011:#?}");
+            assert!(
+                l011.iter().any(|m| m.contains(missing)),
+                "{missing}: {l011:#?}"
+            );
         }
     }
 
@@ -1043,7 +1178,12 @@ ament_package()
         std::fs::create_dir_all(p.join("vendor/libevents")).unwrap();
         std::fs::write(p.join("package.xml"), "<package format=\"3\"><name>p</name><export><build_type>ament_cmake</build_type></export></package>").unwrap();
         std::fs::write(p.join("CMakeLists.txt"), "project(p)\nfind_package(ament_cmake REQUIRED)\ninstall(FILES vendor/libevents/LICENSE.md DESTINATION share/${PROJECT_NAME})\nament_package()\n").unwrap();
-        let d = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &Default::default()).diagnostics;
+        let d = crate::engine::analyze(
+            dir.path(),
+            &crate::config::Config::default(),
+            &Default::default(),
+        )
+        .diagnostics;
         assert!(d.iter().all(|x| x.rule != "L011"), "{d:#?}");
     }
 
@@ -1062,9 +1202,18 @@ ament_package()
         let mut files = vec![("py/package.xml", pkg), ("py/setup.py", by_hand)];
         files.extend_from_slice(tree);
         let d = analyze_files(&files);
-        let l012: Vec<&str> = d.iter().filter(|x| x.rule == "L012").map(|x| x.message.as_str()).collect();
+        let l012: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "L012")
+            .map(|x| x.message.as_str())
+            .collect();
         assert_eq!(l012.len(), 1, "{d:#?}");
-        assert!(l012[0].contains("`py.core`") && l012[0].contains("`py.core.deep`") && !l012[0].contains("test"), "{l012:#?}");
+        assert!(
+            l012[0].contains("`py.core`")
+                && l012[0].contains("`py.core.deep`")
+                && !l012[0].contains("test"),
+            "{l012:#?}"
+        );
         let mut files = vec![("py/package.xml", pkg), ("py/setup.py", found)];
         files.extend_from_slice(tree);
         assert!(analyze_files(&files).iter().all(|x| x.rule != "L012"));

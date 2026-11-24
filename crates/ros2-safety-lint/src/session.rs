@@ -42,11 +42,20 @@ fn norm_path(p: &Path) -> String {
 fn line(a: &Analysis, d: &Diagnostic) -> String {
     let f = a.index.file(d.loc.file);
     let (l, c) = f.line_col(d.loc.start);
-    format!("{}[{}] {}:{l}:{c}: {}", d.severity.as_str(), d.rule, f.rel_path, d.message)
+    format!(
+        "{}[{}] {}:{l}:{c}: {}",
+        d.severity.as_str(),
+        d.rule,
+        f.rel_path,
+        d.message
+    )
 }
 
 fn keyed(a: &Analysis) -> BTreeMap<String, String> {
-    a.diagnostics.iter().map(|d| (fingerprint(&a.index, d), line(a, d))).collect()
+    a.diagnostics
+        .iter()
+        .map(|d| (fingerprint(&a.index, d), line(a, d)))
+        .collect()
 }
 
 impl Session {
@@ -54,24 +63,48 @@ impl Session {
         opts.cache = Some(Default::default());
         let t = Instant::now();
         let last = analyze(root, &config, &opts);
-        Session { root: root.to_path_buf(), config, opts, last, last_ms: t.elapsed().as_millis() }
+        Session {
+            root: root.to_path_buf(),
+            config,
+            opts,
+            last,
+            last_ms: t.elapsed().as_millis(),
+        }
     }
 
     /// Re-analyses with in-memory file contents (unsaved editor buffers) and returns what changed.
     pub fn reanalyze(&mut self, overrides: HashMap<PathBuf, String>) -> Delta {
         // Editors and callers spell paths differently (`/` vs `\`, drive-letter case): use the
         // indexer's own path for each overridden file.
-        let known: HashMap<String, PathBuf> = self.last.index.sources.files.iter().map(|f| (norm_path(&f.abs_path), f.abs_path.clone())).collect();
+        let known: HashMap<String, PathBuf> = self
+            .last
+            .index
+            .sources
+            .files
+            .iter()
+            .map(|f| (norm_path(&f.abs_path), f.abs_path.clone()))
+            .collect();
         let mut o = self.opts.clone();
-        o.overrides = overrides.into_iter().map(|(p, t)| (known.get(&norm_path(&p)).cloned().unwrap_or(p), t)).collect();
+        o.overrides = overrides
+            .into_iter()
+            .map(|(p, t)| (known.get(&norm_path(&p)).cloned().unwrap_or(p), t))
+            .collect();
         o.previous = Some(Arc::new(self.last.snapshot()));
         let t = Instant::now();
         let next = analyze(&self.root, &self.config, &o);
         self.last_ms = t.elapsed().as_millis();
         let (before, after) = (keyed(&self.last), keyed(&next));
         let delta = Delta {
-            added: after.iter().filter(|(k, _)| !before.contains_key(*k)).map(|(_, v)| v.clone()).collect(),
-            removed: before.iter().filter(|(k, _)| !after.contains_key(*k)).map(|(_, v)| v.clone()).collect(),
+            added: after
+                .iter()
+                .filter(|(k, _)| !before.contains_key(*k))
+                .map(|(_, v)| v.clone())
+                .collect(),
+            removed: before
+                .iter()
+                .filter(|(k, _)| !after.contains_key(*k))
+                .map(|(_, v)| v.clone())
+                .collect(),
         };
         self.last = next;
         delta
@@ -85,10 +118,22 @@ impl Session {
 fn stamps(root: &Path) -> BTreeMap<PathBuf, (SystemTime, u64)> {
     walkdir::WalkDir::new(root)
         .into_iter()
-        .filter_entry(|e| !matches!(e.file_name().to_str(), Some(".git" | "build" | "install" | "log" | "target")))
+        .filter_entry(|e| {
+            !matches!(
+                e.file_name().to_str(),
+                Some(".git" | "build" | "install" | "log" | "target")
+            )
+        })
         .filter_map(Result::ok)
         .filter(|e| e.file_type().is_file())
-        .filter_map(|e| e.metadata().ok().map(|m| (e.path().to_path_buf(), (m.modified().unwrap_or(SystemTime::UNIX_EPOCH), m.len()))))
+        .filter_map(|e| {
+            e.metadata().ok().map(|m| {
+                (
+                    e.path().to_path_buf(),
+                    (m.modified().unwrap_or(SystemTime::UNIX_EPOCH), m.len()),
+                )
+            })
+        })
         .collect()
 }
 
@@ -99,7 +144,12 @@ pub fn watch(root: &Path, config: Config, opts: Options, interval_ms: u64) -> ! 
     for d in &s.last.diagnostics {
         println!("  {}", line(&s.last, d));
     }
-    eprintln!("rosfix: watching {} — {} finding(s), analysed in {} ms", root.display(), s.last.diagnostics.len(), s.last_ms);
+    eprintln!(
+        "rosfix: watching {} — {} finding(s), analysed in {} ms",
+        root.display(),
+        s.last.diagnostics.len(),
+        s.last_ms
+    );
     let mut seen = stamps(root);
     loop {
         std::thread::sleep(std::time::Duration::from_millis(interval_ms));
@@ -160,7 +210,11 @@ fn uri_to_path(uri: &str) -> Option<PathBuf> {
     let p = uri.strip_prefix("file://")?;
     let p = percent_decode(p);
     // file:///d:/x on Windows
-    let p = if p.len() > 2 && p.as_bytes()[0] == b'/' && p.as_bytes()[2] == b':' { p[1..].to_string() } else { p };
+    let p = if p.len() > 2 && p.as_bytes()[0] == b'/' && p.as_bytes()[2] == b':' {
+        p[1..].to_string()
+    } else {
+        p
+    };
     Some(PathBuf::from(p))
 }
 
@@ -195,7 +249,12 @@ fn path_to_uri(p: &Path) -> String {
 /// LSP diagnostics for every file with findings, plus empty lists for files that had some
 /// before (so editors clear them).
 /// The LSP range (0-based lines and characters) of a byte span in a loaded file.
-fn lsp_range(a: &Analysis, file: crate::source::FileId, start: usize, end: usize) -> serde_json::Value {
+fn lsp_range(
+    a: &Analysis,
+    file: crate::source::FileId,
+    start: usize,
+    end: usize,
+) -> serde_json::Value {
     let f = a.index.file(file);
     let (l0, c0) = f.line_col(start);
     let (l1, c1) = f.line_col(end.max(start));
@@ -226,7 +285,9 @@ fn lsp_diagnostic(a: &Analysis, d: &Diagnostic) -> serde_json::Value {
 /// Quick fixes for the findings in `uri` whose lines overlap `range`: one code action per
 /// fix, its edits as a workspace edit. Safe fixes are marked preferred.
 fn code_actions(a: &Analysis, uri: &str, range: &serde_json::Value) -> Vec<serde_json::Value> {
-    let Some(path) = uri_to_path(uri) else { return Vec::new() };
+    let Some(path) = uri_to_path(uri) else {
+        return Vec::new();
+    };
     let want = norm_path(&path);
     let line = |p: &serde_json::Value| p["line"].as_u64().unwrap_or(0);
     let (from, to) = (line(&range["start"]), line(&range["end"]));
@@ -268,21 +329,37 @@ fn publish(s: &Session, previously: &mut Vec<String>, out: &mut impl std::io::Wr
         if f.abs_path.as_os_str().is_empty() {
             continue; // knowledge-pack pseudo files
         }
-        by_file.entry(path_to_uri(&f.abs_path)).or_default().push(lsp_diagnostic(a, d));
+        by_file
+            .entry(path_to_uri(&f.abs_path))
+            .or_default()
+            .push(lsp_diagnostic(a, d));
     }
     for uri in previously.iter() {
         by_file.entry(uri.clone()).or_default();
     }
     for (uri, diags) in &by_file {
-        write_message(out, &serde_json::json!({"jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": {"uri": uri, "diagnostics": diags}}));
+        write_message(
+            out,
+            &serde_json::json!({"jsonrpc": "2.0", "method": "textDocument/publishDiagnostics", "params": {"uri": uri, "diagnostics": diags}}),
+        );
     }
-    *previously = by_file.into_iter().filter(|(_, d)| !d.is_empty()).map(|(u, _)| u).collect();
+    *previously = by_file
+        .into_iter()
+        .filter(|(_, d)| !d.is_empty())
+        .map(|(u, _)| u)
+        .collect();
 }
 
 /// `rosfix --lsp`: a minimal language server over stdio. Diagnostics are published for the
 /// whole workspace after `initialized`, and again after every change to an open document
 /// (unsaved contents are analysed as in-memory overrides) or save.
-pub fn lsp(root: &Path, config: Config, opts: Options, input: &mut impl std::io::BufRead, out: &mut impl std::io::Write) {
+pub fn lsp(
+    root: &Path,
+    config: Config,
+    opts: Options,
+    input: &mut impl std::io::BufRead,
+    out: &mut impl std::io::Write,
+) {
     let mut session: Option<Session> = None;
     let mut open: HashMap<PathBuf, String> = HashMap::new();
     let mut published = Vec::new();
@@ -291,13 +368,16 @@ pub fn lsp(root: &Path, config: Config, opts: Options, input: &mut impl std::io:
         let method = msg["method"].as_str().unwrap_or_default();
         let id = msg.get("id").cloned();
         match method {
-            "initialize" => write_message(out, &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
-                "capabilities": {
-                    "textDocumentSync": {"openClose": true, "change": 1, "save": {"includeText": false}},
-                    "codeActionProvider": {"codeActionKinds": ["quickfix"]}
-                },
-                "serverInfo": {"name": "rosfix", "version": env!("CARGO_PKG_VERSION")}
-            }})),
+            "initialize" => write_message(
+                out,
+                &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                    "capabilities": {
+                        "textDocumentSync": {"openClose": true, "change": 1, "save": {"includeText": false}},
+                        "codeActionProvider": {"codeActionKinds": ["quickfix"]}
+                    },
+                    "serverInfo": {"name": "rosfix", "version": env!("CARGO_PKG_VERSION")}
+                }}),
+            ),
             "initialized" => {
                 if let (Some(c), Some(o)) = (config.take(), opts.take()) {
                     let s = Session::new(root, c, o);
@@ -305,9 +385,14 @@ pub fn lsp(root: &Path, config: Config, opts: Options, input: &mut impl std::io:
                     session = Some(s);
                 }
             }
-            "textDocument/didOpen" | "textDocument/didChange" | "textDocument/didSave" | "textDocument/didClose" => {
+            "textDocument/didOpen"
+            | "textDocument/didChange"
+            | "textDocument/didSave"
+            | "textDocument/didClose" => {
                 let p = &msg["params"];
-                let Some(path) = p["textDocument"]["uri"].as_str().and_then(uri_to_path) else { continue };
+                let Some(path) = p["textDocument"]["uri"].as_str().and_then(uri_to_path) else {
+                    continue;
+                };
                 match method {
                     "textDocument/didOpen" => {
                         if let Some(t) = p["textDocument"]["text"].as_str() {
@@ -315,7 +400,11 @@ pub fn lsp(root: &Path, config: Config, opts: Options, input: &mut impl std::io:
                         }
                     }
                     "textDocument/didChange" => {
-                        if let Some(t) = p["contentChanges"].as_array().and_then(|c| c.last()).and_then(|c| c["text"].as_str()) {
+                        if let Some(t) = p["contentChanges"]
+                            .as_array()
+                            .and_then(|c| c.last())
+                            .and_then(|c| c["text"].as_str())
+                        {
                             open.insert(path, t.to_string());
                         }
                     }
@@ -335,14 +424,23 @@ pub fn lsp(root: &Path, config: Config, opts: Options, input: &mut impl std::io:
                     (Some(s), Some(uri)) => code_actions(&s.last, uri, &p["range"]),
                     _ => Vec::new(),
                 };
-                write_message(out, &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": actions}));
+                write_message(
+                    out,
+                    &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": actions}),
+                );
             }
-            "shutdown" => write_message(out, &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": null})),
+            "shutdown" => write_message(
+                out,
+                &serde_json::json!({"jsonrpc": "2.0", "id": id, "result": null}),
+            ),
             "exit" => return,
             _ => {
                 // Unknown requests get an empty result; notifications are ignored.
                 if id.is_some() && !method.is_empty() {
-                    write_message(out, &serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {"code": -32601, "message": "method not found"}}));
+                    write_message(
+                        out,
+                        &serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {"code": -32601, "message": "method not found"}}),
+                    );
                 }
             }
         }
@@ -364,8 +462,14 @@ mod tests {
             std::fs::create_dir_all(p.parent().unwrap()).unwrap();
             std::fs::write(p, t).unwrap();
         };
-        w("p/package.xml", "<package format=\"3\"><name>p</name></package>");
-        w("p/config/a.yaml", BAD.replace("parametres", "parameters").as_str());
+        w(
+            "p/package.xml",
+            "<package format=\"3\"><name>p</name></package>",
+        );
+        w(
+            "p/config/a.yaml",
+            BAD.replace("parametres", "parameters").as_str(),
+        );
         d
     }
 
@@ -377,10 +481,19 @@ mod tests {
         let yaml = d.path().join("p/config/a.yaml");
         let bad = HashMap::from([(yaml.clone(), BAD.to_string())]);
         let delta = s.reanalyze(bad);
-        assert!(delta.added.iter().any(|l| l.contains("[P002]")), "{delta:?}");
-        assert!(s.last.stats().files_reused > 0, "unchanged files must come from the cache");
+        assert!(
+            delta.added.iter().any(|l| l.contains("[P002]")),
+            "{delta:?}"
+        );
+        assert!(
+            s.last.stats().files_reused > 0,
+            "unchanged files must come from the cache"
+        );
         let delta = s.reanalyze(HashMap::new());
-        assert!(delta.removed.iter().any(|l| l.contains("[P002]")), "{delta:?}");
+        assert!(
+            delta.removed.iter().any(|l| l.contains("[P002]")),
+            "{delta:?}"
+        );
     }
 
     #[test]
@@ -401,11 +514,23 @@ mod tests {
             input.extend(format!("Content-Length: {}\r\n\r\n{b}", b.len()).into_bytes());
         }
         let mut out = Vec::new();
-        lsp(d.path(), Config::default(), Options::default(), &mut std::io::Cursor::new(input), &mut out);
+        lsp(
+            d.path(),
+            Config::default(),
+            Options::default(),
+            &mut std::io::Cursor::new(input),
+            &mut out,
+        );
         let text = String::from_utf8(out).unwrap();
         assert!(text.contains("\"capabilities\""), "{text}");
-        assert!(text.contains("publishDiagnostics") && text.contains("P002"), "{text}");
-        assert!(text.contains(&uri) || text.to_lowercase().contains(&uri.to_lowercase()), "{text}");
+        assert!(
+            text.contains("publishDiagnostics") && text.contains("P002"),
+            "{text}"
+        );
+        assert!(
+            text.contains(&uri) || text.to_lowercase().contains(&uri.to_lowercase()),
+            "{text}"
+        );
     }
 
     #[test]
@@ -426,16 +551,36 @@ mod tests {
             input.extend(format!("Content-Length: {}\r\n\r\n{b}", b.len()).into_bytes());
         }
         let mut out = Vec::new();
-        lsp(d.path(), Config::default(), Options::default(), &mut std::io::Cursor::new(input), &mut out);
+        lsp(
+            d.path(),
+            Config::default(),
+            Options::default(),
+            &mut std::io::Cursor::new(input),
+            &mut out,
+        );
         let text = String::from_utf8(out).unwrap();
         assert!(text.contains("codeActionProvider"), "{text}");
         // The response to request 7 carries the P002 rename as a preferred quick fix.
-        let reply = text.split("Content-Length").find(|m| m.contains("\"id\":7")).expect("code action reply");
-        let body: serde_json::Value = serde_json::from_str(&reply[reply.find('{').unwrap()..]).unwrap();
-        let action = body["result"].as_array().unwrap().iter().find(|a| a["title"].as_str().unwrap().contains("P002")).unwrap_or_else(|| panic!("{body}"));
+        let reply = text
+            .split("Content-Length")
+            .find(|m| m.contains("\"id\":7"))
+            .expect("code action reply");
+        let body: serde_json::Value =
+            serde_json::from_str(&reply[reply.find('{').unwrap()..]).unwrap();
+        let action = body["result"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|a| a["title"].as_str().unwrap().contains("P002"))
+            .unwrap_or_else(|| panic!("{body}"));
         assert_eq!(action["kind"], "quickfix");
         assert_eq!(action["isPreferred"], true);
-        let edits = action["edit"]["changes"].as_object().unwrap().values().next().unwrap();
+        let edits = action["edit"]["changes"]
+            .as_object()
+            .unwrap()
+            .values()
+            .next()
+            .unwrap();
         assert_eq!(edits[0]["newText"], "ros__parameters");
     }
 }

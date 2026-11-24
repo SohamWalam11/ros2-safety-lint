@@ -40,7 +40,11 @@ pub const KNOWN_RMW: &[&str] = &[
 ];
 
 /// Variables that point a middleware at its XML configuration.
-pub const DDS_FILE_VARS: &[&str] = &["CYCLONEDDS_URI", "FASTRTPS_DEFAULT_PROFILES_FILE", "FASTDDS_DEFAULT_PROFILES_FILE"];
+pub const DDS_FILE_VARS: &[&str] = &[
+    "CYCLONEDDS_URI",
+    "FASTRTPS_DEFAULT_PROFILES_FILE",
+    "FASTDDS_DEFAULT_PROFILES_FILE",
+];
 
 /// A `ROS_DOMAIN_ID` value the middleware accepts: an integer from 0 to 232.
 pub fn domain_id_valid(v: &str) -> bool {
@@ -60,7 +64,12 @@ pub fn dds_config_paths(value: &str) -> impl Iterator<Item = &str> {
 pub const ZENOH_FILE_VARS: &[&str] = &["ZENOH_SESSION_CONFIG_URI", "ZENOH_ROUTER_CONFIG_URI"];
 
 /// rmw_zenoh_cpp variables whose values it parses (`zenoh_config.cpp`).
-pub const ZENOH_VALUE_VARS: &[&str] = &["ZENOH_CONFIG_OVERRIDE", "ZENOH_ROUTER_CHECK_ATTEMPTS", "ZENOH_SHM_ALLOC_SIZE", "ZENOH_SHM_MESSAGE_SIZE_THRESHOLD"];
+pub const ZENOH_VALUE_VARS: &[&str] = &[
+    "ZENOH_CONFIG_OVERRIDE",
+    "ZENOH_ROUTER_CHECK_ATTEMPTS",
+    "ZENOH_SHM_ALLOC_SIZE",
+    "ZENOH_SHM_MESSAGE_SIZE_THRESHOLD",
+];
 
 /// The integer `strtoll` reads from the start of `v`, or None when it reads no digits.
 fn leading_int(v: &str) -> Option<i128> {
@@ -69,7 +78,11 @@ fn leading_int(v: &str) -> Option<i128> {
         Some(rest) => (-1, rest),
         None => (1, t.strip_prefix('+').unwrap_or(t)),
     };
-    let n: String = digits.chars().take_while(char::is_ascii_digit).take(30).collect();
+    let n: String = digits
+        .chars()
+        .take_while(char::is_ascii_digit)
+        .take(30)
+        .collect();
     n.parse::<i128>().ok().map(|x| sign * x)
 }
 
@@ -82,9 +95,14 @@ fn json5_value(v: &str) -> bool {
         || wrapped('\'', '\'')
         || wrapped('[', ']')
         || wrapped('{', '}')
-        || matches!(v, "true" | "false" | "null" | "Infinity" | "-Infinity" | "+Infinity" | "NaN")
+        || matches!(
+            v,
+            "true" | "false" | "null" | "Infinity" | "-Infinity" | "+Infinity" | "NaN"
+        )
         || v.parse::<f64>().is_ok()
-        || v.strip_prefix("0x").or_else(|| v.strip_prefix("0X")).is_some_and(|h| !h.is_empty() && h.chars().all(|c| c.is_ascii_hexdigit()))
+        || v.strip_prefix("0x")
+            .or_else(|| v.strip_prefix("0X"))
+            .is_some_and(|h| !h.is_empty() && h.chars().all(|c| c.is_ascii_hexdigit()))
 }
 
 /// What rmw_zenoh_cpp does wrong with this value of one of its variables, if anything.
@@ -149,16 +167,24 @@ impl Agent for NetworkAgent {
         super::ALL_INPUTS
     }
     fn relevant(&self, cx: &Context) -> bool {
-        cx.graph.roots.iter().any(|r| r.env.iter().any(|e| VARS.contains(&e.name.as_str())))
+        cx.graph
+            .roots
+            .iter()
+            .any(|r| r.env.iter().any(|e| VARS.contains(&e.name.as_str())))
     }
     fn run(&self, cx: &Context, out: &mut Vec<Diagnostic>) {
         let mut seen = HashSet::new();
-        let newer = matches!(cx.ix.installed.distro.as_deref(), Some("jazzy" | "kilted" | "rolling"));
+        let newer = matches!(
+            cx.ix.installed.distro.as_deref(),
+            Some("jazzy" | "kilted" | "rolling")
+        );
         for e in cx.graph.roots.iter().flat_map(|r| r.env.iter()) {
             if !seen.insert(e.loc) || cx.ix.external_files.contains(&e.loc.file) {
                 continue;
             }
-            let Some(v) = e.value.as_deref().map(str::trim) else { continue };
+            let Some(v) = e.value.as_deref().map(str::trim) else {
+                continue;
+            };
             if v.contains("$(") || v.contains("@arg:") {
                 continue;
             }
@@ -228,34 +254,62 @@ mod tests {
     fn environment_checks() {
         let launch = "from launch import LaunchDescription\nfrom launch.actions import SetEnvironmentVariable\nfrom launch_ros.actions import Node\nimport os\nfrom ament_index_python.packages import get_package_share_directory\ndef generate_launch_description():\n    return LaunchDescription([\n        SetEnvironmentVariable('ROS_DOMAIN_ID', '300'),\n        SetEnvironmentVariable('RMW_IMPLEMENTATION', 'rmw_cyclonedds_cp'),\n        SetEnvironmentVariable('CYCLONEDDS_URI', 'file://' + os.path.join(get_package_share_directory('p'), 'config', 'cyclone.xml')),\n        Node(package='p', executable='x'),\n    ])\n";
         let d = analyze_files(&[
-            ("p/package.xml", "<package format=\"3\"><name>p</name></package>"),
+            (
+                "p/package.xml",
+                "<package format=\"3\"><name>p</name></package>",
+            ),
             ("p/launch/a.launch.py", launch),
         ]);
         let ids: Vec<&str> = d.iter().map(|x| x.rule).collect();
         for r in ["D001", "D002", "D003"] {
             assert!(ids.contains(&r), "{r}: {d:#?}");
         }
-        assert!(d.iter().any(|x| x.rule == "D002" && x.help.as_deref().is_some_and(|h| h.contains("rmw_cyclonedds_cpp"))), "{d:#?}");
+        assert!(
+            d.iter().any(|x| x.rule == "D002"
+                && x.help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("rmw_cyclonedds_cpp"))),
+            "{d:#?}"
+        );
     }
 
     #[test]
     fn zenoh_environment() {
         let launch = "from launch import LaunchDescription\nfrom launch.actions import SetEnvironmentVariable\nfrom launch_ros.actions import Node\nimport os\nfrom ament_index_python.packages import get_package_share_directory\ndef generate_launch_description():\n    return LaunchDescription([\n        SetEnvironmentVariable('RMW_IMPLEMENTATION', 'rmw_zenoh_cpp'),\n        SetEnvironmentVariable('ZENOH_SESSION_CONFIG_URI', os.path.join(get_package_share_directory('p'), 'config', 'zenoh.json5')),\n        SetEnvironmentVariable('ZENOH_CONFIG_OVERRIDE', 'mode=peer'),\n        SetEnvironmentVariable('ZENOH_ROUTER_CHECK_ATTEMPTS', '-1'),\n        Node(package='p', executable='x'),\n    ])\n";
         let d = analyze_files(&[
-            ("p/package.xml", "<package format=\"3\"><name>p</name></package>"),
+            (
+                "p/package.xml",
+                "<package format=\"3\"><name>p</name></package>",
+            ),
             ("p/launch/a.launch.py", launch),
         ]);
-        let msgs: Vec<(&str, &str)> = d.iter().filter(|x| x.rule.starts_with('D')).map(|x| (x.rule, x.message.as_str())).collect();
+        let msgs: Vec<(&str, &str)> = d
+            .iter()
+            .filter(|x| x.rule.starts_with('D'))
+            .map(|x| (x.rule, x.message.as_str()))
+            .collect();
         assert_eq!(msgs.len(), 2, "{msgs:#?}");
-        assert!(msgs.iter().any(|(r, m)| *r == "D003" && m.contains("zenoh.json5")), "{msgs:#?}");
-        assert!(msgs.iter().any(|(r, m)| *r == "D005" && m.contains("`peer`")), "{msgs:#?}");
+        assert!(
+            msgs.iter()
+                .any(|(r, m)| *r == "D003" && m.contains("zenoh.json5")),
+            "{msgs:#?}"
+        );
+        assert!(
+            msgs.iter()
+                .any(|(r, m)| *r == "D005" && m.contains("`peer`")),
+            "{msgs:#?}"
+        );
     }
 
     #[test]
     fn zenoh_values() {
         use super::zenoh_value_problem as p;
         assert!(p("ZENOH_CONFIG_OVERRIDE", "mode=\"peer\";connect/endpoints=[\"tcp/10.0.0.2:7447\"];scouting/multicast/enabled=false").is_none());
-        assert!(p("ZENOH_CONFIG_OVERRIDE", "transport/shared_memory/enabled=true;").is_none());
+        assert!(p(
+            "ZENOH_CONFIG_OVERRIDE",
+            "transport/shared_memory/enabled=true;"
+        )
+        .is_none());
         assert!(p("ZENOH_CONFIG_OVERRIDE", "mode=peer").is_some());
         assert!(p("ZENOH_CONFIG_OVERRIDE", "mode").is_some());
         assert!(p("ZENOH_ROUTER_CHECK_ATTEMPTS", "0").is_none());
@@ -270,7 +324,13 @@ mod tests {
     #[test]
     fn valid_environment_is_silent() {
         let launch = "from launch import LaunchDescription\nfrom launch.actions import SetEnvironmentVariable\nfrom launch_ros.actions import Node\ndef generate_launch_description():\n    return LaunchDescription([\n        SetEnvironmentVariable('ROS_DOMAIN_ID', '42'),\n        SetEnvironmentVariable('RMW_IMPLEMENTATION', 'rmw_my_custom_middleware'),\n        Node(package='p', executable='x'),\n    ])\n";
-        let d = analyze_files(&[("p/package.xml", "<package format=\"3\"><name>p</name></package>"), ("p/launch/a.launch.py", launch)]);
+        let d = analyze_files(&[
+            (
+                "p/package.xml",
+                "<package format=\"3\"><name>p</name></package>",
+            ),
+            ("p/launch/a.launch.py", launch),
+        ]);
         assert!(d.iter().all(|x| !x.rule.starts_with('D')), "{d:#?}");
     }
 }

@@ -34,7 +34,9 @@ fn py_literal(e: &Expr) -> Option<String> {
             Constant::Str(s) => Some(format!("{s:?}")),
             _ => None,
         },
-        Expr::UnaryOp(u) if matches!(u.op, ast::UnaryOp::USub) => py_literal(&u.operand).map(|v| format!("-{v}")),
+        Expr::UnaryOp(u) if matches!(u.op, ast::UnaryOp::USub) => {
+            py_literal(&u.operand).map(|v| format!("-{v}"))
+        }
         Expr::List(ast::ExprList { elts, .. }) | Expr::Tuple(ast::ExprTuple { elts, .. }) => {
             let items: Option<Vec<String>> = elts.iter().map(py_literal).collect();
             items.map(|v| format!("[{}]", v.join(", ")))
@@ -691,7 +693,12 @@ impl W {
                                 kind: CallbackKind::Timer,
                                 target: cb,
                                 group,
-                                period_ms: c.args.first().or(kw(c, "timer_period_sec")).and_then(py_number).map(|s| s * 1000.0),
+                                period_ms: c
+                                    .args
+                                    .first()
+                                    .or(kw(c, "timer_period_sec"))
+                                    .and_then(py_number)
+                                    .map(|s| s * 1000.0),
                                 loc,
                             });
                         }

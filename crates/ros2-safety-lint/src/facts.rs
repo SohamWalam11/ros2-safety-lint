@@ -312,27 +312,44 @@ impl Constraint {
             ParamValue::EmptyArray => Some(0),
             _ => None,
         };
-        let fmt = |x: f64| if x.fract() == 0.0 && x.abs() < 1e15 { format!("{x:.0}") } else { format!("{x}") };
+        let fmt = |x: f64| {
+            if x.fract() == 0.0 && x.abs() < 1e15 {
+                format!("{x:.0}")
+            } else {
+                format!("{x}")
+            }
+        };
         match c {
-            Constraint::Range { min, max } => num.filter(|x| x < min || x > max).map(|_| format!("the range [{}, {}]", fmt(*min), fmt(*max))),
-            Constraint::Lower { bound, inclusive } => {
-                num.filter(|x| if *inclusive { x < bound } else { x <= bound }).map(|_| format!("`{} {}`", if *inclusive { ">=" } else { ">" }, fmt(*bound)))
-            }
-            Constraint::Upper { bound, inclusive } => {
-                num.filter(|x| if *inclusive { x > bound } else { x >= bound }).map(|_| format!("`{} {}`", if *inclusive { "<=" } else { "<" }, fmt(*bound)))
-            }
+            Constraint::Range { min, max } => num
+                .filter(|x| x < min || x > max)
+                .map(|_| format!("the range [{}, {}]", fmt(*min), fmt(*max))),
+            Constraint::Lower { bound, inclusive } => num
+                .filter(|x| if *inclusive { x < bound } else { x <= bound })
+                .map(|_| format!("`{} {}`", if *inclusive { ">=" } else { ">" }, fmt(*bound))),
+            Constraint::Upper { bound, inclusive } => num
+                .filter(|x| if *inclusive { x > bound } else { x >= bound })
+                .map(|_| format!("`{} {}`", if *inclusive { "<=" } else { "<" }, fmt(*bound))),
             Constraint::OneOf(opts) => match v {
-                ParamValue::Str(s) if !opts.contains(s) => Some(format!("one of {}", opts.iter().map(|o| format!("`{o}`")).collect::<Vec<_>>().join(", "))),
+                ParamValue::Str(s) if !opts.contains(s) => Some(format!(
+                    "one of {}",
+                    opts.iter()
+                        .map(|o| format!("`{o}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )),
                 _ => None,
             },
             Constraint::NotEmpty => len.filter(|n| *n == 0).map(|_| "`not empty`".to_string()),
-            Constraint::Size { min, max } => len.filter(|n| n < min || n > max).map(|_| match (min, max) {
-                (a, b) if a == b => format!("a size of exactly {a}"),
-                (0, b) => format!("a size of at most {b}"),
-                (a, _) => format!("a size of at least {a}"),
-            }),
+            Constraint::Size { min, max } => {
+                len.filter(|n| n < min || n > max)
+                    .map(|_| match (min, max) {
+                        (a, b) if a == b => format!("a size of exactly {a}"),
+                        (0, b) => format!("a size of at most {b}"),
+                        (a, _) => format!("a size of at least {a}"),
+                    })
+            }
         }
-}
+    }
 }
 
 impl ParamValue {
@@ -346,23 +363,35 @@ impl ParamValue {
             ParamValue::EmptyArray => "`[]`".to_string(),
             other => format!("{} value", other.ty().as_str()),
         }
-}
+    }
 }
 
 /// A value constraint checked by the node at declaration time.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Constraint {
     /// Inclusive numeric range (`floating_point_range`/`integer_range`, `bounds<>`).
-    Range { min: f64, max: f64 },
+    Range {
+        min: f64,
+        max: f64,
+    },
     /// `lt<>`, `gt<>`, `lt_eq<>`, `gt_eq<>`: (bound, inclusive).
-    Lower { bound: f64, inclusive: bool },
-    Upper { bound: f64, inclusive: bool },
+    Lower {
+        bound: f64,
+        inclusive: bool,
+    },
+    Upper {
+        bound: f64,
+        inclusive: bool,
+    },
     /// `one_of<>`: the value (as text) must be one of these.
     OneOf(Vec<String>),
     /// `not_empty<>` for strings and arrays.
     NotEmpty,
     /// Array length bounds: `size_lt<>`/`size_gt<>`/`fixed_size<>` (min, max inclusive).
-    Size { min: usize, max: usize },
+    Size {
+        min: usize,
+        max: usize,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]

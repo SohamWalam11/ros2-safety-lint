@@ -59,9 +59,27 @@ struct OpStats {
 /// Re-analyses one mutation fully and with the parse cache only, timing each, and counts a
 /// mismatch if the findings differ from the incremental (cache + reuse) result `inc`.
 /// Pushes [full ms, cache-only ms, incremental ms, mismatch 0/1].
-fn ablate(root: &Path, config: &Config, m: &Mutation, inc: &Analysis, cache: &std::sync::Arc<rosfix::workspace::ExtractCache>, out: &mut Vec<[u128; 4]>) {
+fn ablate(
+    root: &Path,
+    config: &Config,
+    m: &Mutation,
+    inc: &Analysis,
+    cache: &std::sync::Arc<rosfix::workspace::ExtractCache>,
+    out: &mut Vec<[u128; 4]>,
+) {
     let key = |a: &Analysis| {
-        let mut v: Vec<(String, &'static str, usize, String)> = a.diagnostics.iter().map(|d| (a.index.file(d.loc.file).rel_path.clone(), d.rule, d.loc.start, d.message.clone())).collect();
+        let mut v: Vec<(String, &'static str, usize, String)> = a
+            .diagnostics
+            .iter()
+            .map(|d| {
+                (
+                    a.index.file(d.loc.file).rel_path.clone(),
+                    d.rule,
+                    d.loc.start,
+                    d.message.clone(),
+                )
+            })
+            .collect();
         v.sort();
         v
     };
@@ -69,7 +87,10 @@ fn ablate(root: &Path, config: &Config, m: &Mutation, inc: &Analysis, cache: &st
     let mut full_o = Options::default();
     full_o.overrides.insert(m.file.clone(), m.new_text.clone());
     let full = analyze(root, config, &full_o);
-    let mut cache_o = Options { cache: Some(cache.clone()), ..Default::default() };
+    let mut cache_o = Options {
+        cache: Some(cache.clone()),
+        ..Default::default()
+    };
     cache_o.overrides.insert(m.file.clone(), m.new_text.clone());
     let cached = analyze(root, config, &cache_o);
     let mismatch = u128::from(key(&full) != key(inc) || key(&full) != key(&cached));
@@ -250,7 +271,9 @@ fn main() {
             );
         }
         if !ablations.is_empty() {
-            let mut cols: Vec<Vec<u128>> = (0..3).map(|k| ablations.iter().map(|a| a[k]).collect()).collect();
+            let mut cols: Vec<Vec<u128>> = (0..3)
+                .map(|k| ablations.iter().map(|a| a[k]).collect())
+                .collect();
             for c in &mut cols {
                 c.sort();
             }

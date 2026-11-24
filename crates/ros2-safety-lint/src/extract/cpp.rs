@@ -67,9 +67,16 @@ fn duration_ms(t: &str) -> Option<f64> {
         "ns" | "nanoseconds" => Some(0.000_001),
         _ => None,
     };
-    let num = |s: &str| s.trim_end_matches(['f', 'F']).parse::<f64>().ok().filter(|x| *x > 0.0);
+    let num = |s: &str| {
+        s.trim_end_matches(['f', 'F'])
+            .parse::<f64>()
+            .ok()
+            .filter(|x| *x > 0.0)
+    };
     // `100ms`
-    let split = t.find(|c: char| !(c.is_ascii_digit() || c == '.')).unwrap_or(t.len());
+    let split = t
+        .find(|c: char| !(c.is_ascii_digit() || c == '.'))
+        .unwrap_or(t.len());
     if split > 0 && split < t.len() {
         if let (Some(n), Some(u)) = (num(&t[..split]), unit_ms(&t[split..])) {
             return Some(n * u);
@@ -813,7 +820,9 @@ impl<'a> W<'a> {
                         || t.starts_with("rclcpp::PARAMETER_")
                         || t.starts_with("PARAMETER_"))
                 });
-                let default_text = default.filter(|_| has_default).map(|d| text(d, self.src).to_string());
+                let default_text = default
+                    .filter(|_| has_default)
+                    .map(|d| text(d, self.src).to_string());
                 let target = if class.is_some()
                     && !on_self
                     && !helper
@@ -1187,7 +1196,10 @@ impl<'a> W<'a> {
                         kind: CallbackKind::Timer,
                         target: cb,
                         group,
-                        period_ms: p.checked_sub(1).and_then(|k| a.get(k)).and_then(|x| duration_ms(text(x, self.src))),
+                        period_ms: p
+                            .checked_sub(1)
+                            .and_then(|k| a.get(k))
+                            .and_then(|x| duration_ms(text(x, self.src))),
                         loc,
                     });
                 }
@@ -1234,17 +1246,28 @@ fn descriptor_ranges(src: &str) -> Vec<(String, Constraint)> {
         ]
     });
     // range variable (or `d.floating_point_range[0]`) -> (from, to)
-    let mut ranges: std::collections::HashMap<String, (Option<f64>, Option<f64>)> = std::collections::HashMap::new();
+    let mut ranges: std::collections::HashMap<String, (Option<f64>, Option<f64>)> =
+        std::collections::HashMap::new();
     for c in bound.captures_iter(src) {
         let e = ranges.entry(c[1].to_string()).or_default();
         let v = c[3].parse::<f64>().ok();
-        if &c[2] == "from_value" { e.0 = v } else { e.1 = v }
+        if &c[2] == "from_value" {
+            e.0 = v
+        } else {
+            e.1 = v
+        }
     }
     // descriptor variable -> range
     let mut desc: std::collections::HashMap<String, Constraint> = std::collections::HashMap::new();
     let mut add = |d: &str, key: &str| {
         if let Some((Some(min), Some(max))) = ranges.get(key) {
-            desc.insert(d.to_string(), Constraint::Range { min: *min, max: *max });
+            desc.insert(
+                d.to_string(),
+                Constraint::Range {
+                    min: *min,
+                    max: *max,
+                },
+            );
         }
     };
     for c in push.captures_iter(src) {
@@ -1257,7 +1280,9 @@ fn descriptor_ranges(src: &str) -> Vec<(String, Constraint)> {
             }
         }
     }
-    decl.captures_iter(src).filter_map(|c| desc.get(&c[2]).map(|r| (c[1].to_string(), r.clone()))).collect()
+    decl.captures_iter(src)
+        .filter_map(|c| desc.get(&c[2]).map(|r| (c[1].to_string(), r.clone())))
+        .collect()
 }
 
 /// Prefixes of generate_parameter_library listeners: `ParamListener(node, "ns")`,
@@ -1266,7 +1291,8 @@ fn descriptor_ranges(src: &str) -> Vec<(String, Constraint)> {
 fn param_listener_prefixes(src: &str) -> Vec<Option<String>> {
     static CALL: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
     let call = CALL.get_or_init(|| {
-        regex::Regex::new(r#"ParamListener\s*>?\s*\(\s*[^,()]+,\s*([^,()]+?)\s*[,)]"#).expect("valid regex")
+        regex::Regex::new(r#"ParamListener\s*>?\s*\(\s*[^,()]+,\s*([^,()]+?)\s*[,)]"#)
+            .expect("valid regex")
     });
     call.captures_iter(src)
         .map(|c| {
@@ -1277,7 +1303,11 @@ fn param_listener_prefixes(src: &str) -> Vec<Option<String>> {
             if !arg.chars().all(|ch| ch.is_alphanumeric() || ch == '_') {
                 return None;
             }
-            let var = regex::Regex::new(&format!(r#"std::string\s+{}\s*(?:=\s*|\{{\s*|\(\s*)"([^"]*)""#, regex::escape(arg))).ok()?;
+            let var = regex::Regex::new(&format!(
+                r#"std::string\s+{}\s*(?:=\s*|\{{\s*|\(\s*)"([^"]*)""#,
+                regex::escape(arg)
+            ))
+            .ok()?;
             var.captures(src).map(|v| v[1].to_string())
         })
         .collect()
@@ -1378,7 +1408,10 @@ pub fn extract(file: FileId, src: &str) -> Result<CodeFacts, String> {
         )
         .collect();
     facts.param_prefixes = param_listener_prefixes(src);
-    for (name, range) in descriptor_ranges(src).into_iter().chain(super::guards::guard_constraints(src)) {
+    for (name, range) in descriptor_ranges(src)
+        .into_iter()
+        .chain(super::guards::guard_constraints(src))
+    {
         for d in facts.nodes.iter_mut().flat_map(|n| n.params.iter_mut()) {
             if d.name == NamePattern::Exact(name.clone()) && !d.constraints.contains(&range) {
                 d.constraints.push(range.clone());
@@ -1443,7 +1476,12 @@ mod duration_tests {
         ] {
             assert_eq!(duration_ms(t), Some(ms), "{t}");
         }
-        for t in ["period_", "std::chrono::milliseconds(period_ms)", "1s / rate", "std::chrono::milliseconds(1000 / 30)"] {
+        for t in [
+            "period_",
+            "std::chrono::milliseconds(period_ms)",
+            "1s / rate",
+            "std::chrono::milliseconds(1000 / 30)",
+        ] {
             assert_eq!(duration_ms(t), None, "{t}");
         }
     }
@@ -1562,9 +1600,25 @@ class N : public rclcpp::Node { public: N() : Node(\"n\") {
 } };
 ";
         let f = extract(0, src).unwrap();
-        let get = |n: &str| f.nodes[0].params.iter().find(|p| p.name.literal() == n).map(|p| p.constraints.clone()).unwrap();
-        assert_eq!(get("max_speed"), vec![Constraint::Range { min: 0.0, max: 2.5 }]);
-        assert_eq!(get("rate"), vec![Constraint::Range { min: 1.0, max: 10.0 }]);
+        let get = |n: &str| {
+            f.nodes[0]
+                .params
+                .iter()
+                .find(|p| p.name.literal() == n)
+                .map(|p| p.constraints.clone())
+                .unwrap()
+        };
+        assert_eq!(
+            get("max_speed"),
+            vec![Constraint::Range { min: 0.0, max: 2.5 }]
+        );
+        assert_eq!(
+            get("rate"),
+            vec![Constraint::Range {
+                min: 1.0,
+                max: 10.0
+            }]
+        );
         assert!(get("free").is_empty());
     }
 
@@ -1585,7 +1639,12 @@ AmclNode::AmclNode(const rclcpp::NodeOptions & options)
 "#;
         let f = extract(0, src).unwrap();
         let n = &f.nodes[0];
-        let ty = |name: &str| n.params.iter().find(|p| p.name.literal() == name).map(|p| p.ty);
+        let ty = |name: &str| {
+            n.params
+                .iter()
+                .find(|p| p.name.literal() == name)
+                .map(|p| p.ty)
+        };
         assert_eq!(ty("alpha1"), Some(ParamType::Double), "{:#?}", n.params);
         assert_eq!(ty("base_frame_id"), Some(ParamType::Str));
         assert_eq!(ty("max_particles"), Some(ParamType::Int));

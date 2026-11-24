@@ -125,8 +125,16 @@ fn behavior_trees(cx: &Context, out: &mut Vec<Diagnostic>) {
     }
     let distro = cx.ix.installed.distro.as_deref();
     let pack = distro.and_then(crate::pack::cached);
-    let mut known: HashSet<String> = crate::extract::bt::BUILTIN_NODES.iter().map(|s| s.to_string()).collect();
-    let ws: Vec<String> = cx.ix.code.keys().flat_map(|f| crate::pack::bt_registrations(&cx.ix.file(*f).text)).collect();
+    let mut known: HashSet<String> = crate::extract::bt::BUILTIN_NODES
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+    let ws: Vec<String> = cx
+        .ix
+        .code
+        .keys()
+        .flat_map(|f| crate::pack::bt_registrations(&cx.ix.file(*f).text))
+        .collect();
     if pack.is_none() && ws.is_empty() {
         return; // nothing to compare against
     }
@@ -155,7 +163,11 @@ fn behavior_trees(cx: &Context, out: &mut Vec<Diagnostic>) {
             if known.contains(id) || !seen.insert(id.as_str()) {
                 continue;
             }
-            let elsewhere: Vec<&str> = others.iter().filter(|(_, p)| p.bt_nodes.contains(id)).map(|(d, _)| *d).collect();
+            let elsewhere: Vec<&str> = others
+                .iter()
+                .filter(|(_, p)| p.bt_nodes.contains(id))
+                .map(|(d, _)| *d)
+                .collect();
             let near = closest(id, known.iter().map(String::as_str));
             if near.is_none() && elsewhere.is_empty() {
                 continue;
@@ -167,8 +179,14 @@ fn behavior_trees(cx: &Context, out: &mut Vec<Diagnostic>) {
             );
             d = d.help(match (near, elsewhere.is_empty()) {
                 (Some(c), true) => format!("Did you mean `{c}`?"),
-                (Some(c), false) => format!("`{id}` exists in {}; did you mean `{c}`?", elsewhere.join(", ")),
-                (None, false) => format!("`{id}` exists in {}: the tree was written for another release.", elsewhere.join(", ")),
+                (Some(c), false) => format!(
+                    "`{id}` exists in {}; did you mean `{c}`?",
+                    elsewhere.join(", ")
+                ),
+                (None, false) => format!(
+                    "`{id}` exists in {}: the tree was written for another release.",
+                    elsewhere.join(", ")
+                ),
                 (None, true) => unreachable!(),
             });
             out.push(d);
@@ -201,21 +219,43 @@ const LEGACY_PLUGINS: &[(&str, &str)] = &[
 /// distribution exports, but another distribution's does (or a known legacy alias): the
 /// plugin was renamed or removed, and the server fails to load it. Returns the reported
 /// value locations. Message text has no distribution names (fingerprints must be stable).
-fn plugin_migration(cx: &Context, s: &ParamSection, out: &mut Vec<Diagnostic>) -> HashSet<crate::source::Loc> {
+fn plugin_migration(
+    cx: &Context,
+    s: &ParamSection,
+    out: &mut Vec<Diagnostic>,
+) -> HashSet<crate::source::Loc> {
     let mut done = HashSet::new();
-    let Some(distro) = cx.ix.installed.distro.as_deref() else { return done };
-    let Some(here) = crate::pack::cached(distro) else { return done };
+    let Some(distro) = cx.ix.installed.distro.as_deref() else {
+        return done;
+    };
+    let Some(here) = crate::pack::cached(distro) else {
+        return done;
+    };
     if here.plugins.is_empty() {
         return done;
     }
-    let ws: HashSet<&str> = cx.ix.packages.iter().flat_map(|p| p.plugin_classes.iter().map(String::as_str)).collect();
-    for e in s.params.iter().filter(|e| e.name.ends_with(".plugin") || e.name == "robot_model_type") {
-        let ParamValue::Str(v) = &e.value else { continue };
+    let ws: HashSet<&str> = cx
+        .ix
+        .packages
+        .iter()
+        .flat_map(|p| p.plugin_classes.iter().map(String::as_str))
+        .collect();
+    for e in s
+        .params
+        .iter()
+        .filter(|e| e.name.ends_with(".plugin") || e.name == "robot_model_type")
+    {
+        let ParamValue::Str(v) = &e.value else {
+            continue;
+        };
         let v = v.trim();
         if v.is_empty() || here.plugins.iter().any(|p| p == v) || ws.contains(v) {
             continue;
         }
-        let legacy = LEGACY_PLUGINS.iter().find(|(old, _)| *old == v).map(|(_, new)| *new);
+        let legacy = LEGACY_PLUGINS
+            .iter()
+            .find(|(old, _)| *old == v)
+            .map(|(_, new)| *new);
         let elsewhere: Vec<&str> = ["humble", "jazzy", "kilted"]
             .into_iter()
             .filter(|d| *d != distro && !(distro == "rolling" && *d == "kilted"))
@@ -224,13 +264,19 @@ fn plugin_migration(cx: &Context, s: &ParamSection, out: &mut Vec<Diagnostic>) -
         if legacy.is_none() && elsewhere.is_empty() {
             continue;
         }
-        let suggestion = legacy.map(str::to_string).or_else(|| closest(v, here.plugins.iter().map(String::as_str)).map(str::to_string));
+        let suggestion = legacy
+            .map(str::to_string)
+            .or_else(|| closest(v, here.plugins.iter().map(String::as_str)).map(str::to_string));
         let mut d = Diagnostic::new(
             "N008",
             e.value_loc,
             format!("plugin `{v}` (`{}`) does not exist in this ROS distribution; it was renamed or removed, so the server fails to load it", e.name),
         );
-        let origin = if legacy.is_some() { "an older Nav2 release".to_string() } else { elsewhere.join(", ") };
+        let origin = if legacy.is_some() {
+            "an older Nav2 release".to_string()
+        } else {
+            elsewhere.join(", ")
+        };
         d = d.help(match &suggestion {
             Some(c) => format!("Exists in {origin}; in {distro} use `{c}`."),
             None => format!("Exists in {origin}."),
@@ -591,18 +637,46 @@ local_costmap:
             std::fs::create_dir_all(p.parent().unwrap()).unwrap();
             std::fs::write(p, t).unwrap();
         };
-        w("bt/package.xml", "<package format=\"3\"><name>bt</name></package>");
+        w(
+            "bt/package.xml",
+            "<package format=\"3\"><name>bt</name></package>",
+        );
         w("bt/config/nav2.yaml", "amcl:\n  ros__parameters:\n    robot_model_type: \"differential\"\nplanner_server:\n  ros__parameters:\n    planner_plugins: [\"GridBased\"]\n    GridBased:\n      plugin: \"nav2_navfn_planner::NavfnPlanner\"\n");
         w("bt/behavior_trees/nav.xml", "<root BTCPP_format=\"4\" main_tree_to_execute=\"Main\">\n  <BehaviorTree ID=\"Main\">\n    <Sequence>\n      <ComputePathToPos goal=\"{goal}\"/>\n      <FollowPath path=\"{path}\"/>\n      <SubTree ID=\"Recovry\"/>\n      <MyCustomNode/>\n    </Sequence>\n  </BehaviorTree>\n  <BehaviorTree ID=\"Recovery\"><Wait wait_duration=\"1\"/></BehaviorTree>\n</root>\n");
-        let opts = crate::engine::Options { distro: Some("jazzy".into()), ..Default::default() };
-        let d = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &opts).diagnostics;
+        let opts = crate::engine::Options {
+            distro: Some("jazzy".into()),
+            ..Default::default()
+        };
+        let d = crate::engine::analyze(dir.path(), &crate::config::Config::default(), &opts)
+            .diagnostics;
         let by = |r: &str| d.iter().filter(|x| x.rule == r).collect::<Vec<_>>();
         let n008 = by("N008");
-        assert!(n008.len() == 1 && n008[0].message.contains("`differential`") && n008[0].help.as_deref().is_some_and(|h| h.contains("nav2_amcl::DifferentialMotionModel")), "{d:#?}");
-        assert!(!n008[0].message.to_lowercase().contains("jazzy"), "no distro names in messages");
+        assert!(
+            n008.len() == 1
+                && n008[0].message.contains("`differential`")
+                && n008[0]
+                    .help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("nav2_amcl::DifferentialMotionModel")),
+            "{d:#?}"
+        );
+        assert!(
+            !n008[0].message.to_lowercase().contains("jazzy"),
+            "no distro names in messages"
+        );
         let n009 = by("N009");
-        assert!(n009.len() == 1 && n009[0].message.contains("ComputePathToPos"), "{d:#?}");
+        assert!(
+            n009.len() == 1 && n009[0].message.contains("ComputePathToPos"),
+            "{d:#?}"
+        );
         let n010 = by("N010");
-        assert!(n010.len() == 1 && n010[0].help.as_deref().is_some_and(|h| h.contains("Recovery")), "{d:#?}");
+        assert!(
+            n010.len() == 1
+                && n010[0]
+                    .help
+                    .as_deref()
+                    .is_some_and(|h| h.contains("Recovery")),
+            "{d:#?}"
+        );
     }
 }

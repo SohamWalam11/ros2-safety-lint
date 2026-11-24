@@ -143,8 +143,14 @@ impl DdsProfiles {
         let bare = e.topic.trim_start_matches('/').to_string();
         let found = [e.topic.clone(), bare, String::new()]
             .into_iter()
-            .find_map(|name| self.entries.get(&(writer, name.clone())).map(|v| (name, *v)));
-        let Some((name, (rel, dur))) = found else { return };
+            .find_map(|name| {
+                self.entries
+                    .get(&(writer, name.clone()))
+                    .map(|v| (name, *v))
+            });
+        let Some((name, (rel, dur))) = found else {
+            return;
+        };
         let mut used = false;
         if e.qos.reliability.is_none() && rel.is_some() {
             e.qos.reliability = rel;
@@ -155,8 +161,15 @@ impl DdsProfiles {
             used = true;
         }
         if used {
-            let which = if name.is_empty() { "default profile".to_string() } else { format!("profile `{name}`") };
-            e.qos.origin = format!("{} with the Fast DDS {which} of {}", e.qos.origin, self.file);
+            let which = if name.is_empty() {
+                "default profile".to_string()
+            } else {
+                format!("profile `{name}`")
+            };
+            e.qos.origin = format!(
+                "{} with the Fast DDS {which} of {}",
+                e.qos.origin, self.file
+            );
         }
     }
 }
@@ -165,12 +178,21 @@ impl DdsProfiles {
 /// `FASTRTPS_DEFAULT_PROFILES_FILE` / `FASTDDS_DEFAULT_PROFILES_FILE` in the launch
 /// environment, unless the graph selects a middleware other than Fast DDS.
 fn fastdds_profiles(cx: &Context, root: &crate::resolve::RootGraph) -> Option<DdsProfiles> {
-    let value = |name: &str| root.env.iter().rev().find(|e| e.name == name).and_then(|e| e.value.clone());
+    let value = |name: &str| {
+        root.env
+            .iter()
+            .rev()
+            .find(|e| e.name == name)
+            .and_then(|e| e.value.clone())
+    };
     if value("RMW_IMPLEMENTATION").is_some_and(|r| !r.trim().starts_with("rmw_fastrtps")) {
         return None;
     }
-    let v = value("FASTDDS_DEFAULT_PROFILES_FILE").or_else(|| value("FASTRTPS_DEFAULT_PROFILES_FILE"))?;
-    let path = crate::agents::network::dds_config_paths(&v).next()?.to_string();
+    let v = value("FASTDDS_DEFAULT_PROFILES_FILE")
+        .or_else(|| value("FASTRTPS_DEFAULT_PROFILES_FILE"))?;
+    let path = crate::agents::network::dds_config_paths(&v)
+        .next()?
+        .to_string();
     // XML profiles are not indexed unless something else reads them: read from disk then.
     let (rel, text) = match resolve_path(cx.ix, &path) {
         PathRes::Found(f) => (cx.ix.file(f).rel_path.clone(), cx.ix.file(f).text.clone()),
@@ -181,7 +203,10 @@ fn fastdds_profiles(cx: &Context, root: &crate::resolve::RootGraph) -> Option<Dd
         _ => return None,
     };
     let doc = roxmltree::Document::parse(&text).ok()?;
-    let mut p = DdsProfiles { file: rel, ..Default::default() };
+    let mut p = DdsProfiles {
+        file: rel,
+        ..Default::default()
+    };
     let text = |n: roxmltree::Node, tag: &str| {
         n.descendants()
             .find(|d| d.tag_name().name() == tag)
@@ -202,7 +227,9 @@ fn fastdds_profiles(cx: &Context, root: &crate::resolve::RootGraph) -> Option<Dd
         });
         let dur = text(n, "durability").and_then(|k| match k.as_str() {
             "VOLATILE_DURABILITY_QOS" | "VOLATILE" => Some(Durability::Volatile),
-            "TRANSIENT_LOCAL_DURABILITY_QOS" | "TRANSIENT_LOCAL" => Some(Durability::TransientLocal),
+            "TRANSIENT_LOCAL_DURABILITY_QOS" | "TRANSIENT_LOCAL" => {
+                Some(Durability::TransientLocal)
+            }
             _ => None,
         });
         if rel.is_none() && dur.is_none() {
@@ -462,19 +489,45 @@ mod tests {
     fn system_default_qos_follows_the_fastdds_profile() {
         let drv = ("p/src/d.cpp", "class D : public rclcpp::Node { public: D() : Node(\"driver\") { pub_ = create_publisher<sensor_msgs::msg::LaserScan>(\"scan\", rclcpp::SensorDataQoS()); } };\n");
         let user = ("p/src/u.cpp", "class U : public rclcpp::Node { public: U() : Node(\"user\") { sub_ = create_subscription<sensor_msgs::msg::LaserScan>(\"scan\", rclcpp::SystemDefaultsQoS(), [](sensor_msgs::msg::LaserScan::SharedPtr) {}); } };\n");
-        let plain = "<launch><node pkg=\"p\" exec=\"drv\"/><node pkg=\"p\" exec=\"user\"/></launch>";
+        let plain =
+            "<launch><node pkg=\"p\" exec=\"drv\"/><node pkg=\"p\" exec=\"user\"/></launch>";
         let d = analyze_files(&[PKG, CMAKE, drv, user, ("p/launch/a.launch.xml", plain)]);
-        assert!(d.iter().all(|x| x.rule != "Q001"), "no verdict without a profile: {d:#?}");
+        assert!(
+            d.iter().all(|x| x.rule != "Q001"),
+            "no verdict without a profile: {d:#?}"
+        );
 
         let profile = "<?xml version=\"1.0\"?><profiles xmlns=\"http://www.eprosima.com\"><data_reader profile_name=\"/scan\"><qos><reliability><kind>RELIABLE_RELIABILITY_QOS</kind></reliability></qos></data_reader></profiles>";
-        let with = |rmw: &str| format!("<launch><set_env name=\"FASTRTPS_DEFAULT_PROFILES_FILE\" value=\"$(find-pkg-share p)/config/fastdds.xml\"/>{rmw}<node pkg=\"p\" exec=\"drv\"/><node pkg=\"p\" exec=\"user\"/></launch>");
+        let with = |rmw: &str| {
+            format!("<launch><set_env name=\"FASTRTPS_DEFAULT_PROFILES_FILE\" value=\"$(find-pkg-share p)/config/fastdds.xml\"/>{rmw}<node pkg=\"p\" exec=\"drv\"/><node pkg=\"p\" exec=\"user\"/></launch>")
+        };
         let fast = with("");
-        let d = analyze_files(&[PKG, CMAKE, drv, user, ("p/config/fastdds.xml", profile), ("p/launch/a.launch.xml", fast.as_str())]);
-        let q = d.iter().find(|x| x.rule == "Q001").unwrap_or_else(|| panic!("{d:#?}"));
-        assert!(q.message.contains("`user`") || q.message.contains("user"), "{q:#?}");
+        let d = analyze_files(&[
+            PKG,
+            CMAKE,
+            drv,
+            user,
+            ("p/config/fastdds.xml", profile),
+            ("p/launch/a.launch.xml", fast.as_str()),
+        ]);
+        let q = d
+            .iter()
+            .find(|x| x.rule == "Q001")
+            .unwrap_or_else(|| panic!("{d:#?}"));
+        assert!(
+            q.message.contains("`user`") || q.message.contains("user"),
+            "{q:#?}"
+        );
         // Another middleware ignores the Fast DDS file.
         let cyclone = with("<set_env name=\"RMW_IMPLEMENTATION\" value=\"rmw_cyclonedds_cpp\"/>");
-        let d = analyze_files(&[PKG, CMAKE, drv, user, ("p/config/fastdds.xml", profile), ("p/launch/a.launch.xml", cyclone.as_str())]);
+        let d = analyze_files(&[
+            PKG,
+            CMAKE,
+            drv,
+            user,
+            ("p/config/fastdds.xml", profile),
+            ("p/launch/a.launch.xml", cyclone.as_str()),
+        ]);
         assert!(d.iter().all(|x| x.rule != "Q001"), "{d:#?}");
     }
 }

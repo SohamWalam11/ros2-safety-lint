@@ -38,14 +38,25 @@ fn pack_of(d: &str) -> &str {
     }
 }
 
-pub fn run(root: &Path, config: &Config, base: &Options, from: &str, to: &str) -> Result<Migration, String> {
+pub fn run(
+    root: &Path,
+    config: &Config,
+    base: &Options,
+    from: &str,
+    to: &str,
+) -> Result<Migration, String> {
     for d in [from, to] {
         if !DISTROS.contains(&d) {
-            return Err(format!("unknown distribution `{d}` (known: {})", DISTROS.join(", ")));
+            return Err(format!(
+                "unknown distribution `{d}` (known: {})",
+                DISTROS.join(", ")
+            ));
         }
     }
     if pack_of(from) == pack_of(to) {
-        return Err(format!("`{from}` and `{to}` use the same knowledge pack; there is nothing to compare"));
+        return Err(format!(
+            "`{from}` and `{to}` use the same knowledge pack; there is nothing to compare"
+        ));
     }
     let with = |d: &str| {
         let mut o = base.clone();
@@ -69,7 +80,9 @@ pub fn run(root: &Path, config: &Config, base: &Options, from: &str, to: &str) -
         .collect();
     let total = after.diagnostics.len();
     let ix = &after.index;
-    after.diagnostics.retain(|d| !old.contains(&engine::fingerprint(ix, d)));
+    after
+        .diagnostics
+        .retain(|d| !old.contains(&engine::fingerprint(ix, d)));
     Ok(Migration {
         from: from.to_string(),
         to: to.to_string(),
@@ -119,11 +132,24 @@ mod tests {
             ("bringup/launch/nav.launch.py", launch),
             ("bringup/config/behavior.yaml", "behavior_server:\n  ros__parameters:\n    costmap_topic: local_costmap/costmap_raw\n"),
         ]);
-        let m = run(&dir, &Config::default(), &Options::default(), "humble", "jazzy").unwrap();
+        let m = run(
+            &dir,
+            &Config::default(),
+            &Options::default(),
+            "humble",
+            "jazzy",
+        )
+        .unwrap();
         let _ = std::fs::remove_dir_all(&dir);
-        let new: Vec<_> = m.after.diagnostics.iter().map(|d| (d.rule, d.message.clone())).collect();
+        let new: Vec<_> = m
+            .after
+            .diagnostics
+            .iter()
+            .map(|d| (d.rule, d.message.clone()))
+            .collect();
         assert!(
-            new.iter().any(|(r, msg)| matches!(*r, "P003" | "P007") && msg.contains("costmap_topic")),
+            new.iter()
+                .any(|(r, msg)| matches!(*r, "P003" | "P007") && msg.contains("costmap_topic")),
             "{new:#?}"
         );
         // Moving back reports nothing for this file: the parameter exists on Humble.

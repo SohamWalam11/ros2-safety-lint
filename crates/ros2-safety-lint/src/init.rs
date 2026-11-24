@@ -30,7 +30,9 @@ pub struct Outcome {
 pub fn config_toml(distro: Option<&str>) -> String {
     let distro_line = match distro {
         Some(d) => format!("distro = \"{d}\"\n"),
-        None => "# distro = \"jazzy\"                  # humble, jazzy, kilted or rolling\n".to_string(),
+        None => {
+            "# distro = \"jazzy\"                  # humble, jazzy, kilted or rolling\n".to_string()
+        }
     };
     format!(
         "# rosfix configuration. Every key is optional; see `rosfix docs config`.\n\
@@ -103,7 +105,12 @@ pub fn run(root: &Path, o: &InitOptions) -> std::io::Result<Vec<Outcome>> {
     let distro = o.distro.as_deref();
     let mut out = vec![write(root, "rosfix.toml", &config_toml(distro), o)?];
     if o.ci {
-        out.push(write(root, ".github/workflows/rosfix.yml", &github_workflow(distro), o)?);
+        out.push(write(
+            root,
+            ".github/workflows/rosfix.yml",
+            &github_workflow(distro),
+            o,
+        )?);
     }
     if o.pre_commit {
         let path = root.join(".pre-commit-config.yaml");
@@ -112,7 +119,10 @@ pub fn run(root: &Path, o: &InitOptions) -> std::io::Result<Vec<Outcome>> {
             let why = if text.contains("ros2-safety-lint") {
                 "already runs rosfix".to_string()
             } else {
-                format!("exists; add this entry under `repos:`\n{}", &PRE_COMMIT["repos:\n".len()..])
+                format!(
+                    "exists; add this entry under `repos:`\n{}",
+                    &PRE_COMMIT["repos:\n".len()..]
+                )
             };
             out.push(Outcome {
                 path,
@@ -156,17 +166,28 @@ mod tests {
         assert!(matches!(r[0].action, Action::Kept(_)));
         assert_eq!(r[1].action, Action::Created);
         assert!(matches!(r[2].action, Action::Kept(_)));
-        assert_eq!(std::fs::read_to_string(dir.join("rosfix.toml")).unwrap(), "fail_on = \"error\"\n");
-        assert_eq!(std::fs::read_to_string(dir.join(".pre-commit-config.yaml")).unwrap(), "repos: []\n");
-        assert!(std::fs::read_to_string(dir.join(".github/workflows/rosfix.yml"))
-            .unwrap()
-            .contains("distro: humble"));
+        assert_eq!(
+            std::fs::read_to_string(dir.join("rosfix.toml")).unwrap(),
+            "fail_on = \"error\"\n"
+        );
+        assert_eq!(
+            std::fs::read_to_string(dir.join(".pre-commit-config.yaml")).unwrap(),
+            "repos: []\n"
+        );
+        assert!(
+            std::fs::read_to_string(dir.join(".github/workflows/rosfix.yml"))
+                .unwrap()
+                .contains("distro: humble")
+        );
         o.force = true;
         let r = run(&dir, &o).unwrap();
         assert_eq!(r[0].action, Action::Replaced);
         // --force never touches an existing pre-commit file.
         assert!(matches!(r[2].action, Action::Kept(_)));
-        assert_eq!(std::fs::read_to_string(dir.join(".pre-commit-config.yaml")).unwrap(), "repos: []\n");
+        assert_eq!(
+            std::fs::read_to_string(dir.join(".pre-commit-config.yaml")).unwrap(),
+            "repos: []\n"
+        );
         let _ = std::fs::remove_dir_all(&dir);
     }
 

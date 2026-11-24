@@ -155,11 +155,21 @@ mod tests {
 
     #[test]
     fn misspelled_only_file_is_a_param_file() {
-        assert!(looks_like_param_file("driver:\n  ros__parametres:\n    x: 1\n"));
-        assert!(looks_like_param_file("driver:\n  ros__paramters:\n    x: 1\n"));
-        assert!(looks_like_param_file("driver:\n  ros_parameters:\n    x: 1\n"));
-        assert!(!looks_like_param_file("jobs:\n  build:\n    parameters:\n      x: 1\n"));
-        assert!(!looks_like_param_file("rosdistro: jazzy\nrepositories: []\n"));
+        assert!(looks_like_param_file(
+            "driver:\n  ros__parametres:\n    x: 1\n"
+        ));
+        assert!(looks_like_param_file(
+            "driver:\n  ros__paramters:\n    x: 1\n"
+        ));
+        assert!(looks_like_param_file(
+            "driver:\n  ros_parameters:\n    x: 1\n"
+        ));
+        assert!(!looks_like_param_file(
+            "jobs:\n  build:\n    parameters:\n      x: 1\n"
+        ));
+        assert!(!looks_like_param_file(
+            "rosdistro: jazzy\nrepositories: []\n"
+        ));
     }
 
     #[test]

@@ -3,7 +3,7 @@
 //! installs into `share/<pkg>`. Anything it cannot follow marks the result as
 //! incomplete so dependent checks stay silent.
 
-use crate::facts::{RosidlCall, Executable, PackageUse, UseKind};
+use crate::facts::{Executable, PackageUse, RosidlCall, UseKind};
 use crate::source::{FileId, Loc};
 use std::collections::HashMap;
 
@@ -500,7 +500,11 @@ pub fn interpret(file: FileId, src: &str, pkg_name: &str, pkg_dir: &str) -> Cmak
     if f.install_complete && !ament_auto {
         for (lib, loc) in component_libs {
             let known_target = targets.iter().any(|t| t.0 == lib);
-            if known_target && !lib.contains('$') && !installed_any.contains(&lib) && !f.uninstalled_component_libs.iter().any(|(l, _)| *l == lib) {
+            if known_target
+                && !lib.contains('$')
+                && !installed_any.contains(&lib)
+                && !f.uninstalled_component_libs.iter().any(|(l, _)| *l == lib)
+            {
                 f.uninstalled_component_libs.push((lib, loc));
             }
         }

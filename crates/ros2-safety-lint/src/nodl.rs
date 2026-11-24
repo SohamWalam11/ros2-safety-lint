@@ -77,7 +77,12 @@ fn qos(q: Option<&YNode>, origin: &str) -> QosSpec {
 pub fn to_pack_node(text: &str, origin: &str) -> Option<PackNode> {
     let docs = yaml::parse(text).ok()?;
     let doc = docs.into_iter().next()?;
-    if doc.get("nodl_version").and_then(YNode::as_str).map(str::trim) != Some("2") {
+    if doc
+        .get("nodl_version")
+        .and_then(YNode::as_str)
+        .map(str::trim)
+        != Some("2")
+    {
         return None;
     }
     let mut n = PackNode {
@@ -87,7 +92,10 @@ pub fn to_pack_node(text: &str, origin: &str) -> Option<PackNode> {
     if let Some(p) = doc.get("parameters") {
         for (k, v) in p.entries() {
             let Some(name) = k.as_str() else { continue };
-            let ty = v.get("type").and_then(YNode::as_str).map_or(ParamType::Unknown, param_type);
+            let ty = v
+                .get("type")
+                .and_then(YNode::as_str)
+                .map_or(ParamType::Unknown, param_type);
             n.params.push(PackParam {
                 name: NamePattern::Exact(name.to_string()),
                 ty,
@@ -105,7 +113,9 @@ pub fn to_pack_node(text: &str, origin: &str) -> Option<PackNode> {
     ];
     for (key, kind) in kinds {
         for e in doc.get(key).map(YNode::items).unwrap_or_default() {
-            let Some(name) = e.get("name").and_then(YNode::as_str) else { continue };
+            let Some(name) = e.get("name").and_then(YNode::as_str) else {
+                continue;
+            };
             n.endpoints.push(PackEndpoint {
                 kind,
                 name: name.to_string(),
@@ -126,13 +136,21 @@ pub fn merge_installed(ix: &mut Index, wanted: &std::collections::HashSet<String
             continue;
         }
         let dir = pkg.prefix.join("share/ament_index/resource_index/nodl");
-        let Ok(entries) = std::fs::read_dir(&dir) else { continue };
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
         let prefix = format!("{}__", pkg.name);
         for e in entries.flatten() {
             let file = e.file_name().to_string_lossy().to_string();
-            let Some(exe) = file.strip_prefix(&prefix) else { continue };
-            let Ok(text) = std::fs::read_to_string(e.path()) else { continue };
-            let Some(node) = to_pack_node(&text, &format!("{}/{exe}", pkg.name)) else { continue };
+            let Some(exe) = file.strip_prefix(&prefix) else {
+                continue;
+            };
+            let Ok(text) = std::fs::read_to_string(e.path()) else {
+                continue;
+            };
+            let Some(node) = to_pack_node(&text, &format!("{}/{exe}", pkg.name)) else {
+                continue;
+            };
             let pack = ix.pack.get_or_insert_with(|| Pack {
                 format: crate::pack::FORMAT,
                 distro: "nodl".into(),
@@ -188,7 +206,11 @@ pub fn literal_yaml(text: &str) -> Option<String> {
     if let Some(i) = t.find('{').filter(|_| t.starts_with("std::vector<")) {
         return literal_yaml(&t[i..]);
     }
-    if let Some(body) = t.strip_prefix('{').and_then(|r| r.strip_suffix('}')).or_else(|| t.strip_prefix('[').and_then(|r| r.strip_suffix(']'))) {
+    if let Some(body) = t
+        .strip_prefix('{')
+        .and_then(|r| r.strip_suffix('}'))
+        .or_else(|| t.strip_prefix('[').and_then(|r| r.strip_suffix(']')))
+    {
         if body.trim().is_empty() {
             return Some("[]".into());
         }
@@ -200,7 +222,9 @@ pub fn literal_yaml(text: &str) -> Option<String> {
         "false" | "False" => return Some("false".into()),
         _ => {}
     }
-    if (t.starts_with('"') && t.ends_with('"') && t.len() >= 2) || (t.starts_with('\'') && t.ends_with('\'') && t.len() >= 2) {
+    if (t.starts_with('"') && t.ends_with('"') && t.len() >= 2)
+        || (t.starts_with('\'') && t.ends_with('\'') && t.len() >= 2)
+    {
         let inner = &t[1..t.len() - 1];
         if inner.contains('\\') {
             return None; // escape sequences: not worth guessing
@@ -214,7 +238,11 @@ pub fn literal_yaml(text: &str) -> Option<String> {
     if num.parse::<f64>().is_ok_and(f64::is_finite) {
         // YAML reads `1.` or `.5` fine, but write the canonical form.
         let v: f64 = num.parse().ok()?;
-        return Some(if v.fract() == 0.0 && !num.contains(['e', 'E']) { format!("{v:.1}") } else { format!("{v}") });
+        return Some(if v.fract() == 0.0 && !num.contains(['e', 'E']) {
+            format!("{v:.1}")
+        } else {
+            format!("{v}")
+        });
     }
     None
 }
@@ -275,7 +303,8 @@ pub fn export(a: &Analysis) -> Vec<Exported> {
         exes.sort();
         exes.dedup();
         for exe in exes {
-            let (impls, status, spec_params, open, open_dotted) = link_impl(ix, Some(&p.name), Some(exe), None, LaunchNodeKind::Node);
+            let (impls, status, spec_params, open, open_dotted) =
+                link_impl(ix, Some(&p.name), Some(exe), None, LaunchNodeKind::Node);
             if status != ImplStatus::Resolved || impls.is_empty() {
                 continue;
             }
@@ -290,7 +319,13 @@ pub fn export(a: &Analysis) -> Vec<Exported> {
     out
 }
 
-fn document(ix: &Index, nodes: &[&NodeImpl], spec_params: &[ParamDecl], open: bool, open_dotted: bool) -> String {
+fn document(
+    ix: &Index,
+    nodes: &[&NodeImpl],
+    spec_params: &[ParamDecl],
+    open: bool,
+    open_dotted: bool,
+) -> String {
     let mut s = String::from("---\n");
     let sources: Vec<String> = nodes
         .iter()
@@ -299,24 +334,41 @@ fn document(ix: &Index, nodes: &[&NodeImpl], spec_params: &[ParamDecl], open: bo
             None => ix.file(n.file).rel_path.clone(),
         })
         .collect();
-    let _ = writeln!(s, "# Generated by rosfix {} from {}.", env!("CARGO_PKG_VERSION"), sources.join(", "));
-    let _ = writeln!(s, "# Review before use. Lines starting with \"# ?\" could not be determined from the code.");
+    let _ = writeln!(
+        s,
+        "# Generated by rosfix {} from {}.",
+        env!("CARGO_PKG_VERSION"),
+        sources.join(", ")
+    );
+    let _ = writeln!(
+        s,
+        "# Review before use. Lines starting with \"# ?\" could not be determined from the code."
+    );
     if open {
         s.push_str("# ? the node also accepts parameters rosfix cannot enumerate (dynamic names or undeclared parameters)\n");
     } else if open_dotted {
-        s.push_str("# ? the node also accepts plugin parameters (dotted names) rosfix cannot enumerate\n");
+        s.push_str(
+            "# ? the node also accepts plugin parameters (dotted names) rosfix cannot enumerate\n",
+        );
     }
     s.push_str("nodl_version: 2\n");
 
     // Parameters: declarations from code, then generate_parameter_library specs.
-    let mut params: Vec<&ParamDecl> = nodes.iter().flat_map(|n| n.params.iter()).chain(spec_params.iter()).collect();
+    let mut params: Vec<&ParamDecl> = nodes
+        .iter()
+        .flat_map(|n| n.params.iter())
+        .chain(spec_params.iter())
+        .collect();
     params.sort_by(|a, b| a.name.literal().cmp(b.name.literal()));
     params.dedup_by(|a, b| a.name == b.name);
     if !params.is_empty() {
         let mut sec = Section::default();
         for p in params {
             let NamePattern::Exact(name) = &p.name else {
-                sec.note(format!("parameters ending in `{}` under a prefix known only at runtime", p.name.literal()));
+                sec.note(format!(
+                    "parameters ending in `{}` under a prefix known only at runtime",
+                    p.name.literal()
+                ));
                 continue;
             };
             let Some(ty) = type_name(p.ty) else {
@@ -325,10 +377,15 @@ fn document(ix: &Index, nodes: &[&NodeImpl], spec_params: &[ParamDecl], open: bo
             };
             let default = p.default_text.as_deref().and_then(literal_yaml);
             match (p.has_default, default) {
-                (true, Some(v)) => sec.entry(format!("  {}:\n    type: {ty}\n    default_value: {v}\n", yaml_key(name))),
+                (true, Some(v)) => sec.entry(format!(
+                    "  {}:\n    type: {ty}\n    default_value: {v}\n",
+                    yaml_key(name)
+                )),
                 (true, None) => {
                     let shown = p.default_text.as_deref().unwrap_or("(computed)");
-                    sec.note(format!("{name}: {ty} with a default set in code that is not a literal: {shown}"));
+                    sec.note(format!(
+                        "{name}: {ty} with a default set in code that is not a literal: {shown}"
+                    ));
                 }
                 (false, _) => sec.entry(format!("  {}:\n    type: {ty}\n", yaml_key(name))),
             }
@@ -345,7 +402,11 @@ fn document(ix: &Index, nodes: &[&NodeImpl], spec_params: &[ParamDecl], open: bo
         ("action_clients", EndpointKind::ActionClient, false),
     ];
     for (key, kind, needs_qos) in groups {
-        let mut eps: Vec<&Endpoint> = nodes.iter().flat_map(|n| n.endpoints.iter()).filter(|e| e.kind == kind).collect();
+        let mut eps: Vec<&Endpoint> = nodes
+            .iter()
+            .flat_map(|n| n.endpoints.iter())
+            .filter(|e| e.kind == kind)
+            .collect();
         eps.sort_by(|a, b| a.name.cmp(&b.name));
         eps.dedup_by(|a, b| a.name == b.name && a.msg_type == b.msg_type);
         if eps.is_empty() {
@@ -369,8 +430,14 @@ fn document(ix: &Index, nodes: &[&NodeImpl], spec_params: &[ParamDecl], open: bo
             };
             let q = if needs_qos { qos_yaml(&e.qos) } else { None };
             match (needs_qos, q) {
-                (true, None) => sec.note(format!("{name} ({ty}): QoS not known statically ({})", e.qos.origin)),
-                (true, Some(q)) => sec.entry(format!("  - name: {}\n    type: {ty}\n    qos: {q}\n", quoted(name))),
+                (true, None) => sec.note(format!(
+                    "{name} ({ty}): QoS not known statically ({})",
+                    e.qos.origin
+                )),
+                (true, Some(q)) => sec.entry(format!(
+                    "  - name: {}\n    type: {ty}\n    qos: {q}\n",
+                    quoted(name)
+                )),
                 (false, _) => sec.entry(format!("  - name: {}\n    type: {ty}\n", quoted(name))),
             }
         }
@@ -395,7 +462,8 @@ impl Section {
 
     fn note(&mut self, text: String) {
         // One comment line: source text may contain newlines (and CRLF).
-        self.notes.push(text.split_whitespace().collect::<Vec<_>>().join(" "));
+        self.notes
+            .push(text.split_whitespace().collect::<Vec<_>>().join(" "));
     }
 
     fn write(&self, s: &mut String, key: &str) {
@@ -412,7 +480,8 @@ impl Section {
 /// A mapping key, quoted when YAML would not read it as the same plain string.
 fn yaml_key(k: &str) -> String {
     let plain = !k.is_empty()
-        && k.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '/' | '-'))
+        && k.chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '_' | '.' | '/' | '-'))
         && !matches!(k, "true" | "false" | "null" | "yes" | "no" | "on" | "off");
     if plain {
         k.to_string()
@@ -434,9 +503,18 @@ mod tests {
         assert_eq!(literal_yaml("1e-3").as_deref(), Some("0.001"));
         assert_eq!(literal_yaml("true").as_deref(), Some("true"));
         assert_eq!(literal_yaml("\"map\"").as_deref(), Some("\"map\""));
-        assert_eq!(literal_yaml("std::string(\"base\")").as_deref(), Some("\"base\""));
-        assert_eq!(literal_yaml("std::vector<double>{1.0, 2}").as_deref(), Some("[1.0, 2]"));
-        assert_eq!(literal_yaml("{\"a\", \"b,c\"}").as_deref(), Some("[\"a\", \"b,c\"]"));
+        assert_eq!(
+            literal_yaml("std::string(\"base\")").as_deref(),
+            Some("\"base\"")
+        );
+        assert_eq!(
+            literal_yaml("std::vector<double>{1.0, 2}").as_deref(),
+            Some("[1.0, 2]")
+        );
+        assert_eq!(
+            literal_yaml("{\"a\", \"b,c\"}").as_deref(),
+            Some("[\"a\", \"b,c\"]")
+        );
         assert_eq!(literal_yaml("[1, 2]").as_deref(), Some("[1, 2]"));
         assert_eq!(literal_yaml("kDefault"), None);
         assert_eq!(literal_yaml("M_PI / 2"), None);
@@ -448,13 +526,35 @@ mod tests {
         let n = to_pack_node(doc, "p/x").unwrap();
         assert!(!n.params_open);
         assert_eq!(n.params.len(), 2);
-        assert!(n.params.iter().any(|p| p.name == NamePattern::Exact("rate".into()) && p.ty == ParamType::Double && p.has_default));
-        assert!(n.params.iter().any(|p| p.name == NamePattern::Exact("cells".into()) && !p.has_default));
-        let pubs: Vec<_> = n.endpoints.iter().filter(|e| e.kind == EndpointKind::Publisher).collect();
-        assert_eq!(pubs[0].msg_type.as_deref(), Some("sensor_msgs::msg::BatteryState"));
+        assert!(n
+            .params
+            .iter()
+            .any(|p| p.name == NamePattern::Exact("rate".into())
+                && p.ty == ParamType::Double
+                && p.has_default));
+        assert!(n
+            .params
+            .iter()
+            .any(|p| p.name == NamePattern::Exact("cells".into()) && !p.has_default));
+        let pubs: Vec<_> = n
+            .endpoints
+            .iter()
+            .filter(|e| e.kind == EndpointKind::Publisher)
+            .collect();
+        assert_eq!(
+            pubs[0].msg_type.as_deref(),
+            Some("sensor_msgs::msg::BatteryState")
+        );
         assert_eq!(pubs[0].qos.reliability, Some(Reliability::Reliable));
         assert_eq!(pubs[0].qos.depth, Some(5));
         assert!(to_pack_node("nodl_version: 1\n", "p/x").is_none());
-        assert!(to_pack_node("nodl_version: 2\ninclude:\n  - ref: nodl://nodl_common_interfaces/node\n", "p/x").unwrap().params_open);
+        assert!(
+            to_pack_node(
+                "nodl_version: 2\ninclude:\n  - ref: nodl://nodl_common_interfaces/node\n",
+                "p/x"
+            )
+            .unwrap()
+            .params_open
+        );
     }
 }

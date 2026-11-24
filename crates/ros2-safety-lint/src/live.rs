@@ -68,7 +68,11 @@ fn durability(v: &str) -> Option<Durability> {
 fn offered(n: Option<&YNode>) -> Vec<(Option<Reliability>, Option<Durability>)> {
     let profiles: Vec<YNode> = match n {
         // rosbag2 stores the list as a YAML document inside a string.
-        Some(YNode::Scalar { value, .. }) => yaml::parse(value).ok().and_then(|d| d.into_iter().next()).map(|d| d.items().to_vec()).unwrap_or_default(),
+        Some(YNode::Scalar { value, .. }) => yaml::parse(value)
+            .ok()
+            .and_then(|d| d.into_iter().next())
+            .map(|d| d.items().to_vec())
+            .unwrap_or_default(),
         Some(seq) => seq.items().to_vec(),
         None => Vec::new(),
     };
@@ -76,8 +80,12 @@ fn offered(n: Option<&YNode>) -> Vec<(Option<Reliability>, Option<Durability>)> 
         .iter()
         .map(|p| {
             (
-                p.get("reliability").and_then(YNode::as_str).and_then(reliability),
-                p.get("durability").and_then(YNode::as_str).and_then(durability),
+                p.get("reliability")
+                    .and_then(YNode::as_str)
+                    .and_then(reliability),
+                p.get("durability")
+                    .and_then(YNode::as_str)
+                    .and_then(durability),
             )
         })
         .collect()
@@ -92,15 +100,27 @@ pub fn read_observed(text: &str) -> Result<Vec<Observed>, String> {
             .and_then(|d| d.get("rosbag2_bagfile_information"))
             .ok_or("not a rosbag2 metadata file")?;
         let mut out = Vec::new();
-        for t in info.get("topics_with_message_count").map(YNode::items).unwrap_or_default() {
-            let Some(m) = t.get("topic_metadata") else { continue };
-            let (Some(name), Some(ty)) = (m.get("name").and_then(YNode::as_str), m.get("type").and_then(YNode::as_str)) else {
+        for t in info
+            .get("topics_with_message_count")
+            .map(YNode::items)
+            .unwrap_or_default()
+        {
+            let Some(m) = t.get("topic_metadata") else {
+                continue;
+            };
+            let (Some(name), Some(ty)) = (
+                m.get("name").and_then(YNode::as_str),
+                m.get("type").and_then(YNode::as_str),
+            ) else {
                 continue;
             };
             out.push(Observed {
                 topic: name.to_string(),
                 msg_type: ty.to_string(),
-                messages: t.get("message_count").and_then(YNode::as_str).and_then(|c| c.trim().parse().ok()),
+                messages: t
+                    .get("message_count")
+                    .and_then(YNode::as_str)
+                    .and_then(|c| c.trim().parse().ok()),
                 offered: offered(m.get("offered_qos_profiles")),
             });
         }
@@ -109,10 +129,21 @@ pub fn read_observed(text: &str) -> Result<Vec<Observed>, String> {
     let mut out = Vec::new();
     for line in text.lines().map(str::trim).filter(|l| l.starts_with('/')) {
         let (name, ty) = match line.split_once(' ') {
-            Some((n, rest)) => (n, rest.trim().trim_start_matches('[').trim_end_matches(']').to_string()),
+            Some((n, rest)) => (
+                n,
+                rest.trim()
+                    .trim_start_matches('[')
+                    .trim_end_matches(']')
+                    .to_string(),
+            ),
             None => (line, String::new()),
         };
-        out.push(Observed { topic: name.to_string(), msg_type: ty, messages: None, offered: Vec::new() });
+        out.push(Observed {
+            topic: name.to_string(),
+            msg_type: ty,
+            messages: None,
+            offered: Vec::new(),
+        });
     }
     if out.is_empty() {
         return Err("neither a rosbag2 metadata.yaml nor `ros2 topic list -t` output".into());
@@ -149,12 +180,21 @@ fn uniform<T: Copy + PartialEq>(v: Vec<Option<T>>) -> Option<T> {
     v.iter().all(|x| *x == first).then_some(first).flatten()
 }
 
-pub fn compare(a: &Analysis, observed: &[Observed], launch: Option<&str>) -> Result<Vec<Item>, String> {
+pub fn compare(
+    a: &Analysis,
+    observed: &[Observed],
+    launch: Option<&str>,
+) -> Result<Vec<Item>, String> {
     let roots: Vec<_> = match launch {
         None => a.graph.roots.iter().collect(),
         Some(l) => {
             let l = l.replace('\\', "/");
-            let r: Vec<_> = a.graph.roots.iter().filter(|r| a.index.file(r.root).rel_path.ends_with(&l)).collect();
+            let r: Vec<_> = a
+                .graph
+                .roots
+                .iter()
+                .filter(|r| a.index.file(r.root).rel_path.ends_with(&l))
+                .collect();
             if r.is_empty() {
                 return Err(format!("no launch graph for `{l}` (see `rosfix graph`)"));
             }
@@ -164,7 +204,11 @@ pub fn compare(a: &Analysis, observed: &[Observed], launch: Option<&str>) -> Res
     let mut by_topic: BTreeMap<String, Vec<StaticEp>> = BTreeMap::new();
     for r in &roots {
         for n in &r.nodes {
-            for e in instance_endpoints(&a.index, n).0.into_iter().filter(|e| e.kind.is_topic()) {
+            for e in instance_endpoints(&a.index, n)
+                .0
+                .into_iter()
+                .filter(|e| e.kind.is_topic())
+            {
                 by_topic.entry(e.name.clone()).or_default().push(StaticEp {
                     kind: e.kind,
                     msg_type: e.msg_type.clone(),
@@ -182,20 +226,31 @@ pub fn compare(a: &Analysis, observed: &[Observed], launch: Option<&str>) -> Res
     };
     let mut out = Vec::new();
     for o in observed {
-        let eps = by_topic.get(&o.topic).map(Vec::as_slice).unwrap_or_default();
+        let eps = by_topic
+            .get(&o.topic)
+            .map(Vec::as_slice)
+            .unwrap_or_default();
         for e in eps {
             if let Some(t) = &e.msg_type {
                 if !o.msg_type.is_empty() && !same_type(t, &o.msg_type) {
                     out.push(Item {
                         kind: Kind::TypeMismatch,
                         topic: o.topic.clone(),
-                        message: format!("`{}` uses `{}`, but the recording has `{}`", e.node, norm_type(t), o.msg_type),
+                        message: format!(
+                            "`{}` uses `{}`, but the recording has `{}`",
+                            e.node,
+                            norm_type(t),
+                            o.msg_type
+                        ),
                         location: Some(at(e.loc)),
                     });
                 }
             }
         }
-        let pubs: Vec<&StaticEp> = eps.iter().filter(|e| e.kind == EndpointKind::Publisher).collect();
+        let pubs: Vec<&StaticEp> = eps
+            .iter()
+            .filter(|e| e.kind == EndpointKind::Publisher)
+            .collect();
         if pubs.is_empty() {
             out.push(Item {
                 kind: Kind::NoStaticPublisher,
@@ -292,8 +347,13 @@ mod tests {
         let o = read_observed(v5).unwrap();
         assert_eq!(o.len(), 1);
         assert_eq!(o[0].messages, Some(1079));
-        assert_eq!(o[0].offered, [(Some(Reliability::BestEffort), Some(Durability::Volatile))]);
-        let list = read_observed("/chatter [std_msgs/msg/String]\n/rosout [rcl_interfaces/msg/Log]\n").unwrap();
+        assert_eq!(
+            o[0].offered,
+            [(Some(Reliability::BestEffort), Some(Durability::Volatile))]
+        );
+        let list =
+            read_observed("/chatter [std_msgs/msg/String]\n/rosout [rcl_interfaces/msg/Log]\n")
+                .unwrap();
         assert_eq!(list[0].msg_type, "std_msgs/msg/String");
         assert!(read_observed("hello").is_err());
     }
