@@ -1,54 +1,48 @@
 [package]
 name = "rosfix"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.80"
 readme = "../../README.md"
-description = "High-Performance Multi-Language Static Verification and Active Remediation Engine for ROS 2"
+description = "Static checker for silent ROS 2 misconfigurations: parameters, topic wiring, QoS, executors, ros2_control, Nav2, launch/packaging and SROS2"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/SohamWalam11/ros2-safety-lint"
 homepage = "https://github.com/SohamWalam11/ros2-safety-lint"
 documentation = "https://docs.rs/rosfix"
-keywords = ["ros2", "robotics", "security", "linter", "static-analysis"]
-categories = ["development-tools::testing", "command-line-utilities"]
+keywords = ["ros2", "robotics", "linter", "static-analysis", "launch"]
+categories = ["development-tools", "command-line-utilities"]
 
 [[bin]]
 name = "rosfix"
 path = "src/main.rs"
 
-[[bin]]
-name = "cargo-rosfix"
-path = "src/main.rs"
+[features]
+default = []
+# Opt-in data parallelism for the indexing stage (`--jobs N`). Off by default:
+# the tool is designed to run single-threaded with a small memory footprint.
+parallel = ["dep:rayon"]
+# Allowlisted web lookups (`--online`), done by a separate helper process.
+online = ["dep:ureq"]
 
 [dependencies]
-roxmltree = "0.20"
+ureq = { version = "3", optional = true, default-features = false, features = ["rustls", "gzip"] }
 clap = { version = "4.5", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-serde_yaml = "0.9.34"
+toml = "0.8"
+roxmltree = "0.20"
+yaml-rust2 = "0.9"
 rustpython-parser = "0.4.0"
-regex = "1.13.1"
 tree-sitter = "0.20"
 tree-sitter-cpp = "0.20"
-toml = "0.8"
-walkdir = "2.5.0"
-miette = { version = "7.6.0", features = ["fancy"] }
-rayon = "1.10"
-tokio = { version = "1.36", features = ["full"] }
-reqwest = { version = "0.11", features = ["json"] }
-async-trait = "0.1"
-indicatif = "0.17.8"
-termtree = "0.4.1"
-
-# Research and experimental framework dependencies
-proptest = "1.0"
-statrs = "0.16"
-plotters = "0.3"
-criterion = { version = "0.5", features = ["html_reports"] }
-csv = "1.3"
-tempfile = "3.0"
-uuid = { version = "1.0", features = ["v4"] }
+regex = "1.10"
+walkdir = "2.5"
+globset = "0.4"
+similar = "2.6"
+flate2 = { version = "1.0", default-features = false, features = ["rust_backend"] }
+rayon = { version = "1.10", optional = true }
+# Line editing, history and completion in `rosfix shell`.
+rustyline = { version = "15.0", default-features = false, features = ["with-file-history"] }
 
 [dev-dependencies]
-proptest = "1.0"
-tempfile = "3.0"
+tempfile = "3.10"
