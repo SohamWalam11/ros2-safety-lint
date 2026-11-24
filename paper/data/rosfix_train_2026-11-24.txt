@@ -1,0 +1,79 @@
+epoch   0  loss 0.4112
+epoch   5  loss 0.1425
+epoch  10  loss 0.1322
+epoch  15  loss 0.1264
+epoch  20  loss 0.1114
+epoch  25  loss 0.1108
+epoch  30  loss 0.1100
+epoch  35  loss 0.1022
+epoch  39  loss 0.0991
+epoch   0  loss 0.4026
+epoch   5  loss 0.1452
+epoch  10  loss 0.1271
+epoch  15  loss 0.1233
+epoch  20  loss 0.1198
+epoch  25  loss 0.1172
+epoch  30  loss 0.1101
+epoch  35  loss 0.1132
+epoch  39  loss 0.1110
+epoch   0  loss 0.3951
+epoch   5  loss 0.1758
+epoch  10  loss 0.1614
+epoch  15  loss 0.1545
+epoch  20  loss 0.1464
+epoch  25  loss 0.1503
+epoch  30  loss 0.1451
+epoch  35  loss 0.1471
+epoch  39  loss 0.1423
+epoch   0  loss 0.3588
+epoch   5  loss 0.1751
+epoch  10  loss 0.1645
+epoch  15  loss 0.1616
+epoch  20  loss 0.1526
+epoch  25  loss 0.1497
+epoch  30  loss 0.1479
+epoch  35  loss 0.1536
+epoch  39  loss 0.1468
+epoch   0  loss 0.4430
+epoch   5  loss 0.2119
+epoch  10  loss 0.1965
+epoch  15  loss 0.1852
+epoch  20  loss 0.1796
+epoch  25  loss 0.1761
+epoch  30  loss 0.1727
+epoch  35  loss 0.1756
+epoch  39  loss 0.1679
+fold 0: 5619 training, 1370 calibration, 1791 held-out cases (disjoint packages; 4671 held-out cases share their name with training and are excluded), calibration shift -4.0
+Held-out packages, name-disjoint (fold 0) — correct / abstained / wrong (for "absent" cases abstaining is correct, any pick is wrong):
+
+| case | n | lexical | learned |
+|---|---:|---|---|
+| ALL | 1791 | 575 / 1186 / 30 | 738 / 1046 / 7 |
+| ALL (answer absent) | 729 | 0 / 704 / 25 | 0 / 724 / 5 |
+| ALL (answer offered) | 1062 | 575 / 482 / 5 | 738 / 322 / 2 |
+| abbrev+typo | 138 | 16 / 121 / 1 | 34 / 102 / 2 |
+| abbreviation | 148 | 67 / 80 / 1 | 110 / 38 / 0 |
+| absent: siblings only | 546 | 0 / 523 / 23 | 0 / 542 / 4 |
+| absent: unrelated name | 183 | 0 / 181 / 2 | 0 / 182 / 1 |
+| camelCase | 106 | 105 / 1 / 0 | 102 / 4 / 0 |
+| double_typo | 139 | 16 / 123 / 0 | 78 / 61 / 0 |
+| dropped_word | 99 | 63 / 33 / 3 | 9 / 90 / 0 |
+| plural | 162 | 126 / 36 / 0 | 151 / 11 / 0 |
+| swapped_words | 127 | 113 / 14 / 0 | 121 / 6 / 0 |
+| typo | 143 | 69 / 74 / 0 | 133 / 10 / 0 |
+
+For comparison, package-disjoint only (names shared with training kept): n 6462, lexical 2026 / 4320 / 116, learned 2660 / 3791 / 11
+
+5-fold cross-validation (name-disjoint held-out cases):
+
+| fold | n | lexical correct | learned correct | lexical wrong | learned wrong |
+|---|---:|---:|---:|---:|---:|
+| 0 | 1791 | 32.1% | 41.2% | 1.68% | 0.39% |
+| 1 | 730 | 14.7% | 39.0% | 2.05% | 2.88% |
+| 2 | 140 | 25.7% | 52.9% | 2.14% | 5.71% |
+| 3 | 38 | 31.6% | 57.9% | 5.26% | 5.26% |
+| 4 | 306 | 23.2% | 58.5% | 2.94% | 3.27% |
+| mean ± sd | | 25.5 ± 7.1% | 49.9 ± 9.2% | 2.8 ± 1.4% | 3.5 ± 2.1% |
+
+model: 289 weights + 32 normalisation constants (1.3 KB as f32)
+wrote D:\Rust OSS\crates\ros2-safety-mutate/../ros2-safety-lint/src/assist/learned_weights.rs

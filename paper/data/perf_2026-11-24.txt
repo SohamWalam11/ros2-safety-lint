@@ -1,0 +1,15 @@
+﻿ros2__demos	0.15s	18MB	10	E002 x2, L002 x8
+{"agents_ms":2,"index_ms":121,"resolve_ms":1}
+ros2__sros2	0.03s	11MB	0	
+{"agents_ms":0,"index_ms":7,"resolve_ms":0}
+turtlebot3	0.07s	16MB	10	E002 x2, L002 x8
+{"agents_ms":8,"index_ms":38,"resolve_ms":0}
+ros2_control	0.60s	25MB	0	
+{"agents_ms":1,"index_ms":548,"resolve_ms":2}
+ros-planning__navigation2	2.08s	51MB	63	A002 x2, L002 x49, N009 x1, P005 x1, S002 x9, T003 x1
+{"agents_ms":17,"index_ms":1854,"resolve_ms":58}
+ros2__demos: rosfix status: 21 package(s), 145 file(s) parsed, 20 launch graph(s), 43 node instance(s)
+ros2__sros2: rosfix status: 2 package(s), 20 file(s) parsed, 0 launch graph(s), 0 node instance(s)
+turtlebot3: rosfix status: 8 package(s), 63 file(s) parsed, 7 launch graph(s), 12 node instance(s)
+ros2_control: rosfix status: 11 package(s), 124 file(s) parsed, 0 launch graph(s), 0 node instance(s)
+ros-planning__navigation2: rosfix status: 45 package(s), 778 file(s) parsed, 44 launch graph(s), 935 node instance(s)

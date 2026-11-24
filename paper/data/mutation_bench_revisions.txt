@@ -1,0 +1,12 @@
+https://github.com/PX4/PX4-Autopilot.git 467514c7afe350daeb1b9ce48c8ade97bb68df16
+https://github.com/autowarefoundation/autoware.git 5c367ad11966d674e547694069284024e561ae9c
+https://github.com/ros-planning/moveit2.git 8c99e523bc23149d24a61990c64d53c9c7d2905f
+https://github.com/ros-planning/navigation2.git c7046550547d382a5186d106b0895eda02485d7c
+https://github.com/open-rmf/rmf_ros2.git 4b4462e0fbf3757fc8286163aa43d4342e4504c1
+https://github.com/ros-controls/ros2_control.git 76d68a623685de28f146953ff2038cc921f315b2
+https://github.com/ros2/rmw_fastrtps.git 6bba0a746ba362ead10585bf4f4bbc49d62e0955
+https://github.com/ros2/demos.git 37e25e0dece32f972b3cc8677b6aab3e891a9365
+https://github.com/ros2/system_tests.git 7f0058064a96415bdb304a873c08e4d099f6b25d
+https://github.com/ROBOTIS-GIT/turtlebot3.git 0d4e59cf34da9c0661f80008bb0fa02636c713b2
+https://github.com/ros2/sros2.git 80a08ffa1bccd2de602c2acd120b209ad5f8ce83
+https://github.com/ros2/rmw_cyclonedds.git b70b71b0816fbe88c579782ec8756dae40af220a

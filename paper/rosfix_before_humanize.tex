@@ -1,0 +1,607 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Base text: the author's draft "Cross-Language Static Analysis for ROS 2: Detecting Shadow
+% Configuration Drift" (research_paper_robotics (1).pdf), reproduced unchanged.
+% Every addition describing the components built since is marked with "% ADDED:".
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,
+        frame=single,framerule=0.3pt,aboveskip=4pt,belowskip=4pt}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title{Cross-Language Static Analysis for ROS 2:\\Detecting Shadow Configuration Drift}
+
+\author{\IEEEauthorblockN{Soham Kishor Walam}
+\IEEEauthorblockA{Robotics and Autonomous Systems Laboratory\\
+Advanced Engineering Research\\
+Email: soham.walam2005@gmail.com}}
+
+\maketitle
+
+\begin{abstract}
+Modern ROS 2 robotics systems rely on complex multi-language configurations spanning XML
+launch files, YAML parameters, Python scripts, and C++ implementations. Existing analysis tools
+examine these files in isolation, missing critical inconsistencies that emerge through cross-file
+interactions. We present rosfix, a cross-language static analysis tool that detects
+\emph{Shadow Configuration Drift}---configuration inconsistencies visible only through
+multi-file dependency analysis. Built using Tree-sitter AST parsing and unified intermediate
+representation, rosfix analyzes 38,917 files across 12 major ROS 2 repositories, detecting 2,405
+configuration issues with 87.3\% precision. Our evaluation demonstrates that 13.0\% of detected
+issues are invisible to single-file analysis, validating the necessity of cross-language
+approaches for ROS 2 configuration verification.
+% ADDED:
+We further describe a resolved launch graph that follows the semantics of the ROS~2 launch
+system and \code{rcl}, per-distribution knowledge packs for installed packages, and a repair
+engine that accepts a fix only after re-analysis proves it removes the finding; in a mutation
+benchmark on five public repositories, all 107 injected faults were detected at the mutated line.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Static analysis, robotics middleware, configuration management, cross-language analysis
+\end{IEEEkeywords}
+
+% ===========================================================================
+\section{Introduction}
+
+The Robot Operating System 2 (ROS 2) has become the standard middleware for safety-critical
+robotics applications through its Data Distribution Service (DDS) foundation and comprehensive
+security framework. However, ROS 2's multi-language configuration model creates complex
+dependencies between XML launch files, YAML parameters, Python launch scripts, and C++ source
+code.
+
+Consider a common scenario: an architect specifies \code{RELIABLE} QoS in a YAML configuration
+file to ensure message delivery for safety-critical commands, but a developer hardcodes
+\code{.best\_effort()} in the C++ node implementation to reduce latency. This creates what we
+term \emph{Shadow Configuration Drift}---an inconsistency between intended configuration (YAML)
+and runtime behavior (C++) that remains invisible to single-file analysis tools.
+
+Existing ROS 2 analysis approaches focus on individual file types: QoS
+Guard~\cite{lee2025qosguard} validates DDS XML profiles, LiSA4ROS2~\cite{zanatta2024lisa4ros2}
+analyzes C++ source for security policy generation, and HAROS~\cite{santos2021haros} provides
+ROS 1 code quality metrics. None address cross-file configuration consistency.
+
+This paper contributes: (1) formal definition of Shadow Configuration Drift, (2) rosfix---a
+cross-language static analysis framework detecting configuration inconsistencies across ROS 2
+file types, (3) empirical evaluation on 38,917 files from 12 major repositories, and (4)
+demonstration that 13.0\% of configuration issues require cross-file analysis for detection.
+
+% ADDED:
+In addition, it contributes (5) a resolved launch graph with \code{rcl}-compatible parameter-file
+matching and launch-to-source linking (Sec.~\ref{sec:graph}); (6) installed-environment
+awareness and per-distribution knowledge packs (Sec.~\ref{sec:installed}); (7) a verified repair
+engine with a closed-set repair assistant and a sandboxed build check (Sec.~\ref{sec:repair});
+and (8) a reproducible mutation benchmark at real sites (Sec.~\ref{sec:mutation}). Empirical
+studies motivate these additions: Canelas et al.\ found that 27 of 50 sub-categories of ROS
+misconfiguration were not addressed by any of 18 surveyed techniques~\cite{canelas2024misconfig},
+and Chen et al.\ studied 121 interaction bugs across ten ROS projects~\cite{chen2025ibugs}.
+
+% ===========================================================================
+\section{Problem Formulation}
+
+\subsection{Shadow Configuration Drift Definition}
+
+Let $C = \{C_{xml}, C_{yaml}, C_{py}, C_{cpp}\}$ represent configuration sources in a ROS 2
+system. The effective runtime configuration $C_{eff}$ results from composition with precedence
+rules:
+\begin{equation}
+C_{eff} = C_{cpp} \oplus C_{py} \oplus C_{yaml} \oplus C_{xml}
+\end{equation}
+where $\oplus$ represents override composition (later sources override earlier ones).
+
+Shadow Configuration Drift occurs when source code silently overrides high-level configuration
+intent: Given dependency relation $D \subseteq C \times C$, Shadow Configuration Drift is the set
+of inconsistencies detectable only through transitive closure $D^*$:
+\begin{equation}
+\mathit{ShadowDrift} = \Big\{ d \in \mathit{ConfigDrift} : d \notin \bigcup_i \mathit{SingleFile}(C_i)
+\wedge d \in \mathit{CrossFile}(D^*) \Big\}
+\end{equation}
+
+\subsection{Motivating Examples}
+
+\textbf{QoS Override}: YAML specifies \code{reliability: RELIABLE} for a sensor topic, but C++
+node uses \code{rclcpp::QoS(10).best\_effort()}, silently degrading communication reliability
+under network stress.
+
+\textbf{Security Bypass}: XML governance requires \code{ENCRYPT} protection, but Python launch
+script binds to localhost \code{127.0.0.1}, bypassing network-level security policies.
+
+\textbf{Lifecycle Violation}: Launch file configures managed lifecycle for motor controller, but
+C++ implementation publishes commands immediately without proper state transitions.
+
+% ADDED:
+\textbf{Ignored QoS override}: A parameter file sets
+\code{qos\_overrides./scan.subscription.reliability: best\_effort}, but the subscription was
+created without \code{QosOverridingOptions}; the override is ignored and the QoS in the code wins.
+Detecting this requires the parameter file, the launch graph that binds it to the node, and the
+node's source.
+
+% ADDED:
+\textbf{Namespaced parameter keys}: \code{rcl} matches parameter-file keys against fully
+qualified node names, so a section keyed \code{amcl} is silently ignored for an AMCL node launched
+in namespace \code{robot1} (\code{/robot1/amcl}).
+
+% ===========================================================================
+\section{Approach}
+
+\subsection{Architecture Overview}
+
+rosfix implements a four-stage analysis pipeline:
+1.~\textbf{Multi-Language Parsing}: Language-specific parsers for XML (roxmltree), YAML
+(serde\_yaml), Python (rustpython-parser), and C++ (Tree-sitter)
+2.~\textbf{Unified IR Generation}: Cross-language intermediate representation capturing ROS 2
+semantic elements
+3.~\textbf{Dependency Resolution}: Cross-file dependency graph construction with parameter
+propagation tracking
+4.~\textbf{Shadow Drift Detection}: Pattern-based inconsistency detection across configuration
+sources
+
+\subsection{Cross-Language Intermediate Representation}
+
+The unified IR captures ROS 2 abstractions independent of source file format:
+\begin{lstlisting}
+struct CrossLanguageIR {
+  nodes: Vec<NodeDefinition>,
+  parameters: Vec<ParameterDefinition>,
+  topics: Vec<TopicDefinition>,
+  qos_profiles: Vec<QoSProfile>,
+  dependencies: DependencyGraph,
+  file_origins: HashMap<ElementId, FileOrigin>
+}
+\end{lstlisting}
+File origin tracking enables precise error reporting with source location information across all
+configuration sources.
+
+\subsection{Shadow Drift Detection Patterns}
+
+We implement seven drift detection patterns:
+
+\textbf{QoS Override}: Detects hardcoded QoS settings in source code that contradict
+configuration file specifications
+
+\textbf{Security Policy Bypass}: Identifies source code that circumvents SROS2 security
+configurations
+
+\textbf{Parameter Conflicts}: Finds competing parameter values across configuration layers
+
+\textbf{Lifecycle Violations}: Validates managed lifecycle requirements against implementation
+
+\textbf{Topic Type Mismatches}: Ensures publisher-subscriber type compatibility
+
+\textbf{Executor Safety}: Detects blocking operations in single-threaded callbacks
+
+\textbf{Physical Safety}: Validates URDF constraints and navigation footprint specifications
+
+% ---------------------------------------------------------------------------
+% ADDED: subsections D-I describe the components built since the draft.
+% ---------------------------------------------------------------------------
+
+\subsection{Fact Extraction}
+\label{sec:facts}
+
+Each file is reduced to typed facts. Extractors cover \code{package.xml}; a small CMake
+interpreter (variables, executables and libraries, \code{install} rules, ament\_cmake\_auto,
+rclcpp component registration, generate\_parameter\_library specifications);
+\code{setup.py}/\code{setup.cfg}; launch files in XML, YAML and Python; parameter YAML; C++
+via Tree-sitter~\cite{treesitter}; Python via the RustPython AST; URDF with a xacro subset
+(properties, arguments, arithmetic, macros with block parameters, includes, conditionals); SROS2
+governance, permissions and policy documents; and RViz configurations, whose displays carry
+their own QoS.
+
+Python launch files are not executed: a static interpreter evaluates the common subset
+(\code{Node}, \code{IncludeLaunchDescription}, \code{GroupAction}, \code{PushRosNamespace},
+\code{SetParameter}, \code{DeclareLaunchArgument}, \code{LaunchConfiguration}, path
+substitutions, helper functions, \code{RewrittenYaml}/\code{ParameterFile}) and marks the rest
+unknown. The parameter-YAML layer keeps exact byte spans and types scalars like
+\code{rcl\_yaml\_param\_parser}, so that \code{1} is an integer, \code{1.0} a double and
+\code{on} a boolean, exactly as at runtime. From nodes, the extractors record node names,
+declared parameters with types and defaults, endpoints with literal names and statically
+evaluated QoS, callbacks, callback groups, executors and blocking calls.
+
+\subsection{Resolved Launch Graph}
+\label{sec:graph}
+
+Every launch file is a root. The resolver follows includes into workspace and installed
+packages, propagates launch arguments (values passed by the includer override defaults),
+composes namespace pushes (relative pushes compose, absolute ones reset), and applies remappings
+by comparing fully expanded names. Parameter-file sections are matched like \code{rcl}: a key
+$k$ applies to node $n$ iff
+\begin{equation}
+\mathrm{match}\big(\mathrm{abs}(k), \mathrm{fqn}(n)\big),\quad
+\mathrm{abs}(k) = \begin{cases} k & k \text{ starts with } / \\ /k & \text{otherwise}\end{cases}
+\end{equation}
+with \code{*} matching one name token and \code{**} any number of tokens; for
+\code{RewrittenYaml(root\_key=$r$)} keys are prefixed with $r$. Each launched node is linked to
+its implementation through the package's build rules (executable sources, linked in-package
+libraries, the same node classes in headers) or, for composable nodes, through the plugin class.
+
+\subsection{Precision-First Analysis}
+\label{sec:precision}
+
+Every fact records what could not be determined, and every rule checks these markers before
+reporting. Parameter declarations have three levels: \emph{closed} (all known),
+\emph{dotted-open} (names containing a dot are uncertain, e.g.\ plugin parameters
+\code{plugin\_name.param}) and \emph{open} (a fully dynamic name). Declarations made through
+another object's node handle are attributed to a node class when possible; literal declarations
+in the node's workspace dependency closure are accepted; a node deriving from a non-standard base
+class that cannot be found is treated as open. Launch graphs with unresolved includes or dynamic
+code are marked partial, and checks needing a closed world are suppressed for them.
+
+\subsection{Installed Environment and Knowledge Packs}
+\label{sec:installed}
+
+In a sourced ROS shell, rosfix reads the ament resource index~\cite{ament_index} of every prefix
+in \code{AMENT\_PREFIX\_PATH}: installed packages, executables (\code{lib/<pkg>}), pluginlib
+plugins (\code{<category>\_\_pluginlib\_\_plugin}), rclcpp components and dependencies. Launch and
+parameter files of installed packages included by the workspace are loaded for resolution; no
+finding is reported inside them. Because binary installs contain no source, a per-distribution
+\emph{knowledge pack}---rosfix's own extractors run once over the source of popular packages---
+provides the parameters and QoS of installed nodes (Table~\ref{tab:packs}). Packs are used only
+when the distribution is known, since parameter names change between distributions.
+
+\begin{table}[t]
+\centering
+\caption{Embedded knowledge packs (built from nine upstream repositories)}
+\label{tab:packs}
+\footnotesize
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Distribution & Packages & Executables & Components & Parameters & Size \\
+\midrule
+Humble & 40 & 100 & 52 & 2{,}596 & 11\,KiB\\
+Jazzy  & 44 &  96 & 38 & 3{,}850 & 14\,KiB\\
+Kilted & 44 &  97 & 37 & 3{,}711 & 14\,KiB\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Rule Engine}
+\label{sec:rules}
+
+Nine domain agents run sequentially over the facts and the graph and report 44 rules with
+stable identifiers (Table~\ref{tab:rules}). Each finding carries an exact location, related
+locations, an explanation and, where possible, a fix.
+
+\begin{table}[t]
+\centering
+\caption{Agents and rules}
+\label{tab:rules}
+\footnotesize
+\begin{tabular}{@{}p{1.1cm}p{6.7cm}@{}}
+\toprule
+Agent & Rules \\
+\midrule
+params    & unmatched node key, missing \code{ros\_\_parameters}, undeclared parameter, type mismatch, missing required parameter (P001--P005)\\
+topics    & near-miss names, remap without effect, type conflict, absolute name in namespace (T001--T005)\\
+executor  & blocking wait/spin in a callback that shares the response's group or a single-threaded executor; sleep in callback (E001--E002)\\
+control   & unknown joint, missing interface, controller-type typo, inconsistent config, \code{<ros2\_control>} joint not in URDF, missing hardware plugin (C001--C006)\\
+packaging & executable not built/installed, undeclared dependency, \code{setup.cfg} script dir, uninstalled \code{launch/}, missing file (L001--L005)\\
+simtime   & mixed \code{use\_sim\_time}, simulator without sim time, no clock (S001--S003)\\
+qos       & reliability, durability, deadline/liveliness incompatibility, late joiner, ignored \code{qos\_overrides} (Q001--Q005)\\
+nav2      & plugin section missing, plugin typo, unknown frame, footprint, inflation radius, parameter typo (N001--N006)\\
+security  & weak governance, broad/expired permissions, unknown enclave, policy--graph mismatch, absolute keystore path (X001--X006)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Verified Repair}
+\label{sec:repair}
+
+Agents attach a fix only when the edit is local and mechanical (e.g.\ \code{1}$\to$\code{1.0},
+renaming a misspelled key to the closest declared name, adding a \code{<depend>}). Fixes are
+applied in memory, the whole workspace is re-analysed, and a fix is kept only if its finding
+disappears and no new error appears (Algorithm~\ref{alg:fix}); accepted fixes are written
+atomically, and only with an explicit \code{--write}.
+
+\begin{algorithm}[t]
+\caption{Fix verification}
+\label{alg:fix}
+\footnotesize
+\begin{algorithmic}[1]
+\State $F \gets$ non-overlapping fixes of all findings $D$
+\For{round $=1..3$}
+  \State $D' \gets \mathrm{analyse}(\text{workspace with } F \text{ applied in memory})$
+  \State $R \gets \{f\in F \mid \mathrm{finding}(f)\in D' \lor \mathrm{newErrors}(D', D, f)\}$
+  \If{$R=\emptyset$} \Return $F$ \EndIf
+  \State $F \gets F \setminus R$
+\EndFor
+\State \Return $F$
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Closed-set repair assistant.} Findings without a mechanical fix (e.g.\ a key
+\code{max\_lin\_vel} for a node declaring \code{max\_linear\_velocity}) carry a repair site: the
+exact span and the closed set of values valid there (declared parameters, \code{<ros2\_control>}
+joints, URDF frames, executables, enclaves). The assistant chooses one value or abstains; it never
+generates text, unlike generative repair models~\cite{silva2023repairllama,wang2023rapgen}. A
+lexical ranker (edit distance, word overlap, ROS abbreviations) and a small learned ranker---a
+16$\to$16$\to$1 perceptron over 16 string features, about 290 weights compiled into the binary---
+score the candidates; a choice needs a clear margin, is verified by Algorithm~\ref{alg:fix}, and
+is written only with an explicit flag, since re-analysis cannot prove intent. A prototype using a
+0.5B-parameter code language model on the CPU needed 4.5\,s to load and 17.6\,s per finding,
+which motivated the small ranker.
+
+\textbf{Sandboxed build check.} With \code{--verify-build}, the workspace is copied twice to a
+temporary directory and built before and after the fixes with \code{colcon}, in a ROS container
+without network access when Docker is available; fixes that break a working build are refused.
+
+\textbf{Optional references.} With \code{--online}, findings receive links to related Robotics
+Stack Exchange questions and GitHub issues. Queries are built only from the rule that fired, so
+no file content, path or name leaves the machine; a separate helper process performs the requests
+against an HTTPS allowlist with timeouts and size limits, and results are cached.
+
+\subsection{Implementation and Distribution}
+
+rosfix is written in Rust (about 15{,}000 lines), runs single-threaded by default, and reports
+text, JSON and SARIF~2.1.0~\cite{sarif} with exact regions, rule metadata and fixes, inline
+suppressions, baselines for gradual adoption, and a non-zero exit code at a configurable severity.
+Packaging is provided for Python wheels (with a \code{ros2 rosfix} command), standalone archives,
+container images, a GitHub Action and pre-commit hooks.
+
+% ===========================================================================
+\section{Experimental Evaluation}
+
+\subsection{Dataset and Methodology}
+
+We evaluate rosfix on 12 major open-source ROS 2 repositories totaling 38,917 files:
+PX4-Autopilot (26,404), Autoware (8,074), MoveIt2 (1,567), Navigation2 (1,333), rmf\_ros2 (695),
+ros2\_control (314), rmw\_fastrtps (224), demos (217), system\_tests (104), turtlebot3 (88), sros2
+(73), rmw\_cyclonedx (24).
+
+All experiments execute on Windows 10.0.26200 with AMD Ryzen architecture using Rust 1.97.1
+release builds.
+
+\subsection{Detection Accuracy}
+
+rosfix identifies 2,405 configuration issues across 947 files. Manual validation of a stratified
+random sample ($n=312$, 95\% confidence) yields:
+\begin{itemize}
+\item Precision: 87.3\% (CI: 83.1\%--91.5\%)
+\item Critical Issues: 127 (security, physical safety)
+\item Error Level: 891 (functional problems)
+\item Warning Level: 1,387 (performance, consistency)
+\end{itemize}
+
+\subsection{Shadow Drift Analysis}
+
+Cross-file dependency analysis reveals 312 shadow drift instances (13.0\%) invisible to
+single-file tools:
+\begin{itemize}
+\item QoS Overrides: 189 cases (hardcoded reliability downgrades)
+\item Security Bypasses: 47 cases (policy circumvention)
+\item Parameter Conflicts: 76 cases (competing values across layers)
+\end{itemize}
+Traditional single-file analyzers detect 0 instances of these cross-file inconsistencies.
+
+\subsection{Performance Analysis}
+
+\begin{table}[t]
+\centering
+\caption{Scalability and Parallelization Results}
+\label{tab:scal}
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Repository Size & Files & ms/File\\
+\midrule
+Small (demos) & 217 & 9.55\\
+Large (MoveIt2) & 1,567 & 21.94\\
+Very Large (Autoware) & 8,074 & 20.06\\
+Complete Dataset & 38,917 & 13.81\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Rayon parallelization achieves 3.19$\times$ speedup on 4 cores and 5.15$\times$ on 8 cores, with
+80\% and 64\% efficiency respectively.
+
+% ---------------------------------------------------------------------------
+% ADDED: subsections E-H report measurements of the current implementation.
+% ---------------------------------------------------------------------------
+
+\subsection{Resolved-Graph Analysis of Five Repositories}
+\label{sec:five}
+
+We ran the current implementation (release build, one thread, cold file cache, no ROS
+installation) on shallow clones of five repositories and reviewed every finding manually
+(Table~\ref{tab:five}). The L002 findings are undeclared \code{package.xml} dependencies, e.g.\
+\code{turtlebot3\_bringup} starts nodes from \code{rclcpp\_components}, \code{camera\_ros} and
+\code{image\_view} without declaring them, which breaks installation from binaries. E002 findings
+are sleeps in executor callbacks; S002 findings are Nav2 example nodes started next to a simulator
+without \code{use\_sim\_time}.
+
+\begin{table}[t]
+\centering
+\caption{Current implementation on five repositories (cold cache, one thread)}
+\label{tab:five}
+\footnotesize
+\begin{tabular}{@{}lrrrl@{}}
+\toprule
+Repository & Files & Time & Memory & Findings\\
+\midrule
+ros2/demos     & 138 & 1.3\,s & 13\,MB & E002$\times$2, L002$\times$6\\
+ros2/sros2     &  20 & 0.1\,s &  5\,MB & ---\\
+turtlebot3     &  63 & 0.1\,s & 12\,MB & E002$\times$2, L002$\times$5\\
+ros2\_control  & 124 & 0.7\,s & 20\,MB & ---\\
+navigation2    & 732 & 5.1\,s & 68\,MB & L002$\times$31, S002$\times$10\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Analysing real code also exposed false-positive sources that unit tests had not, each fixed in
+the extractors or the resolver: parameter files passed through
+\code{ParameterFile(RewrittenYaml(\dots))}; nested dictionaries in Python launch parameters
+(flattened to dotted names by ROS); project-specific QoS classes such as
+\code{LatchedPublisherQoS}; launch\_testing files; callbacks handing work to a thread;
+metapackage dependencies; the member form of \code{declare\_or\_get\_parameter}; parameters
+declared by shared library code in dependency packages; and template calls misparsed without
+type information.
+
+\subsection{Mutation Benchmark at Real Sites}
+\label{sec:mutation}
+
+A benchmark injects one fault at a time, in memory, at a site discovered in the clean analysis
+(e.g.\ a parameter that a node really declares and a launch file really binds); a mutation counts
+as detected only if the expected rule fires at the mutated line. All 107 mutations were detected
+(Table~\ref{tab:mut}). Three faults injected by hand into Nav2's default parameter file (a
+misspelled \code{controller\_frequency}, an integer for a double, a misspelled
+\code{ros\_\_parameters}) were also detected, each with a verified fix. The operators are
+synthetic and were written alongside the tool.
+
+\begin{table}[t]
+\centering
+\caption{Mutation benchmark (five repositories)}
+\label{tab:mut}
+\footnotesize
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Mutation & Rule & Injected & Detected\\
+\midrule
+parameter key typo                   & P003 & 10 & 10\\
+double written as integer            & P004 &  7 &  7\\
+\code{ros\_\_parameters} misspelled  & P002 & 33 & 33\\
+executable name typo in launch file  & L001 & 21 & 21\\
+dependency removed from package.xml  & L002 & 16 & 16\\
+Nav2 plugin type typo                & N002 & 20 & 20\\
+\midrule
+total                                &      & 107 & 107\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Installed Packages}
+
+With the Jazzy knowledge pack, a workspace launching Nav2's installed controller server with
+\code{controller\_frequency: 20} is reported as a type error that crashes the node at startup
+(fix: \code{20.0}), and a misspelled \code{min\_x\_velocity\_treshold} as undeclared---without
+Nav2's source on the machine.
+
+\subsection{Coverage}
+
+In navigation2, rosfix built 50 launch graphs with 1,161 node instances, 1,065 of them linked to
+source. Parameter checks apply fully to 132, to top-level names for 877 plugin-hosting nodes, and
+are disabled for 56 nodes whose declarations cannot be determined.
+
+% ===========================================================================
+\section{Case Study: TurtleBot3}
+
+Detailed analysis of the TurtleBot3 educational platform demonstrates rosfix's practical
+effectiveness:
+
+\textbf{Physical Safety Issues}: 6 URDF continuous joints missing velocity and effort limits,
+potentially causing hardware damage in simulation or real deployment
+
+\textbf{Executor Deadlocks}: 16 instances of blocking \code{sleep()} calls inside ROS 2 callbacks
+that freeze single-threaded executors
+
+\textbf{Policy Violations}: Multiple launch files missing \code{respawn="true"} attributes for
+critical motor control nodes
+
+All detected issues represent legitimate configuration problems confirmed through manual
+inspection and testing.
+
+% ADDED:
+With the current implementation, TurtleBot3 yields seven findings (Table~\ref{tab:five}): two
+sleeps inside action-server callbacks of \code{turtlebot3\_example} and five undeclared
+dependencies (\code{rclcpp\_components}, \code{camera\_ros} and \code{image\_view} in
+\code{turtlebot3\_bringup}; \code{rviz2} in the cartographer and navigation2 packages).
+
+% ===========================================================================
+\section{Related Work}
+
+QoS Guard~\cite{lee2025qosguard} provides rigorous DDS QoS profile analysis but operates
+exclusively on XML files, missing source code overrides that rosfix detects.
+
+LiSA4ROS2~\cite{zanatta2024lisa4ros2} uses abstract interpretation for SROS2 policy generation
+from source code but focuses on policy synthesis rather than configuration validation.
+
+HAROS~\cite{santos2021haros} pioneered static analysis for ROS 1 but requires adaptation for
+ROS 2's DDS-based architecture and QoS model.
+
+rosfix uniquely addresses cross-file configuration consistency through unified multi-language
+analysis, detecting issues invisible to existing single-domain approaches.
+
+% ADDED:
+ROSDiscover~\cite{timperley2022rosdiscover} statically recovers and checks the run-time
+architecture of ROS~1 systems; rosfix resolves ROS~2 launch graphs, including parameter-file
+binding, installed packages and packaging. Empirical studies of ROS
+misconfigurations~\cite{canelas2024misconfig} and interaction bugs~\cite{chen2025ibugs} motivate
+our rule selection. In program repair, small models are typically fine-tuned to generate
+patches~\cite{silva2023repairllama} and benefit from retrieved examples~\cite{wang2023rapgen};
+our assistant instead ranks a closed set of valid values and verifies every choice.
+
+% ===========================================================================
+\section{Limitations}
+
+\textbf{Static Analysis Bounds}: Cannot detect runtime-only configuration issues or dynamic
+parameter modifications
+
+\textbf{Dependency Resolution}: Current implementation handles direct dependencies; complex
+transitive relationships may be missed
+
+\textbf{Ground Truth Scale}: Manual validation covers representative sample ($n=312$) rather than
+all 2,405 detected issues
+
+\textbf{Platform Dependencies}: Evaluation limited to Windows environment with specific hardware
+configuration
+
+% ADDED:
+\textbf{Interpreter Subsets}: The Python-launch and xacro interpreters cover common subsets;
+other parts are marked partial and dependent checks are suppressed.
+
+% ADDED:
+\textbf{Synthetic Mutations}: The mutation operators were written alongside the tool; the
+benchmark shows that checks work on real code layouts, not recall on faults in the wild.
+
+% ADDED:
+\textbf{Knowledge Packs and Assistant}: Packs reflect the branches they were built from. The
+learned ranker is trained on synthetic corruptions of real parameter names from the packs; on
+7,351 held-out cases from packages not seen in training it chose the right value 3,816 times
+versus 2,213 for the lexical ranker, with 132 versus 142 wrong edits. On injected mistakes in
+\code{demos} and \code{navigation2} it fixed all 24 misspelled executable names (lexical: 11), but
+both rankers abstained on all 20 misspelled parameter keys, although the right key was among the
+options in 19 of them. These cases are synthetic rather than fixes from real histories, and the
+sandboxed build check was not exercised in the evaluation (it requires Docker or colcon).
+
+% ===========================================================================
+\section{Conclusion}
+
+This work introduces Shadow Configuration Drift as a formal characterization of cross-file
+configuration inconsistencies in ROS 2 systems. Our rosfix framework demonstrates that
+multi-language static analysis can detect 13.0\% more configuration issues than single-file
+approaches, with 87.3\% precision across 38,917 files from major robotics projects.
+
+The key insight is that ROS 2's multi-language configuration model requires corresponding
+multi-language analysis approaches. Traditional tools examining XML, YAML, Python, or C++ files in
+isolation miss critical inconsistencies that emerge through cross-file interactions.
+
+Future work includes dynamic analysis integration to detect runtime-only issues, machine learning
+enhancement for complex drift pattern recognition, and extended evaluation across additional
+robotics domains.
+
+% ADDED:
+Beyond detection, the resolved launch graph, knowledge packs and verified repair move rosfix
+toward use in continuous integration on arbitrary ROS~2 workspaces; next steps are a benchmark of
+real historical fixes mined from permissively licensed repositories and training the learned
+ranker on it.
+
+\textbf{Availability}: rosfix is open source at
+\url{https://github.com/SohamWalam11/ros2-safety-lint} with complete experimental datasets and
+reproducible benchmarks.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
