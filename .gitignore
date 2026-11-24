@@ -1,9 +1,26 @@
-/target/
-/target_cli/
+# Build output anywhere in the tree (not only at the root).
+target/
+target-*/
+target_cli/
+.rosfix/
 .results/
 **/*.rs.bk
 Cargo.lock
 crash_log*.txt
-test*.sarif
-test*.json
-test_final.txt
+*.sarif
+bench_results*.md
+.packs-src/
+training/out/
+training/dist/
+training/llama.cpp/
+*.gguf
+*.jsonl
+research/.cache/
+
+# VS Code extension build output
+editors/vscode/node_modules/
+editors/vscode/*.vsix
+
+# Python bytecode
+__pycache__/
+*.pyc

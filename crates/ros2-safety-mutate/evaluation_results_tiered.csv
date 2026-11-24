@@ -1,5 +1,0 @@
-Tier,TP,FP,FN,Precision,Recall
-Tier2 (Subtle),0,0,1,1.00,0.00
-Tier1 (Obvious),0,0,1,1.00,0.00
-Tier3 (Adversarial),0,0,1,1.00,0.00
-All,0,0,3,1.00,0.00
