@@ -1,0 +1,48 @@
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/PX4-Autopilot"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/PX4-Autopilot
+	url = https://github.com/PX4/PX4-Autopilot.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/autoware"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/autoware
+	url = https://github.com/autowarefoundation/autoware.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/demos"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/demos
+	url = https://github.com/ros2/demos.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/moveit2"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/moveit2
+	url = https://github.com/moveit/moveit2.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/navigation2"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/navigation2
+	url = https://github.com/ros-navigation/navigation2.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmf_ros2"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmf_ros2
+	url = https://github.com/open-rmf/rmf_ros2.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmw_cyclonedds"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmw_cyclonedds
+	url = https://github.com/ros2/rmw_cyclonedds.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmw_fastrtps"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/rmw_fastrtps
+	url = https://github.com/ros2/rmw_fastrtps.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/ros2_control"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/ros2_control
+	url = https://github.com/ros-controls/ros2_control.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/sros2"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/sros2
+	url = https://github.com/ros2/sros2.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/system_tests"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/system_tests
+	url = https://github.com/ros2/system_tests.git
+	shallow = true
+[submodule "crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/turtlebot3"]
+	path = crates/ros2-safety-mutate/tests/fixtures/real_world_datasets/turtlebot3
+	url = https://github.com/ROBOTIS-GIT/turtlebot3.git
+	shallow = true

@@ -1,15 +1,26 @@
 [package]
 name = "ros2-safety-mutate"
-version = "0.1.0"
-edition = "2024"
+version = "0.2.0"
+edition = "2021"
 publish = false
-
-[dependencies]
-roxmltree = "0.20"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-walkdir = "2.4.0" # To recursively scan directories
+description = "Mutation benchmark for rosfix: injects realistic misconfigurations into real ROS 2 workspaces and measures detection"
 
 [[bin]]
-name = "real_world_bench"
-path = "src/real_world_bench.rs"
+name = "rosfix-bench"
+path = "src/main.rs"
+
+[[bin]]
+name = "rosfix-pack"
+path = "src/bin/rosfix_pack.rs"
+
+[[bin]]
+name = "rosfix-train"
+path = "src/bin/rosfix_train.rs"
+
+[[bin]]
+name = "rosfix-history"
+path = "src/bin/rosfix_history.rs"
+
+[dependencies]
+rosfix = { path = "../ros2-safety-lint" }
+serde_json = "1.0"
