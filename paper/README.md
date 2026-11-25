@@ -9,8 +9,10 @@
 ## Build
 
 ```bash
-pdflatex rosfix && bibtex rosfix && pdflatex rosfix && pdflatex rosfix
-# or upload rosfix.tex + references.bib to Overleaf (IEEEtran is built in)
+pdflatex rosfix && pdflatex rosfix   # run twice so cross-references resolve
+# or upload rosfix.tex to Overleaf (IEEEtran is built in) and press Recompile
+# The reference list is embedded in rosfix.tex, so BibTeX is not needed.
+# references.bib holds the same 35 entries for anyone who prefers BibTeX.
 ```
 
 ## Structure of `rosfix.tex`

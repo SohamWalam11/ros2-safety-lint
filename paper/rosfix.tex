@@ -19,6 +19,7 @@
 \usepackage[hidelinks]{hyperref}
 
 \lstset{basicstyle=\ttfamily\footnotesize,columns=fullflexible,keepspaces=true,
+        breaklines=true,breakindent=2em,
         frame=single,framerule=0.3pt,aboveskip=4pt,belowskip=4pt}
 \newcommand{\code}[1]{\texttt{#1}}
 
@@ -58,11 +59,14 @@ Static analysis, robotics middleware, configuration management, cross-language a
 % ===========================================================================
 \section{Introduction}
 
-ROS 2 is built on the Data Distribution Service (DDS) and ships with a security framework
-(SROS2). It runs physical robots, where a configuration error can become a safety problem. Its
-configuration, however, is spread over several languages. Launch files in XML or Python start nodes and pass them YAML parameter
-files, and the nodes themselves are written in C++ or Python. Each layer can change what the
-others set.
+ROS 2~\cite{macenski2022ros2}, the successor of ROS~\cite{quigley2009ros}, is built on the Data
+Distribution Service (DDS)~\cite{omg2015dds} and ships with a security framework
+(SROS2)~\cite{mayoral2022sros2}. It runs physical robots, where a configuration error can become
+a safety problem. Its configuration, however, is spread over several languages. Launch files in
+XML or Python start nodes and pass them YAML parameter files, and the nodes themselves are
+written in C++ or Python. Each layer can change what the others set. Outside robotics,
+configuration errors are a major cause of system failures~\cite{yin2011config,xu2015survey},
+and software tends to expose more settings than its users need~\cite{xu2015knobs}.
 
 A common case: an architect sets \code{RELIABLE} QoS in a YAML file so that safety commands are
 always delivered, while a developer hardcodes \code{.best\_effort()} in the C++ node to cut
@@ -238,8 +242,10 @@ through their plugin class.
 \subsection{Precision First}
 \label{sec:precision}
 
-Every fact records what could not be determined, and every rule checks these markers before it
-reports. Parameter declarations are in one of three states:
+Developers stop using analyzers that report many false
+positives~\cite{bessey2010billion,sadowski2018lessons}, so rosfix reports only what it can
+establish. Every fact records what could not be determined, and every rule checks these markers
+before it reports. Parameter declarations are in one of three states:
 \begin{itemize}
 \item \emph{closed}: all declared names are known;
 \item \emph{dotted-open}: names that contain a dot are uncertain, as with plugin parameters
@@ -302,6 +308,8 @@ time of writing there are 93 rules in 18 agents: 17 domain agents and \code{core
 files that could not be parsed. Each rule has a stable identifier (Table~\ref{tab:rules});
 \code{rosfix rules} prints the current list. A finding carries an exact location, related
 locations, an explanation and, where possible, a fix. Rules T005 and S003 are off by default.
+Several agents encode the conventions of widely used stacks, such as Nav2~\cite{macenski2020marathon}
+and ros2\_control~\cite{chitta2017roscontrol}.
 
 \begin{table*}[t]
 \centering
@@ -399,7 +407,7 @@ a repair site: the exact text span and the set of values that are valid there (d
 parameters, \code{<ros2\_control>} joints, URDF frames, executables or enclaves). The assistant
 picks one of these values or abstains. It never generates text, unlike generative repair
 models~\cite{silva2023repairllama,wang2023rapgen}. Two rankers score the candidates: a lexical
-ranker (edit distance, word overlap and common ROS abbreviations) and a learned ranker, a
+ranker (edit distance~\cite{levenshtein1966}, word overlap and common ROS abbreviations) and a learned ranker, a
 16-16-1 perceptron over 16 string features with 289 weights compiled into the binary. A choice
 needs a clear margin over the next candidate and must pass Algorithm~\ref{alg:fix}. It is written
 only with an explicit flag, because re-analysis cannot confirm what the user intended. We first
@@ -641,7 +649,7 @@ fixed in the extractors, the resolver or the agents:
 \subsection{Mutation Benchmark}
 \label{sec:mutation}
 
-The benchmark injects one fault at a time, in memory, at a site found in the clean analysis. A
+Following mutation testing~\cite{jia2011mutation}, the benchmark injects one fault at a time, in memory, at a site found in the clean analysis. A
 site is real code: for example, a parameter that a node declares and a launch file binds. A
 mutation counts as detected only if the expected rule fires at the mutated line, or, for a
 removed dependency, names that dependency. At most 20 sites per operator and repository were
@@ -1149,8 +1157,25 @@ systems statically. rosfix resolves ROS 2 launch graphs and adds parameter-file 
 installed packages and packaging checks. None of these tools compares configuration across file
 types, which is the gap rosfix addresses.
 
+Two static tools for ROS~2 appeared in 2026. lint\_launch~\cite{lintlaunch} checks launch files
+without starting them. It reports missing executables, missing parameters and launch arguments
+that are used but not declared, together with the include chain. ROS~2
+Inspector~\cite{ros2inspector} recovers the topic graph of a workspace from Python, C++ and launch
+files and checks connectivity, naming and QoS-compatibility policies. Neither compares the
+parameters a launch file passes with those the node's source declares, models installed packages,
+or verifies repairs. rosfix's rule A001 overlaps with the argument check of lint\_launch.
+
 The empirical studies of ROS misconfiguration~\cite{canelas2024misconfig} and interaction
-bugs~\cite{chen2025ibugs} guided our choice of rules. In program repair, small models are usually
+bugs~\cite{chen2025ibugs} guided our choice of rules. Other studies describe the ROS ecosystem and
+its bugs. ROBUST collects 221 reproducible bugs from ROS systems~\cite{timperley2024robust}. Kolak
+et al.\ study the ROS package ecosystem~\cite{kolak2020village}, and Malavolta et al.\ derive
+architecture guidelines for ROS-based systems~\cite{malavolta2020architect}. Garcia et al.\ study
+bugs in autonomous-vehicle software~\cite{garcia2020avbugs}, and Afzal et al.\ the challenges of
+testing robotic systems~\cite{afzal2020testing}. Dynamic approaches complement static checks.
+RoboFuzz fuzzes ROS systems for correctness bugs~\cite{kim2022robofuzz}, and response-time and
+latency analyses model the ROS~2 executor~\cite{casini2019response,kronauer2021latency}, whose
+callback rules E001 and E002 check statically. Outside robotics, cross-language analysis has been
+applied to code bases that mix programming languages~\cite{mayer2012cross}. In program repair, small models are usually
 fine-tuned to generate patches~\cite{silva2023repairllama} and improve when given retrieved
 examples~\cite{wang2023rapgen}. The rosfix assistant instead ranks a closed set of valid values
 and verifies every choice by re-analysis.
@@ -1211,7 +1236,130 @@ build-provenance attestations, Python wheels and per-distribution container imag
 release uploads the ranker and the knowledge packs to Hugging Face, so the published model always
 matches the released binaries.
 
-\bibliographystyle{IEEEtran}
-\bibliography{references}
+% The reference list is embedded so the paper compiles without BibTeX. The same entries are in
+% references.bib; to use BibTeX instead, replace this block with
+% \bibliographystyle{IEEEtran} and \bibliography{references}.
+\begin{thebibliography}{99}
+
+\bibitem{macenski2022ros2}
+S.~Macenski, T.~Foote, B.~Gerkey, C.~Lalancette, and W.~Woodall, ``Robot Operating System~2: Design, architecture, and uses in the wild,'' \emph{Science Robotics}, vol.~7, no.~66, art.~eabm6074, 2022.
+
+\bibitem{quigley2009ros}
+M.~Quigley \emph{et~al.}, ``{ROS}: An open-source Robot Operating System,'' in \emph{Proc. ICRA Workshop on Open Source Software}, 2009.
+
+\bibitem{omg2015dds}
+Object Management Group, ``Data Distribution Service ({DDS}), version 1.4,'' OMG Standard formal/15-04-10, 2015.
+
+\bibitem{mayoral2022sros2}
+V.~Mayoral-Vilches, R.~White, G.~Caiazza, and M.~Arguedas, ``{SROS2}: Usable cyber security tools for {ROS}~2,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2022.
+
+\bibitem{yin2011config}
+Z.~Yin, X.~Ma, J.~Zheng, Y.~Zhou, L.~N. Bairavasundaram, and S.~Pasupathy, ``An empirical study on configuration errors in commercial and open source systems,'' in \emph{Proc. ACM Symp. Operating Systems Principles (SOSP)}, 2011.
+
+\bibitem{xu2015survey}
+T.~Xu and Y.~Zhou, ``Systems approaches to tackling configuration errors: A survey,'' \emph{ACM Comput. Surv.}, vol.~47, no.~4, 2015.
+
+\bibitem{xu2015knobs}
+T.~Xu, L.~Jin, X.~Fan, Y.~Zhou, S.~Pasupathy, and R.~Talwadker, ``Hey, you have given me too many knobs!: Understanding and dealing with over-designed configuration in system software,'' in \emph{Proc. ACM ESEC/FSE}, 2015.
+
+\bibitem{lee2025qosguard}
+S.~Lee \emph{et~al.}, ``Dependency chain analysis of {ROS}~2 {DDS} {QoS} policies,'' arXiv
+preprint arXiv:2509.03381, 2025.
+
+\bibitem{zanatta2024lisa4ros2}
+M.~Zanatta \emph{et~al.}, ``{LiSA4ROS2}: Abstract interpretation for security policy derivation
+in {ROS}~2,'' in \emph{Proc. IEEE ICSE}, 2024.
+
+\bibitem{santos2021haros}
+A.~Santos \emph{et~al.}, ``{HAROS}: High-assurance {ROS} framework for static analysis,''
+\emph{IEEE Trans. Softw. Eng.}, vol.~47, no.~6, pp.~1120--1135, 2021.
+
+\bibitem{canelas2024misconfig}
+P.~Canelas, B.~Schmerl, A.~Fonseca, and C.~S. Timperley, ``Understanding misconfigurations in
+{ROS}: An empirical study and current approaches,'' in \emph{Proc. ACM SIGSOFT Int. Symp.
+Software Testing and Analysis (ISSTA)}, 2024.
+
+\bibitem{chen2025ibugs}
+Z.~Chen, Z.~Chen, X.~Cai, W.~Li, and Z.~Zheng, ``An empirical study of interaction bugs in
+{ROS}-based software,'' arXiv:2507.10235, 2025.
+
+\bibitem{treesitter}
+M.~Brunsfeld \emph{et~al.}, ``Tree-sitter,'' \url{https://tree-sitter.github.io}, accessed Nov.
+2026.
+
+\bibitem{bessey2010billion}
+A.~Bessey \emph{et~al.}, ``A few billion lines of code later: Using static analysis to find bugs in the real world,'' \emph{Commun. ACM}, vol.~53, no.~2, pp.~66--75, 2010.
+
+\bibitem{sadowski2018lessons}
+C.~Sadowski, E.~Aftandilian, A.~Eagle, L.~Miller-Cushon, and C.~Jaspan, ``Lessons from building static analysis tools at {Google},'' \emph{Commun. ACM}, vol.~61, no.~4, pp.~58--66, 2018.
+
+\bibitem{ament_index}
+Open Robotics, ``ament resource index,''
+\url{https://github.com/ament/ament_cmake/blob/rolling/ament_cmake_core/doc/resource_index.md},
+accessed Nov. 2026.
+
+\bibitem{macenski2020marathon}
+S.~Macenski, F.~Mart{\'\i}n, R.~White, and J.~Gin{\'e}s Clavero, ``The Marathon~2: A navigation system,'' in \emph{Proc. IEEE/RSJ Int. Conf. Intelligent Robots and Systems (IROS)}, 2020.
+
+\bibitem{chitta2017roscontrol}
+S.~Chitta \emph{et~al.}, ``ros\_control: A generic and simple control framework for {ROS},'' \emph{J. Open Source Softw.}, vol.~2, no.~20, art.~456, 2017.
+
+\bibitem{silva2023repairllama}
+A.~Silva, S.~Fang, and M.~Monperrus, ``{RepairLLaMA}: Efficient representations and fine-tuned
+adapters for program repair,'' arXiv:2312.15698, 2023.
+
+\bibitem{wang2023rapgen}
+W.~Wang, Y.~Wang, S.~Joty, and S.~C.~H. Hoi, ``{RAP-Gen}: Retrieval-augmented patch generation
+with {CodeT5} for automatic program repair,'' in \emph{Proc. ACM ESEC/FSE}, 2023.
+
+\bibitem{levenshtein1966}
+V.~I. Levenshtein, ``Binary codes capable of correcting deletions, insertions, and reversals,'' \emph{Soviet Physics Doklady}, vol.~10, no.~8, pp.~707--710, 1966.
+
+\bibitem{sarif}
+OASIS, ``Static analysis results interchange format ({SARIF}) version 2.1.0,'' OASIS Standard,
+2020.
+
+\bibitem{jia2011mutation}
+Y.~Jia and M.~Harman, ``An analysis and survey of the development of mutation testing,'' \emph{IEEE Trans. Softw. Eng.}, vol.~37, no.~5, pp.~649--678, 2011.
+
+\bibitem{timperley2022rosdiscover}
+C.~S. Timperley, T.~D{\"u}rschmid, B.~Schmerl, D.~Garlan, and C.~Le~Goues, ``{ROSDiscover}:
+Statically detecting run-time architecture misconfigurations in robotics systems,'' in
+\emph{Proc. IEEE Int. Conf. Software Architecture (ICSA)}, 2022, pp.~112--123.
+
+\bibitem{lintlaunch}
+Woven by Toyota, ``lint\_launch: Check {ROS}~2 launch files for common errors,'' \url{https://github.com/woven-by-toyota/lint_launch}, 2026, accessed Nov. 2026.
+
+\bibitem{ros2inspector}
+A.~Bensaid, ``{ROS}~2 Inspector: Static architecture analysis and visualization for {ROS}~2 workspaces,'' \url{https://github.com/aminebensaid66/ros2_inspector}, 2026, accessed Nov. 2026.
+
+\bibitem{timperley2024robust}
+C.~S. Timperley, G.~van~der Hoorn, A.~Santos, H.~Deshpande, and A.~W{\k{a}}sowski, ``{ROBUST}: 221 bugs in the Robot Operating System,'' \emph{Empirical Softw. Eng.}, vol.~29, 2024.
+
+\bibitem{kolak2020village}
+S.~Kolak, A.~Afzal, C.~Le~Goues, M.~Hilton, and C.~S. Timperley, ``It takes a village to build a robot: An empirical study of the {ROS} ecosystem,'' in \emph{Proc. IEEE Int. Conf. Software Maintenance and Evolution (ICSME)}, 2020.
+
+\bibitem{malavolta2020architect}
+I.~Malavolta, G.~Lewis, B.~Schmerl, P.~Lago, and D.~Garlan, ``How do you architect your robots? {State} of the practice and guidelines for {ROS}-based systems,'' in \emph{Proc. ICSE Software Engineering in Practice (ICSE-SEIP)}, 2020.
+
+\bibitem{garcia2020avbugs}
+J.~Garcia, Y.~Feng, J.~Shen, S.~Almanee, Y.~Xia, and Q.~A. Chen, ``A comprehensive study of autonomous vehicle bugs,'' in \emph{Proc. IEEE/ACM Int. Conf. Software Engineering (ICSE)}, 2020.
+
+\bibitem{afzal2020testing}
+A.~Afzal, C.~Le~Goues, M.~Hilton, and C.~S. Timperley, ``A study on challenges of testing robotic systems,'' in \emph{Proc. IEEE Int. Conf. Software Testing, Verification and Validation (ICST)}, 2020.
+
+\bibitem{kim2022robofuzz}
+S.~Kim and T.~Kim, ``{RoboFuzz}: Fuzzing robotic systems over Robot Operating System ({ROS}) for finding correctness bugs,'' in \emph{Proc. ACM ESEC/FSE}, 2022.
+
+\bibitem{casini2019response}
+D.~Casini, T.~Bla{\ss}, I.~L{\"u}tkebohle, and B.~B. Brandenburg, ``Response-time analysis of {ROS}~2 processing chains under reservation-based scheduling,'' in \emph{Proc. Euromicro Conf. Real-Time Systems (ECRTS)}, 2019.
+
+\bibitem{kronauer2021latency}
+T.~Kronauer, J.~Pohlmann, M.~Matth{\'e}, T.~Smejkal, and G.~Fettweis, ``Latency analysis of {ROS2} multi-node systems,'' in \emph{Proc. IEEE Int. Conf. Multisensor Fusion and Integration for Intelligent Systems (MFI)}, 2021.
+
+\bibitem{mayer2012cross}
+P.~Mayer and A.~Schroeder, ``Cross-language code analysis and refactoring,'' in \emph{Proc. IEEE Int. Working Conf. Source Code Analysis and Manipulation (SCAM)}, 2012.
+
+\end{thebibliography}
 
 \end{document}
