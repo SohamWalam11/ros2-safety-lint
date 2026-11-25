@@ -3,11 +3,11 @@
 #   docker run --rm -v "$PWD:/ws" rosfix:jazzy /ws --format sarif -o /ws/rosfix.sarif
 ARG ROS_DISTRO=jazzy
 
-FROM rust:1.82-bookworm AS build
+FROM rust:1.88-bookworm AS build
 WORKDIR /src
 COPY Cargo.toml ./
 COPY crates ./crates
-RUN cargo build --release -p rosfix --locked || cargo build --release -p rosfix
+RUN cargo build --release -p rosfix
 
 FROM ros:${ROS_DISTRO}-ros-base
 COPY --from=build /src/target/release/rosfix /opt/rosfix/bin/rosfix
