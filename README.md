@@ -146,6 +146,28 @@ there is a clear winner. Every choice is verified by re-analysis. Because verifi
 cannot prove intent, assisted fixes are written only with `--fix --write --accept-assist`.
 How the ranker is trained and evaluated: [`training/README.md`](training/README.md).
 
+#### Larger assist models (in development)
+
+`--model` selects the ranker: `builtin` (default), a downloadable tier, or a `.rfm` file path.
+Tiers also see the rule and the source lines around the problem, not just the two names. They
+are the same int8 transformer in different sizes, run on any CPU, need no GPU, network or
+Python, and give bit-identical results on every machine.
+
+| tier | stored numbers | file | per candidate, 64-token input* |
+|---|---:|---:|---:|
+| builtin | 321 | in the binary | < 0.01 ms |
+| nano | 1.46 M | 1.6 MB | 5 ms |
+| mini | 5.32 M | 5.5 MB | 25 ms |
+| base | 23.3 M | 23.6 MB | 85 ms |
+
+\* Median of 5 trials, one thread, Intel Core 5 120U laptop under normal background load
+([raw data](paper/data/tier_runtime_trials_2026-11-24.txt)).
+
+**No tier has been released yet.** A tier name only loads a checksum-verified released file, and
+until a tier is trained and beats the built-in ranker with no more wrong picks in every
+evaluation fold, rosfix uses the built-in ranker. The runtime and trainer live in
+[`crates/rosfix-model`](crates/rosfix-model); `rosfix-model-bench` reproduces the timings.
+
 ### Online references (`--online`)
 
 Off by default. With `--online` (or `online = true`), rosfix attaches links to related
