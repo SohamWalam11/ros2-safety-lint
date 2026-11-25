@@ -17,10 +17,14 @@
 //! weights are written only if, summed over all folds, the learned ranker is correct more often
 //! than the lexical one and makes no more wrong edits (`--force` overrides).
 //!
-//! Usage: rosfix-train [--data f.jsonl]... [--epochs N] [--seed N] [--out learned_weights.rs] [--force]
+//! `--dump-tier cases.jsonl` writes the same cases with their rule, source context and the
+//! exact input texts for the downloadable tiers, and exits without training.
+//!
+//! Usage: rosfix-train [--data f.jsonl]... [--epochs N] [--seed N] [--out learned_weights.rs] [--force] [--dump-tier cases.jsonl] [--decisions held_out.jsonl] [--base-scores scores.jsonl]
 
 use rosfix::assist::learned::{features, Weights, N_FEATURES, N_HIDDEN};
 use rosfix::assist::{decide, decide_lexical, lexical, TOP_K};
+use rosfix::facts::ParamType;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::path::PathBuf;
@@ -192,6 +196,11 @@ struct Case {
     /// (then every pick is a wrong edit and the ranker must answer "none of these").
     answer: Option<usize>,
     x: Vec<[f32; N_FEATURES]>,
+    /// Rule of the finding (`P003` unknown parameter, `L001` unknown executable) and the
+    /// source lines around the repair site, as `assist::context_lines` gives them at runtime.
+    /// Only the downloadable tiers read these (`--dump-tier`); the built-in ranker does not.
+    rule: String,
+    context: String,
 }
 
 fn make_case(
@@ -223,7 +232,88 @@ fn make_case(
         options,
         answer,
         x,
+        rule: "P003".to_string(),
+        context: String::new(),
     })
+}
+
+/// What a group of names is: one node's parameters or one package's executables.
+enum GroupKind {
+    Params {
+        node: String,
+        types: BTreeMap<String, ParamType>,
+    },
+    Executables {
+        package: String,
+    },
+}
+
+fn yaml_value(t: Option<ParamType>) -> &'static str {
+    match t {
+        Some(ParamType::Bool) => "true",
+        Some(ParamType::Int) => "10",
+        Some(ParamType::Double) => "0.5",
+        Some(ParamType::Str) => "\"\"",
+        Some(
+            ParamType::BoolArray
+            | ParamType::IntArray
+            | ParamType::DoubleArray
+            | ParamType::StrArray
+            | ParamType::ByteArray,
+        ) => "[]",
+        _ => "0",
+    }
+}
+
+/// Gives a synthetic case the rule and the source lines a real finding of its kind has: a
+/// parameter file block (with up to three other parameters of the node, never ones offered
+/// as options, since rosfix does not offer parameters that are already set) or a launch
+/// `Node(...)` call. Uses its own RNG seeded from the case, so the cases themselves, and the
+/// built-in ranker trained on them, do not change.
+fn add_context(c: &mut Case, kind: &GroupKind, pool: &[String]) {
+    let seed = rosfix::util::fnv1a(format!("{}|{}|{}", c.op, c.target, c.current).as_bytes());
+    let mut rng = Rng(seed | 1);
+    match kind {
+        GroupKind::Params { node, types } => {
+            let free: Vec<&String> = pool
+                .iter()
+                .filter(|p| **p != c.target && !c.options.contains(p))
+                .collect();
+            let mut sib: Vec<&String> = Vec::new();
+            for _ in 0..rng.below(4) {
+                if free.is_empty() {
+                    break;
+                }
+                let s = free[rng.below(free.len())];
+                if !sib.contains(&s) {
+                    sib.push(s);
+                }
+            }
+            let before = rng.below(sib.len() + 1);
+            let line = |n: &str, t: Option<ParamType>| format!("    {n}: {}", yaml_value(t));
+            let mut lines = vec![format!("{node}:"), "  ros__parameters:".to_string()];
+            for s in &sib[..before] {
+                lines.push(line(s, types.get(*s).copied()));
+            }
+            lines.push(line(&c.current, types.get(&c.target).copied()));
+            for s in &sib[before..] {
+                lines.push(line(s, types.get(*s).copied()));
+            }
+            // context_lines: the site's line and CONTEXT_LINES on each side.
+            let at = 2 + before;
+            let lo = at.saturating_sub(rosfix::assist::CONTEXT_LINES);
+            let hi = (at + rosfix::assist::CONTEXT_LINES + 1).min(lines.len());
+            c.rule = "P003".to_string();
+            c.context = lines[lo..hi].join("\n");
+        }
+        GroupKind::Executables { package } => {
+            c.rule = "L001".to_string();
+            c.context = format!(
+                "    Node(\n        package='{package}',\n        executable='{}',\n        output='screen',\n    ),",
+                c.current
+            );
+        }
+    }
 }
 
 const FOLDS: u8 = 5;
@@ -235,22 +325,37 @@ fn fold_of(group: &str) -> u8 {
 fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
     // (package, node) → parameter names; executables per package as a second kind of set.
     let mut groups: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+    let mut kinds: BTreeMap<String, GroupKind> = BTreeMap::new();
     for distro in ["humble", "jazzy", "kilted"] {
         let Some(p) = rosfix::pack::embedded(distro) else {
             continue;
         };
         for (pkg, pp) in &p.packages {
             for (name, node) in pp.executables.iter().chain(pp.components.iter()) {
-                let set = groups.entry(format!("{pkg}|{name}")).or_default();
+                let key = format!("{pkg}|{name}");
+                let set = groups.entry(key.clone()).or_default();
                 set.extend(
                     node.params
                         .iter()
                         .map(|x| x.name.literal().to_string())
                         .filter(|n| n.len() >= 3 && !n.contains('*')),
                 );
+                let kind = kinds.entry(key).or_insert_with(|| GroupKind::Params {
+                    node: node.default_name.clone().unwrap_or_else(|| name.clone()),
+                    types: BTreeMap::new(),
+                });
+                if let GroupKind::Params { types, .. } = kind {
+                    for x in &node.params {
+                        types.entry(x.name.literal().to_string()).or_insert(x.ty);
+                    }
+                }
             }
-            let exes = groups.entry(format!("{pkg}|<executables>")).or_default();
+            let key = format!("{pkg}|<executables>");
+            let exes = groups.entry(key.clone()).or_default();
             exes.extend(pp.executables.keys().cloned());
+            kinds.entry(key).or_insert_with(|| GroupKind::Executables {
+                package: pkg.clone(),
+            });
         }
     }
     let all_names: Vec<String> = groups
@@ -267,6 +372,13 @@ fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
         }
         let fold = fold_of(key.split('|').next().unwrap_or(""));
         let pool: Vec<String> = names.iter().cloned().collect();
+        let kind = &kinds[key];
+        let mut push = |c: Option<Case>| {
+            if let Some(mut c) = c {
+                add_context(&mut c, kind, &pool);
+                cases.push(c);
+            }
+        };
         for target in &pool {
             for _ in 0..per_name {
                 let (op, f) = OPS[rng.below(OPS.len())];
@@ -274,7 +386,7 @@ fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
                 if cur == *target {
                     continue;
                 }
-                cases.extend(make_case(
+                push(make_case(
                     op,
                     fold,
                     target,
@@ -287,7 +399,7 @@ fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
                 if rng.below(2) == 0 {
                     let others: Vec<String> =
                         pool.iter().filter(|p| *p != target).cloned().collect();
-                    cases.extend(make_case(
+                    push(make_case(
                         "absent: siblings only",
                         fold,
                         target,
@@ -300,7 +412,7 @@ fn synthetic(rng: &mut Rng, per_name: usize) -> Vec<Case> {
             // A name from somewhere else entirely (like a remap of a topic the node never uses).
             if rng.below(2) == 0 {
                 let stranger = all_names[rng.below(all_names.len())].clone();
-                cases.extend(make_case(
+                push(make_case(
                     "absent: unrelated name",
                     fold,
                     &stranger,
@@ -337,14 +449,18 @@ fn jsonl(path: &PathBuf) -> Vec<Case> {
         };
         let repo = v["repo"].as_str().unwrap_or("?");
         let op = v["op"].as_str().unwrap_or("jsonl");
-        out.extend(make_case(
+        if let Some(mut c) = make_case(
             &format!("data:{op}"),
             fold_of(repo),
             &answer,
             cur.to_string(),
             &options,
             Some(&answer),
-        ));
+        ) {
+            c.rule = v["rule"].as_str().unwrap_or("P003").to_string();
+            c.context = v["context"].as_str().unwrap_or("").to_string();
+            out.push(c);
+        }
     }
     out
 }
@@ -594,6 +710,73 @@ fn render(w: &Weights, note: &str) -> String {
     s
 }
 
+/// Writes every case as one JSON line for the downloadable-tier trainer: the same cases,
+/// folds and name-disjoint targets the built-in ranker uses, plus `inputs`, the exact text
+/// the tier scores for each option (`assist::registry::input_text`, shared with runtime).
+fn dump_tier_cases(cases: &[Case], path: &PathBuf) -> usize {
+    let mut s = String::new();
+    for c in cases {
+        let q = rosfix::assist::Query {
+            rule: &c.rule,
+            current: &c.current,
+            candidates: &c.options,
+            context: &c.context,
+        };
+        let inputs: Vec<String> = c
+            .options
+            .iter()
+            .map(|o| rosfix::assist::registry::input_text(&q, o))
+            .collect();
+        let line = serde_json::json!({
+            "fold": c.fold,
+            "op": c.op,
+            "target": c.target,
+            "rule": c.rule,
+            "current": c.current,
+            "options": c.options,
+            "answer": c.answer,
+            "inputs": inputs,
+        });
+        s.push_str(&line.to_string());
+        s.push('\n');
+    }
+    std::fs::write(path, s).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+    cases.len()
+}
+
+/// One JSON line per name-disjoint held-out case of every fold: the case's index in the
+/// `--dump-tier` file (same arguments give the same cases in the same order), and the
+/// built-in (calibrated fold model) and lexical picks (`null` = abstain). The tier trainer
+/// compares against these case by case.
+fn write_decisions(cases: &[Case], runs: &[FoldRun], path: &PathBuf) {
+    let mut s = String::new();
+    for (k, run) in runs.iter().enumerate() {
+        let (test, calib) = (k as u8, (k as u8 + 1) % FOLDS);
+        let seen: BTreeSet<&str> = cases
+            .iter()
+            .filter(|c| c.fold != test && c.fold != calib)
+            .map(|c| c.target.as_str())
+            .collect();
+        for (idx, c) in cases.iter().enumerate() {
+            if c.fold != test || seen.contains(c.target.as_str()) {
+                continue;
+            }
+            let scores: Vec<f32> = c.x.iter().map(|x| run.weights.forward(x).2).collect();
+            let line = serde_json::json!({
+                "fold": k,
+                "idx": idx,
+                "target": c.target,
+                "current": c.current,
+                "builtin": decide(&scores).map(|x| x.0),
+                "lexical": decide_lexical(&c.current, &c.options),
+            });
+            s.push_str(&line.to_string());
+            s.push('\n');
+        }
+    }
+    std::fs::write(path, s).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut data = Vec::new();
@@ -601,6 +784,9 @@ fn main() {
     let mut seed = 7u64;
     let mut per_name = 3usize;
     let mut force = false;
+    let mut dump_tier: Option<PathBuf> = None;
+    let mut decisions: Option<PathBuf> = None;
+    let mut base_scores: Option<PathBuf> = None;
     let mut out = PathBuf::from(concat!(
         env!("CARGO_MANIFEST_DIR"),
         "/../ros2-safety-lint/src/assist/learned_weights.rs"
@@ -615,6 +801,9 @@ fn main() {
             "--per-name" => per_name = val().parse().unwrap_or(per_name),
             "--out" => out = PathBuf::from(val()),
             "--force" => force = true,
+            "--dump-tier" => dump_tier = Some(PathBuf::from(val())),
+            "--decisions" => decisions = Some(PathBuf::from(val())),
+            "--base-scores" => base_scores = Some(PathBuf::from(val())),
             _ => {
                 eprintln!("usage: rosfix-train [--data f.jsonl]... [--epochs N] [--seed N] [--per-name N] [--out file.rs] [--force]");
                 std::process::exit(2);
@@ -625,6 +814,11 @@ fn main() {
     let mut cases = synthetic(&mut rng, per_name);
     for d in &data {
         cases.extend(jsonl(d));
+    }
+    if let Some(p) = &dump_tier {
+        let n = dump_tier_cases(&cases, p);
+        eprintln!("wrote {n} cases for tier training to {}", p.display());
+        return;
     }
     // Fold 0 is the shipped model; folds 1.. only measure how much the result depends on
     // which packages happen to be held out.
@@ -715,6 +909,25 @@ fn main() {
         2 * N_FEATURES,
         (NP + 2 * N_FEATURES) as f64 * 4.0 / 1024.0
     );
+
+    if let Some(p) = &decisions {
+        write_decisions(&cases, &runs, p);
+        eprintln!("wrote held-out decisions to {}", p.display());
+    }
+    if let Some(p) = &base_scores {
+        // Every case's option scores under every fold's calibrated built-in model, so a tier
+        // trained as a residual on fold k uses the fold-k model (never one that saw fold k).
+        let mut s = String::new();
+        for (k, run) in runs.iter().enumerate() {
+            for (idx, c) in cases.iter().enumerate() {
+                let scores: Vec<f32> = c.x.iter().map(|x| run.weights.forward(x).2).collect();
+                s.push_str(&serde_json::json!({"fold": k, "idx": idx, "scores": scores}).to_string());
+                s.push('\n');
+            }
+        }
+        std::fs::write(p, s).unwrap_or_else(|e| panic!("{}: {e}", p.display()));
+        eprintln!("wrote built-in scores per fold to {}", p.display());
+    }
 
     // Ship only if, over all folds' name-disjoint held-out cases, the learned ranker is right
     // more often AND makes no more wrong edits than the lexical one.

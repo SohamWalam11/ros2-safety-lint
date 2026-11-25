@@ -1348,6 +1348,31 @@ fn run(cli: Run) -> Result<ExitCode, String> {
         return Ok(ExitCode::SUCCESS);
     }
     let mut analysis = engine::analyze(&root, &config, &opts);
+    // --online: launched packages that no pack describes get a local pack built from their
+    // upstream source (resolved through rosdistro); analyse again if that added knowledge.
+    if (cli.online || config.online) && cfg!(feature = "online") {
+        match rosfix::fetch::ensure(&analysis.index, cli.show_queries) {
+            Ok(o) => {
+                for (repo, n) in &o.built {
+                    eprintln!("rosfix: online: built a local pack from {repo} ({n} package(s) with nodes)");
+                }
+                if !o.unknown.is_empty() {
+                    eprintln!(
+                        "rosfix: online: not released in this distribution, no pack: {}",
+                        o.unknown.join(", ")
+                    );
+                }
+                for e in &o.errors {
+                    eprintln!("rosfix: online: {e}");
+                }
+                if !o.covered.is_empty() {
+                    eprintln!("rosfix: online: now covered: {}", o.covered.join(", "));
+                    analysis = engine::analyze(&root, &config, &opts);
+                }
+            }
+            Err(e) => eprintln!("rosfix: online packs: {e}"),
+        }
+    }
     if cli.assist_cases {
         // Training-data tooling: one JSON line per finding that has a repair site.
         for d in &analysis.diagnostics {
@@ -1364,6 +1389,12 @@ fn run(cli: Run) -> Result<ExitCode, String> {
                 "line": f.line_col(r.span.start).0,
                 "current": r.current,
                 "options": top,
+                "context": rosfix::assist::context_lines(
+                    &analysis,
+                    r.span.file,
+                    r.span.start,
+                    rosfix::assist::CONTEXT_LINES,
+                ),
             });
             println!("{line}");
         }
