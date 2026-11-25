@@ -7,9 +7,11 @@
 //! scores plus a fixed "none of these" score of 0, so the model learns when to abstain.
 //! Export to the int8 runtime format is in [`TrainModel::export`].
 //!
-//! Everything is single-threaded and seeded, so training is reproducible on a given CPU.
+//! Training is seeded. A step runs on a fixed number of threads ([`SHARDS`]) whose gradients
+//! are added in a fixed order, and all floating-point code runs in a fixed order without fused
+//! multiply-add, so a seed gives the same model on every machine.
 
-use crate::net::{exp, gelu, tanh, Config};
+use crate::net::{dot_f32, exp, gelu, tanh, Config};
 
 /// One trainable tensor with its gradient and Adam moments.
 #[derive(Debug, Clone)]
@@ -230,17 +232,34 @@ impl TrainModel {
         }
     }
 
+    /// Every parameter, in the same order as [`TrainModel::params_mut`] and [`Grads`].
+    pub fn params(&self) -> Vec<&Param> {
+        let mut v: Vec<&Param> = vec![&self.emb, &self.pos];
+        for l in &self.layers {
+            v.extend([
+                &l.ln1_g, &l.ln1_b, &l.qkv_w, &l.qkv_b, &l.out_w, &l.out_b, &l.ln2_g, &l.ln2_b,
+                &l.ff1_w, &l.ff1_b, &l.ff2_w, &l.ff2_b,
+            ]);
+        }
+        v.extend([&self.lnf_g, &self.lnf_b]);
+        for h in &self.heads {
+            v.extend([&h.w, &h.b]);
+        }
+        v
+    }
+
     /// Pooled vector for token ids, with everything the backward pass needs.
     pub fn forward(&self, ids: &[u32]) -> (Vec<f32>, Cache) {
         let d = self.config.d as usize;
+        let ids = &ids[..ids.len().min(self.config.ctx as usize)];
         let mut h: Vec<Vec<f32>> = ids
             .iter()
             .enumerate()
             .map(|(p, id)| {
                 let t = (*id).min(self.config.vocab - 1) as usize;
-                (0..d)
-                    .map(|k| self.emb.w[t * d + k] + self.pos.w[p * d + k])
-                    .collect()
+                let e = &self.emb.w[t * d..(t + 1) * d];
+                let q = &self.pos.w[p * d..(p + 1) * d];
+                e.iter().zip(q).map(|(a, b)| a + b).collect()
             })
             .collect();
         let mut layers = Vec::with_capacity(self.layers.len());
@@ -275,48 +294,46 @@ impl TrainModel {
             a.push(y);
             ln1.push((xh, r));
         }
-        let qkv: Vec<Vec<f32>> = a
-            .iter()
-            .map(|ai| linear(&l.qkv_w.w, &l.qkv_b.w, ai, 3 * d, d))
-            .collect();
+        let qkv = linear_rows(&l.qkv_w.w, &l.qkv_b.w, &a, 3 * d, d);
         let mut probs = vec![vec![vec![0.0f32; n]; n]; nh];
         let mut ctx = vec![vec![0.0f32; d]; n];
         for (hh, ph) in probs.iter_mut().enumerate() {
+            let (qs, ks, vs) = (hh * hd, d + hh * hd, 2 * d + hh * hd);
             for i in 0..n {
-                let q = &qkv[i][hh * hd..(hh + 1) * hd];
+                let q = &qkv[i][qs..qs + hd];
                 for j in 0..n {
-                    let k = &qkv[j][d + hh * hd..d + (hh + 1) * hd];
-                    ph[i][j] = dot(q, k) * inv;
+                    ph[i][j] = dot_f32(q, &qkv[j][ks..ks + hd]) * inv;
                 }
                 softmax(&mut ph[i]);
                 for j in 0..n {
-                    let v = &qkv[j][2 * d + hh * hd..2 * d + (hh + 1) * hd];
-                    for (cc, vv) in ctx[i][hh * hd..(hh + 1) * hd].iter_mut().zip(v) {
-                        *cc += ph[i][j] * vv;
-                    }
+                    axpy(&mut ctx[i][qs..qs + hd], ph[i][j], &qkv[j][vs..vs + hd]);
                 }
             }
         }
-        let mut x1 = Vec::with_capacity(n);
+        let o = linear_rows(&l.out_w.w, &l.out_b.w, &ctx, d, d);
+        let x1: Vec<Vec<f32>> = x
+            .iter()
+            .zip(&o)
+            .map(|(u, v)| u.iter().zip(v).map(|(p, q)| p + q).collect())
+            .collect();
         let mut ln2 = Vec::with_capacity(n);
         let mut b2 = Vec::with_capacity(n);
-        let mut pre = Vec::with_capacity(n);
-        let mut post = Vec::with_capacity(n);
-        let mut out = Vec::with_capacity(n);
-        for i in 0..n {
-            let o = linear(&l.out_w.w, &l.out_b.w, &ctx[i], d, d);
-            let xi1: Vec<f32> = x[i].iter().zip(&o).map(|(u, v)| u + v).collect();
-            let (y, xh, r) = ln_forward(&xi1, &l.ln2_g.w, &l.ln2_b.w);
-            let p = linear(&l.ff1_w.w, &l.ff1_b.w, &y, f, d);
-            let g: Vec<f32> = p.iter().map(|v| gelu(*v)).collect();
-            let o2 = linear(&l.ff2_w.w, &l.ff2_b.w, &g, d, f);
-            out.push(xi1.iter().zip(&o2).map(|(u, v)| u + v).collect());
-            x1.push(xi1);
-            ln2.push((xh, r));
+        for xi in &x1 {
+            let (y, xh, r) = ln_forward(xi, &l.ln2_g.w, &l.ln2_b.w);
             b2.push(y);
-            pre.push(p);
-            post.push(g);
+            ln2.push((xh, r));
         }
+        let pre = linear_rows(&l.ff1_w.w, &l.ff1_b.w, &b2, f, d);
+        let post: Vec<Vec<f32>> = pre
+            .iter()
+            .map(|p| p.iter().map(|v| gelu(*v)).collect())
+            .collect();
+        let o2 = linear_rows(&l.ff2_w.w, &l.ff2_b.w, &post, d, f);
+        let out = x1
+            .iter()
+            .zip(&o2)
+            .map(|(u, v)| u.iter().zip(v).map(|(p, q)| p + q).collect())
+            .collect();
         (
             out,
             LayerCache {
@@ -333,143 +350,109 @@ impl TrainModel {
         )
     }
 
-    /// Back-propagates `dpooled` (gradient w.r.t. the pooled vector) into all parameters.
-    pub fn backward(&mut self, cache: &Cache, dpooled: &[f32]) {
+    /// Back-propagates `dpooled` (gradient w.r.t. the pooled vector) into `g`.
+    pub fn backward_into(&self, cache: &Cache, dpooled: &[f32], g: &mut Grads) {
         let d = self.config.d as usize;
         let n = cache.n;
+        let nl = self.layers.len();
         let mut dh = vec![vec![0.0f32; d]; n];
-        dh[0] = ln_backward(
-            dpooled,
-            &cache.f_xhat,
-            cache.f_rstd,
-            &self.lnf_g.w,
-            &mut self.lnf_g.g,
-            &mut self.lnf_b.g,
-        );
-        for li in (0..self.layers.len()).rev() {
-            dh = self.layer_backward(li, &cache.layers[li], dh);
+        {
+            let (dg, db) = g.pair(slot_lnf(nl));
+            dh[0] = ln_backward(dpooled, &cache.f_xhat, cache.f_rstd, &self.lnf_g.w, dg, db);
         }
-        for (p, (id, g)) in cache.ids.iter().zip(&dh).enumerate() {
+        for li in (0..nl).rev() {
+            dh = self.layer_backward(li, &cache.layers[li], dh, g);
+        }
+        let (de, dp) = g.pair(0);
+        for (p, (id, gr)) in cache.ids.iter().zip(&dh).enumerate() {
             let t = (*id).min(self.config.vocab - 1) as usize;
-            for (k, gk) in g.iter().enumerate() {
-                self.emb.g[t * d + k] += gk;
-                self.pos.g[p * d + k] += gk;
-            }
+            axpy(&mut de[t * d..(t + 1) * d], 1.0, gr);
+            axpy(&mut dp[p * d..(p + 1) * d], 1.0, gr);
         }
     }
 
-    fn layer_backward(&mut self, li: usize, c: &LayerCache, dout: Vec<Vec<f32>>) -> Vec<Vec<f32>> {
+    fn layer_backward(
+        &self,
+        li: usize,
+        c: &LayerCache,
+        dout: Vec<Vec<f32>>,
+        g: &mut Grads,
+    ) -> Vec<Vec<f32>> {
         let cfg = self.config;
         let (d, f, nh) = (cfg.d as usize, cfg.ffn as usize, cfg.heads as usize);
         let hd = d / nh;
         let inv = 1.0 / (hd as f32).sqrt();
         let n = dout.len();
-        let l = &mut self.layers[li];
+        let l = &self.layers[li];
+        let s = slot_layer(li);
         // Feed-forward block: out = x1 + W2·gelu(W1·LN2(x1)).
-        let mut dx1 = dout.clone();
-        for i in 0..n {
-            let dg = linear_backward(
-                &l.ff2_w.w,
-                &c.post[i],
-                &dout[i],
-                &mut l.ff2_w.g,
-                &mut l.ff2_b.g,
-                d,
-                f,
-            );
-            let dp: Vec<f32> = dg
-                .iter()
-                .zip(&c.pre[i])
-                .map(|(g, x)| g * gelu_grad(*x))
-                .collect();
-            let db2 = linear_backward(
-                &l.ff1_w.w,
-                &c.b2[i],
-                &dp,
-                &mut l.ff1_w.g,
-                &mut l.ff1_b.g,
-                f,
-                d,
-            );
-            let dln = ln_backward(
-                &db2,
-                &c.ln2[i].0,
-                c.ln2[i].1,
-                &l.ln2_g.w,
-                &mut l.ln2_g.g,
-                &mut l.ln2_b.g,
-            );
-            for (a, b) in dx1[i].iter_mut().zip(&dln) {
-                *a += b;
+        let dgl = {
+            let (dw, db) = g.pair(s + 10);
+            linear_backward_rows(&l.ff2_w.w, &c.post, &dout, dw, db, d, f)
+        };
+        let dp: Vec<Vec<f32>> = dgl
+            .iter()
+            .zip(&c.pre)
+            .map(|(gr, x)| gr.iter().zip(x).map(|(a, b)| a * gelu_grad(*b)).collect())
+            .collect();
+        let db2 = {
+            let (dw, db) = g.pair(s + 8);
+            linear_backward_rows(&l.ff1_w.w, &c.b2, &dp, dw, db, f, d)
+        };
+        let mut dx1 = dout;
+        {
+            let (dg, db) = g.pair(s + 6);
+            for i in 0..n {
+                let dln = ln_backward(&db2[i], &c.ln2[i].0, c.ln2[i].1, &l.ln2_g.w, dg, db);
+                axpy(&mut dx1[i], 1.0, &dln);
             }
         }
         // Attention block: x1 = x + Wo·attn(LN1(x)).
-        let mut dx = dx1.clone();
-        let mut dctx = Vec::with_capacity(n);
-        for (i, g) in dx1.iter().enumerate() {
-            dctx.push(linear_backward(
-                &l.out_w.w,
-                &c.ctx[i],
-                g,
-                &mut l.out_w.g,
-                &mut l.out_b.g,
-                d,
-                d,
-            ));
-        }
+        let dctx = {
+            let (dw, db) = g.pair(s + 4);
+            linear_backward_rows(&l.out_w.w, &c.ctx, &dx1, dw, db, d, d)
+        };
         let mut dqkv = vec![vec![0.0f32; 3 * d]; n];
         for h in 0..nh {
             let p = &c.probs[h];
+            let (qs, ks, vs) = (h * hd, d + h * hd, 2 * d + h * hd);
+            let mut dq = vec![vec![0.0f32; hd]; n];
+            let mut dk = vec![vec![0.0f32; hd]; n];
+            let mut dv = vec![vec![0.0f32; hd]; n];
+            let mut dpr = vec![0.0f32; n];
             for i in 0..n {
-                let dci = &dctx[i][h * hd..(h + 1) * hd];
+                let dci = &dctx[i][qs..qs + hd];
                 // dp_ij = dctx_i · v_j ;  dv_j += p_ij dctx_i
-                let mut dp = vec![0.0f32; n];
                 for j in 0..n {
-                    let v = &c.qkv[j][2 * d + h * hd..2 * d + (h + 1) * hd];
-                    dp[j] = dot(dci, v);
-                    for (dv, g) in dqkv[j][2 * d + h * hd..2 * d + (h + 1) * hd]
-                        .iter_mut()
-                        .zip(dci)
-                    {
-                        *dv += p[i][j] * g;
-                    }
+                    dpr[j] = dot_f32(dci, &c.qkv[j][vs..vs + hd]);
+                    axpy(&mut dv[j], p[i][j], dci);
                 }
                 // softmax backward: ds_ij = p_ij (dp_ij - Σ_k p_ik dp_ik)
-                let s: f32 = (0..n).map(|j| p[i][j] * dp[j]).sum();
+                let sum: f32 = (0..n).map(|j| p[i][j] * dpr[j]).sum();
                 for j in 0..n {
-                    let ds = p[i][j] * (dp[j] - s) * inv;
+                    let ds = p[i][j] * (dpr[j] - sum) * inv;
                     if ds == 0.0 {
                         continue;
                     }
-                    for k in 0..hd {
-                        let (qi, kj) = (c.qkv[i][h * hd + k], c.qkv[j][d + h * hd + k]);
-                        dqkv[i][h * hd + k] += ds * kj;
-                        dqkv[j][d + h * hd + k] += ds * qi;
-                    }
+                    axpy(&mut dq[i], ds, &c.qkv[j][ks..ks + hd]);
+                    axpy(&mut dk[j], ds, &c.qkv[i][qs..qs + hd]);
                 }
             }
-        }
-        for i in 0..n {
-            let da = linear_backward(
-                &l.qkv_w.w,
-                &c.a[i],
-                &dqkv[i],
-                &mut l.qkv_w.g,
-                &mut l.qkv_b.g,
-                3 * d,
-                d,
-            );
-            let dln = ln_backward(
-                &da,
-                &c.ln1[i].0,
-                c.ln1[i].1,
-                &l.ln1_g.w,
-                &mut l.ln1_g.g,
-                &mut l.ln1_b.g,
-            );
-            for (a, b) in dx[i].iter_mut().zip(&dln) {
-                *a += b;
+            for i in 0..n {
+                dqkv[i][qs..qs + hd].copy_from_slice(&dq[i]);
+                dqkv[i][ks..ks + hd].copy_from_slice(&dk[i]);
+                dqkv[i][vs..vs + hd].copy_from_slice(&dv[i]);
             }
+        }
+        let da = {
+            let (dw, db) = g.pair(s + 2);
+            linear_backward_rows(&l.qkv_w.w, &c.a, &dqkv, dw, db, 3 * d, d)
+        };
+        let mut dx = dx1;
+        let (dg, db) = g.pair(s);
+        for i in 0..n {
+            let dln = ln_backward(&da[i], &c.ln1[i].0, c.ln1[i].1, &l.ln1_g.w, dg, db);
+            axpy(&mut dx[i], 1.0, &dln);
         }
         dx
     }
@@ -480,32 +463,146 @@ impl TrainModel {
     }
 
     /// Listwise ranking loss for one finding: candidates' scores and a fixed "none" score of
-    /// 0 go through a softmax; the target is `answer` (None = "none of these"). Accumulates
-    /// gradients and returns the loss.
-    pub fn rank_loss(&mut self, head: usize, inputs: &[Vec<u32>], answer: Option<usize>) -> f32 {
+    /// 0 go through a softmax; the target is `answer` (None = "none of these"). `base`, if
+    /// not empty, is added to the candidates' scores first (a tier trained as a residual on
+    /// another ranker's scores). Adds the gradients to `g` and returns the loss.
+    pub fn rank_loss_into(
+        &self,
+        head: usize,
+        inputs: &[Vec<u32>],
+        base: &[f32],
+        answer: Option<usize>,
+        g: &mut Grads,
+    ) -> f32 {
         let fwd: Vec<(Vec<f32>, Cache)> = inputs.iter().map(|ids| self.forward(ids)).collect();
-        let mut scores: Vec<f32> = fwd.iter().map(|(p, _)| self.head_score(head, p)).collect();
+        let mut scores: Vec<f32> = fwd
+            .iter()
+            .enumerate()
+            .map(|(j, (p, _))| self.head_score(head, p) + base.get(j).copied().unwrap_or(0.0))
+            .collect();
         scores.push(0.0); // "none of these"
         let mut probs = scores.clone();
         softmax(&mut probs);
         let target = answer.unwrap_or(inputs.len());
         let loss = -probs[target].max(1e-12).ln();
+        let hs = slot_head(self.layers.len(), head);
         for (j, (pooled, cache)) in fwd.iter().enumerate() {
             let ds = probs[j] - if j == target { 1.0 } else { 0.0 };
             if ds == 0.0 {
                 continue;
             }
-            let h = &mut self.heads[head];
-            for (g, x) in h.w.g.iter_mut().zip(pooled) {
-                *g += ds * x;
+            {
+                let (gw, gb) = g.pair(hs);
+                axpy(gw, ds, pooled);
+                gb[0] += ds;
             }
-            h.b.g[0] += ds;
-            let dpooled: Vec<f32> = h.w.w.iter().map(|w| ds * w).collect();
-            self.backward(cache, &dpooled);
+            let dpooled: Vec<f32> = self.heads[head].w.w.iter().map(|w| ds * w).collect();
+            self.backward_into(cache, &dpooled, g);
         }
         loss
     }
+
+    /// [`TrainModel::rank_loss_into`] accumulating into the parameters' own gradients.
+    pub fn rank_loss(&mut self, head: usize, inputs: &[Vec<u32>], answer: Option<usize>) -> f32 {
+        let mut g = Grads::zeros_like(self);
+        let loss = self.rank_loss_into(head, inputs, &[], answer, &mut g);
+        g.add_to(self);
+        loss
+    }
+
+    /// One optimisation step on a batch of findings, computed on [`SHARDS`] threads. The batch
+    /// is cut into at most `SHARDS` contiguous parts; each part's gradient is summed in order
+    /// and the parts are added in order, so the result does not depend on the machine's
+    /// number of cores. Returns the summed loss.
+    pub fn train_step(
+        &mut self,
+        head: usize,
+        batch: &[Example],
+        opt: &Adam,
+    ) -> f32 {
+        if batch.is_empty() {
+            return 0.0;
+        }
+        let part = batch.len().div_ceil(SHARDS);
+        let model = &*self;
+        let parts: Vec<(Grads, f32)> = std::thread::scope(|s| {
+            let hs: Vec<_> = batch
+                .chunks(part)
+                .map(|chunk| {
+                    s.spawn(move || {
+                        let mut g = Grads::zeros_like(model);
+                        let mut loss = 0.0f32;
+                        for e in chunk {
+                            loss += model.rank_loss_into(head, &e.inputs, &e.base, e.answer, &mut g);
+                        }
+                        (g, loss)
+                    })
+                })
+                .collect();
+            hs.into_iter()
+                .map(|h| h.join().expect("training thread panicked"))
+                .collect()
+        });
+        let mut loss = 0.0;
+        for (g, l) in &parts {
+            g.add_to(self);
+            loss += l;
+        }
+        self.adam_step(opt, batch.len());
+        loss
+    }
 }
+
+/// One training finding: the candidates' token ids, optional base scores (see
+/// [`TrainModel::rank_loss_into`]) and the answer (None = "none of these").
+#[derive(Debug, Clone)]
+pub struct Example {
+    pub inputs: Vec<Vec<u32>>,
+    pub base: Vec<f32>,
+    pub answer: Option<usize>,
+}
+
+/// Number of gradient shards (and threads) per training step. Fixed, so that results do not
+/// depend on the number of cores.
+pub const SHARDS: usize = 8;
+
+/// Gradient buffers, one per parameter, in [`TrainModel::params`] order.
+#[derive(Debug, Clone)]
+pub struct Grads {
+    pub slots: Vec<Vec<f32>>,
+}
+
+impl Grads {
+    pub fn zeros_like(m: &TrainModel) -> Self {
+        Grads {
+            slots: m.params().iter().map(|p| vec![0.0; p.w.len()]).collect(),
+        }
+    }
+
+    /// Slots `i` and `i + 1` (a weight and its bias, or a gain and its bias).
+    fn pair(&mut self, i: usize) -> (&mut [f32], &mut [f32]) {
+        let (a, b) = self.slots.split_at_mut(i + 1);
+        (&mut a[i], &mut b[0])
+    }
+
+    /// Adds these gradients to the model's own (`Param::g`).
+    pub fn add_to(&self, m: &mut TrainModel) {
+        for (p, g) in m.params_mut().into_iter().zip(&self.slots) {
+            axpy(&mut p.g, 1.0, g);
+        }
+    }
+}
+
+fn slot_layer(li: usize) -> usize {
+    2 + 12 * li
+}
+fn slot_lnf(layers: usize) -> usize {
+    2 + 12 * layers
+}
+fn slot_head(layers: usize, h: usize) -> usize {
+    4 + 12 * layers + 2 * h
+}
+
 
 impl TrainModel {
     /// The int8 runtime model: matrices and embeddings quantised per row (symmetric, scale =
@@ -604,38 +701,51 @@ struct LayerCache {
 }
 
 fn dot(a: &[f32], b: &[f32]) -> f32 {
-    a.iter().zip(b).map(|(x, y)| x * y).sum()
+    dot_f32(a, b)
 }
 
-/// y = W x + b, W row-major (rows × cols).
-fn linear(w: &[f32], b: &[f32], x: &[f32], rows: usize, cols: usize) -> Vec<f32> {
-    (0..rows)
-        .map(|r| dot(&w[r * cols..(r + 1) * cols], x) + b[r])
-        .collect()
+/// y += a·x, element by element (vectorises; no reordering of sums).
+fn axpy(y: &mut [f32], a: f32, x: &[f32]) {
+    for (yi, xi) in y.iter_mut().zip(x) {
+        *yi += a * xi;
+    }
 }
 
-/// Accumulates dW += dy xᵀ and db += dy; returns dx = Wᵀ dy.
-fn linear_backward(
+/// Y = X Wᵀ + b for every row of X, W row-major (rows × cols). Loops over weight rows
+/// outermost, so each row stays in cache while all tokens use it.
+fn linear_rows(w: &[f32], b: &[f32], xs: &[Vec<f32>], rows: usize, cols: usize) -> Vec<Vec<f32>> {
+    let mut y = vec![vec![0.0f32; rows]; xs.len()];
+    for r in 0..rows {
+        let wr = &w[r * cols..(r + 1) * cols];
+        for (yi, x) in y.iter_mut().zip(xs) {
+            yi[r] = dot_f32(wr, x) + b[r];
+        }
+    }
+    y
+}
+
+/// For every row: dW += dy xᵀ and db += dy; returns dX = dY W.
+fn linear_backward_rows(
     w: &[f32],
-    x: &[f32],
-    dy: &[f32],
+    xs: &[Vec<f32>],
+    dys: &[Vec<f32>],
     dw: &mut [f32],
     db: &mut [f32],
     rows: usize,
     cols: usize,
-) -> Vec<f32> {
-    let mut dx = vec![0.0f32; cols];
+) -> Vec<Vec<f32>> {
+    let mut dx = vec![vec![0.0f32; cols]; xs.len()];
     for r in 0..rows {
-        let g = dy[r];
-        if g == 0.0 {
-            continue;
-        }
-        db[r] += g;
         let wr = &w[r * cols..(r + 1) * cols];
         let dwr = &mut dw[r * cols..(r + 1) * cols];
-        for c in 0..cols {
-            dwr[c] += g * x[c];
-            dx[c] += g * wr[c];
+        for (i, x) in xs.iter().enumerate() {
+            let g = dys[i][r];
+            if g == 0.0 {
+                continue;
+            }
+            db[r] += g;
+            axpy(dwr, g, x);
+            axpy(&mut dx[i], g, wr);
         }
     }
     dx
@@ -699,6 +809,7 @@ fn softmax(x: &mut [f32]) {
         *v /= s;
     }
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -921,6 +1032,39 @@ mod tests {
             right_int8 + 3 >= right_f32,
             "int8 accuracy {right_int8} vs f32 {right_f32}"
         );
+    }
+
+    /// The threaded step gives the same bits as computing the same shards one after another.
+    #[test]
+    fn threaded_step_equals_serial_shards() {
+        let batch: Vec<Example> = (0..13)
+            .map(|i| Example {
+                inputs: vec![vec![256, 97 + i, 98], vec![256, 99, i], vec![256, 100 + i % 3]],
+                base: vec![0.1 * i as f32, -0.2, 0.0],
+                answer: if i % 3 == 0 { None } else { Some((i % 3) as usize) },
+            })
+            .collect();
+        let opt = Adam::default();
+        let mut a = tiny();
+        let mut b = tiny();
+        for _ in 0..2 {
+            a.train_step(0, &batch, &opt);
+            for chunk in batch.chunks(batch.len().div_ceil(SHARDS)) {
+                let mut g = Grads::zeros_like(&b);
+                for e in chunk {
+                    b.rank_loss_into(0, &e.inputs, &e.base, e.answer, &mut g);
+                }
+                g.add_to(&mut b);
+            }
+            b.adam_step(&opt, batch.len());
+        }
+        let bits = |m: &mut TrainModel| -> Vec<u32> {
+            m.params_mut()
+                .iter()
+                .flat_map(|p| p.w.iter().map(|v| v.to_bits()))
+                .collect()
+        };
+        assert_eq!(bits(&mut a), bits(&mut b));
     }
 
     #[test]

@@ -449,7 +449,7 @@ fn attend_fn() -> AttendFn {
 /// f32 dot product in a fixed order: 8 running lanes, then the lanes summed left to right.
 /// The order is part of the model's definition, so results are identical on every CPU,
 /// while the 8 independent lanes still let the compiler use SIMD.
-fn dot_f32(a: &[f32], b: &[f32]) -> f32 {
+pub(crate) fn dot_f32(a: &[f32], b: &[f32]) -> f32 {
     let n = a.len().min(b.len());
     let mut lanes = [0.0f32; 8];
     let (ca, ta) = a[..n].as_chunks::<8>();
