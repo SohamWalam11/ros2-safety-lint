@@ -1,0 +1,36 @@
+# rosfix-model tier runtime, 2026-11-24T11:44Z
+# machine: Intel(R) Core(TM) 5 120U, 16 GB RAM, Windows 11 26200; single thread; AVX2 path
+# rustc: rustc 1.99.1 (58cf8f9c3 2026-10-13)
+# command: rosfix-model-bench --queries 40 [--tokens N]  (random weights of each tier's exact shape)
+
+## 32-token queries
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 29 ms | 3.0 ms | 4.6 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 84 ms | 28.2 ms | 61.3 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 344 ms | 135.5 ms | 379.4 ms | 32 | yes |
+
+## 64-token queries
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 52 ms | 13.8 ms | 30.4 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 78 ms | 35.6 ms | 49.5 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 219 ms | 283.8 ms | 574.4 ms | 64 | yes |
+
+## 128-token queries
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 42 ms | 21.2 ms | 34.6 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 78 ms | 64.7 ms | 88.8 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 201 ms | 265.6 ms | 514.1 ms | 127 | yes |
+
+## full context (nano 128, mini 256, base 384 tokens)
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 28 ms | 22.9 ms | 39.8 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 85 ms | 207.1 ms | 535.6 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 205 ms | 889.1 ms | 1737.4 ms | 384 | yes |
+
+## trainer correctness (cargo test -p rosfix-model --release -- --nocapture)
+...int8 export: same decision 300/300; correct f32 205/300, int8 205/300
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.53s

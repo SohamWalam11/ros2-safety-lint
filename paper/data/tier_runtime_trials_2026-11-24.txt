@@ -1,0 +1,120 @@
+## trial 1 tokens 32
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 30 ms | 2.1 ms | 4.0 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 55 ms | 11.9 ms | 14.9 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 287 ms | 81.3 ms | 130.5 ms | 32 | yes |
+## trial 1 tokens 64
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 26 ms | 6.2 ms | 9.0 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 68 ms | 29.1 ms | 38.2 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 239 ms | 126.6 ms | 176.2 ms | 64 | yes |
+## trial 1 tokens 128
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 41 ms | 23.8 ms | 33.8 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 83 ms | 77.5 ms | 94.3 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 159 ms | 224.1 ms | 246.1 ms | 127 | yes |
+## trial 1 tokens full
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 30 ms | 11.5 ms | 14.6 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 49 ms | 132.6 ms | 244.6 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 185 ms | 1519.3 ms | 2540.0 ms | 384 | yes |
+## trial 2 tokens 32
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 30 ms | 2.6 ms | 3.9 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 49 ms | 11.2 ms | 16.5 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 165 ms | 94.6 ms | 190.9 ms | 32 | yes |
+## trial 2 tokens 64
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 105 ms | 16.5 ms | 50.1 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 97 ms | 31.3 ms | 56.1 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 216 ms | 115.8 ms | 159.6 ms | 64 | yes |
+## trial 2 tokens 128
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 22 ms | 11.9 ms | 14.3 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 57 ms | 58.0 ms | 86.5 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 274 ms | 330.2 ms | 609.7 ms | 127 | yes |
+## trial 2 tokens full
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 26 ms | 9.9 ms | 17.0 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 54 ms | 193.9 ms | 545.2 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 192 ms | 874.3 ms | 1164.6 ms | 384 | yes |
+## trial 3 tokens 32
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 24 ms | 2.9 ms | 4.7 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 50 ms | 10.6 ms | 12.6 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 195 ms | 67.2 ms | 108.2 ms | 32 | yes |
+## trial 3 tokens 64
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 26 ms | 5.0 ms | 6.7 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 51 ms | 25.0 ms | 29.2 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 170 ms | 79.5 ms | 96.8 ms | 64 | yes |
+## trial 3 tokens 128
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 24 ms | 10.5 ms | 16.6 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 48 ms | 39.3 ms | 45.4 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 129 ms | 156.9 ms | 242.2 ms | 127 | yes |
+## trial 3 tokens full
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 25 ms | 7.6 ms | 8.6 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 40 ms | 85.9 ms | 106.2 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 125 ms | 561.2 ms | 581.9 ms | 384 | yes |
+## trial 4 tokens 32
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 31 ms | 1.6 ms | 1.7 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 44 ms | 7.4 ms | 8.7 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 124 ms | 38.8 ms | 49.9 ms | 32 | yes |
+## trial 4 tokens 64
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 27 ms | 3.5 ms | 4.8 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 45 ms | 16.3 ms | 18.3 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 122 ms | 72.4 ms | 75.5 ms | 64 | yes |
+## trial 4 tokens 128
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 27 ms | 7.5 ms | 8.9 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 43 ms | 36.5 ms | 40.8 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 149 ms | 153.9 ms | 174.2 ms | 127 | yes |
+## trial 4 tokens full
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 29 ms | 8.2 ms | 10.2 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 49 ms | 117.9 ms | 205.3 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 173 ms | 1252.4 ms | 1749.0 ms | 384 | yes |
+## trial 5 tokens 32
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 32 ms | 2.7 ms | 4.4 ms | 32 | yes |
+| mini | 5.32M | 5.5 MB | 57 ms | 11.7 ms | 16.1 ms | 32 | yes |
+| base | 23.31M | 23.6 MB | 157 ms | 46.5 ms | 62.7 ms | 32 | yes |
+## trial 5 tokens 64
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 29 ms | 4.0 ms | 4.9 ms | 64 | yes |
+| mini | 5.32M | 5.5 MB | 42 ms | 18.0 ms | 23.0 ms | 64 | yes |
+| base | 23.31M | 23.6 MB | 128 ms | 84.7 ms | 159.2 ms | 64 | yes |
+## trial 5 tokens 128
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 26 ms | 9.8 ms | 16.7 ms | 127 | yes |
+| mini | 5.32M | 5.5 MB | 63 ms | 60.0 ms | 119.8 ms | 127 | yes |
+| base | 23.31M | 23.6 MB | 155 ms | 175.4 ms | 323.2 ms | 127 | yes |
+## trial 5 tokens full
+| tier | stored numbers | file | load | query p50 | query p95 | tokens | deterministic |
+|---|---:|---:|---:|---:|---:|---:|---|
+| nano | 1.46M | 1.6 MB | 27 ms | 10.1 ms | 11.6 ms | 128 | yes |
+| mini | 5.32M | 5.5 MB | 44 ms | 85.2 ms | 92.4 ms | 256 | yes |
+| base | 23.31M | 23.6 MB | 130 ms | 548.8 ms | 716.7 ms | 384 | yes |

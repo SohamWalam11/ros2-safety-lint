@@ -782,6 +782,72 @@ parameter key abbreviated  &  3 &  3 &  3\,/\,0\,/\,0  &  3\,/\,0\,/\,0\\
 \end{tabular}
 \end{table}
 
+\subsection{Downloadable Assist Tiers}
+\label{sec:tiers}
+
+The built-in ranker sees only two strings. To let the assistant also use the rule and the
+surrounding source, we built a family of larger, optional models that users download according to
+their hardware (\code{--model nano|mini|base|<file>}). All tiers are the same encoder: a
+pre-LayerNorm transformer over an 8,192-token byte-level BPE vocabulary, [CLS] pooling, and small
+linear heads that score one input per candidate (``\code{[RULE] P003 [CUR] max\_velocty [CAND]
+max\_velocity [CTX] \ldots}''). Like the built-in ranker, a tier only scores rosfix's closed
+candidate set against a fixed ``none of these'' score, never generates text, and every pick is
+verified by re-analysis. Table~\ref{tab:tiers} gives the shapes.
+
+The runtime (crate \code{rosfix-model}) is plain Rust without dependencies. Weights are int8 with
+one scale per row; weights and activations meet in int8$\times$int8$\to$i32 dot products, which
+are exact, so the AVX2 path and the scalar path give identical bits (tested). Floating-point
+code runs in a fixed order, and \code{exp} and \code{tanh} are computed from IEEE-exact
+operations instead of the platform math library, whose last bit differs between operating
+systems; a model therefore gives bit-identical scores on every machine. A model file carries a
+SHA-256 trailer and every tensor shape is checked on load. A tier \emph{name} loads only a file
+whose hash is in the release list compiled into rosfix, and any failure falls back to the built-in
+ranker. That list is empty: no tier has been trained yet, so the tiers do not yet improve the
+assistant, and this section reports their cost and the training machinery only.
+
+\begin{table}[t]
+\centering
+\caption{Assist tiers: shape, size, and median (minimum) time per scored candidate over 5 trials
+of 30 queries, one thread, Intel Core~5 120U (15\,W) with $\approx$40\% background CPU load.
+Full context = 128/256/384 tokens.}
+\label{tab:tiers}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+ & \multicolumn{1}{c}{built-in} & \multicolumn{1}{c}{nano} & \multicolumn{1}{c}{mini} & \multicolumn{1}{c}{base}\\
+\midrule
+Layers / width / heads & MLP & 2\,/\,128\,/\,2 & 4\,/\,256\,/\,4 & 6\,/\,512\,/\,8\\
+Stored numbers & 321 & 1.46\,M & 5.32\,M & 23.31\,M\\
+File (int8) & in binary & 1.6\,MB & 5.5\,MB & 23.6\,MB\\
+\midrule
+32 tokens (ms)  & $<$0.01 & 2.6 (1.6) & 11.2 (7.4) & 67.2 (38.8)\\
+64 tokens (ms)  & & 5.0 (3.5) & 25.0 (16.3) & 84.7 (72.4)\\
+128 tokens (ms) & & 10.5 (7.5) & 58.0 (36.5) & 175.4 (153.9)\\
+full context (ms) & & 9.9 (7.6) & 117.9 (85.2) & 874.3 (548.8)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A tier scores each of up to eight candidates separately, so a finding costs up to eight queries.
+At a realistic query length of about 64 tokens, nano and mini stay in tens of milliseconds per
+finding on this laptop; base needs about a second per finding and is worthwhile only if it is
+clearly more accurate. Two implementation steps mattered most: the AVX2 integer dot product
+(4$\times$ faster matrix products) and a fixed-order 8-lane float dot product in attention.
+Processing all tokens per weight row instead of all rows per token did not help at these sizes.
+
+Tiers are trained in plain Rust as well, so that training and inference share the tokenizer, the
+input format and the model code, as \code{rosfix-train} does for the built-in ranker. The trainer
+is an f32 twin of the runtime encoder with a hand-written backward pass and Adam, optimised for
+the same listwise loss with a fixed ``none'' score. Its gradients agree with central finite
+differences for every parameter group, it learns a toy ranking task, and training is
+bit-reproducible for a seed. After int8 export, a trained toy model made the same decision
+(candidate or abstain) as its f32 original in 300 of 300 cases. A tier will be released only if,
+on the name-disjoint folds of Section~\ref{sec:assistant}, it is correct more often than the
+built-in ranker and makes no more wrong edits \emph{in every fold}, which the built-in ranker
+itself does not yet achieve (Table~\ref{tab:assistcv}). Raw measurements are in
+\code{paper/data/tier\_runtime\_trials\_2026-11-24.txt}.
+
 \subsection{Fix Verification Sandbox}
 \label{sec:fixsandbox}
 
