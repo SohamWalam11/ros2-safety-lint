@@ -124,7 +124,9 @@ fn behavior_trees(cx: &Context, out: &mut Vec<Diagnostic>) {
         return;
     }
     let distro = cx.ix.installed.distro.as_deref();
-    let pack = distro.and_then(crate::pack::cached);
+    // The analysed distribution's pack, including local packs; other distributions below use
+    // only their embedded packs, so that every distribution is compared at equal coverage.
+    let pack = distro.and(cx.ix.pack.as_ref());
     let mut known: HashSet<String> = crate::extract::bt::BUILTIN_NODES
         .iter()
         .map(|s| s.to_string())
@@ -228,7 +230,7 @@ fn plugin_migration(
     let Some(distro) = cx.ix.installed.distro.as_deref() else {
         return done;
     };
-    let Some(here) = crate::pack::cached(distro) else {
+    let Some(here) = cx.ix.pack.as_ref() else {
         return done;
     };
     if here.plugins.is_empty() {

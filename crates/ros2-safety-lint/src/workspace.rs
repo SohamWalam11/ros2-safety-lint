@@ -545,7 +545,7 @@ pub fn index(root: &Path, config: &Config, opts: &IndexOptions) -> Index {
         ix.installed.distro = opts.distro.clone();
     }
     if let Some(d) = ix.installed.distro.clone() {
-        ix.pack = crate::pack::embedded(&d);
+        ix.pack = crate::pack::for_distro(&d);
     }
     // NoDL documents that installed packages register describe executables the pack does not.
     if !ix.installed.packages.is_empty() {
@@ -616,7 +616,7 @@ pub fn index(root: &Path, config: &Config, opts: &IndexOptions) -> Index {
 }
 
 /// Packages referenced by launch files (node packages and `$(find-pkg-share …)` paths).
-fn referenced_packages(ix: &Index) -> HashSet<String> {
+pub(crate) fn referenced_packages(ix: &Index) -> HashSet<String> {
     fn walk_lval(v: &LVal, out: &mut HashSet<String>) {
         match v {
             LVal::PkgShare(p) | LVal::PkgPrefix(p) => {

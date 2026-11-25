@@ -165,10 +165,10 @@ struct ReportArgs {
     /// Model for --assist: builtin (default), a tier (nano, mini, base) or a path to a .rfm file
     #[arg(long, value_name = "MODEL")]
     model: Option<String>,
-    /// Look up background references on allowlisted public sources (queries contain only the rule that fired)
+    /// Look up background references on allowlisted public sources (queries contain only the rule that fired), and build local packs for launched packages no pack covers (public rosdistro repositories only)
     #[arg(long)]
     online: bool,
-    /// With --online: print every query before it is sent
+    /// With --online: print every query and download before it is sent
     #[arg(long)]
     show_queries: bool,
     /// Print per-agent timing and indexing statistics to stderr
@@ -453,7 +453,9 @@ struct Run {
 
     /// Look up background references for findings on allowlisted public sources
     /// (Robotics Stack Exchange, GitHub issues, your SearXNG). Queries contain only the
-    /// rule that fired — never your files, paths or names. Off unless requested.
+    /// rule that fired — never your files, paths or names. Also builds local packs from the
+    /// upstream source of launched packages that no pack covers, resolved through the public
+    /// rosdistro index (private package names never leave the machine). Off unless requested.
     #[arg(long)]
     online: bool,
 
@@ -463,7 +465,7 @@ struct Run {
     #[arg(long, requires = "fix")]
     verify_build: bool,
 
-    /// With --online: print every query before it is sent.
+    /// With --online: print every query and download before it is sent.
     #[arg(long)]
     show_queries: bool,
 

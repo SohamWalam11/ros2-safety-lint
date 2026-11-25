@@ -15,6 +15,7 @@ pub mod doctor;
 pub mod engine;
 pub mod extract;
 pub mod facts;
+pub mod fetch;
 pub mod fix;
 pub mod html;
 pub mod init;

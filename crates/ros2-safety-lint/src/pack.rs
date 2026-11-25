@@ -137,6 +137,85 @@ pub fn cached(distro: &str) -> Option<&'static Pack> {
     CACHE[i].get_or_init(|| embedded(distro)).as_ref()
 }
 
+// ---------------------------------------------------------------------------- local packs
+
+/// Root of rosfix's on-disk cache (`ROSFIX_CACHE_DIR`, else the platform cache directory).
+pub fn cache_root() -> Option<PathBuf> {
+    if let Some(d) = std::env::var_os("ROSFIX_CACHE_DIR") {
+        return Some(PathBuf::from(d));
+    }
+    let base = std::env::var_os("XDG_CACHE_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("LOCALAPPDATA").map(PathBuf::from))
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cache")))?;
+    Some(base.join("rosfix"))
+}
+
+/// Directory of the local packs of a distribution: packs built on this machine from upstream
+/// sources by `--online` (see `crate::fetch`), one file per source repository.
+pub fn local_dir(distro: &str) -> Option<PathBuf> {
+    // Distribution names are lowercase identifiers; anything else never names a directory.
+    if distro.is_empty() || !distro.bytes().all(|b| b.is_ascii_lowercase()) {
+        return None;
+    }
+    Some(cache_root()?.join("packs").join(distro))
+}
+
+/// The local packs of a distribution, in file-name order (so merging is deterministic).
+pub fn local(distro: &str) -> Vec<Pack> {
+    let Some(dir) = local_dir(distro) else {
+        return Vec::new();
+    };
+    let Ok(rd) = std::fs::read_dir(&dir) else {
+        return Vec::new();
+    };
+    let mut files: Vec<PathBuf> = rd
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| p.to_string_lossy().ends_with(".json.gz"))
+        .collect();
+    files.sort();
+    files
+        .iter()
+        .filter_map(|p| std::fs::read(p).ok())
+        .filter_map(|b| decode(&b))
+        .filter(|p| p.distro == distro)
+        .collect()
+}
+
+/// Adds `other` to `base`. Packages `base` already describes are kept as they are: the
+/// embedded pack was built from pinned branches and reviewed, a local pack only fills gaps.
+pub fn merge(base: &mut Pack, other: Pack) {
+    base.sources.extend(other.sources);
+    for (name, p) in other.packages {
+        base.packages.entry(name).or_insert(p);
+    }
+    base.plugins.extend(other.plugins);
+    base.plugins.sort();
+    base.plugins.dedup();
+    base.bt_nodes.extend(other.bt_nodes);
+    base.bt_nodes.sort();
+    base.bt_nodes.dedup();
+}
+
+/// The embedded pack of a distribution plus its local packs. Unlike [`embedded`], this also
+/// works for distributions without an embedded pack, if packs were built locally.
+pub fn for_distro(distro: &str) -> Option<Pack> {
+    let locals = local(distro);
+    let mut base = match embedded(distro) {
+        Some(p) => p,
+        None if !locals.is_empty() => Pack {
+            format: FORMAT,
+            distro: distro.to_string(),
+            ..Default::default()
+        },
+        None => return None,
+    };
+    for p in locals {
+        merge(&mut base, p);
+    }
+    Some(base)
+}
+
 pub fn encode(p: &Pack) -> Vec<u8> {
     use std::io::Write;
     let json = serde_json::to_vec(p).expect("serializable");

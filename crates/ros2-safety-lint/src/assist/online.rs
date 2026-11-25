@@ -19,10 +19,31 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct FetchRequest {
     pub queries: Vec<String>,
     pub searxng_url: Option<String>,
+    /// Text documents to download (the rosdistro index, see `crate::fetch`).
+    #[serde(default)]
+    pub texts: Vec<String>,
+    /// Source archives to download and unpack (see `crate::fetch`).
+    #[serde(default)]
+    pub tarballs: Vec<TarballRequest>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TarballRequest {
+    pub url: String,
+    /// Directory the wanted files are unpacked into.
+    pub dest: PathBuf,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct TarballResult {
+    pub files: usize,
+    /// Commit recorded in the archive (GitHub archives carry it in a pax header).
+    pub commit: Option<String>,
+    pub error: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
@@ -30,6 +51,12 @@ pub struct FetchResponse {
     /// query → [(title, url)]
     pub results: BTreeMap<String, Vec<(String, String)>>,
     pub errors: Vec<String>,
+    /// url → text
+    #[serde(default)]
+    pub texts: BTreeMap<String, String>,
+    /// url → result
+    #[serde(default)]
+    pub tarballs: BTreeMap<String, TarballResult>,
 }
 
 /// Search phrase per rule. Purely generic: nothing from the user's workspace.
@@ -117,10 +144,14 @@ pub fn lookup(
                 eprintln!("rosfix: online query: {q}");
             }
         }
-        let resp = run_helper(&FetchRequest {
-            queries: missing,
-            searxng_url,
-        })?;
+        let resp = run_helper(
+            &FetchRequest {
+                queries: missing,
+                searxng_url,
+                ..Default::default()
+            },
+            Duration::from_secs(30),
+        )?;
         for e in &resp.errors {
             eprintln!("rosfix: online: {e}");
         }
@@ -142,7 +173,7 @@ pub fn lookup(
 }
 
 /// Starts `rosfix __fetch` and exchanges JSON over stdin/stdout, with an overall deadline.
-fn run_helper(req: &FetchRequest) -> Result<FetchResponse, String> {
+pub fn run_helper(req: &FetchRequest, timeout: Duration) -> Result<FetchResponse, String> {
     let exe = std::env::current_exe().map_err(|e| e.to_string())?;
     let mut child = Command::new(exe)
         .arg("__fetch")
@@ -164,24 +195,29 @@ fn run_helper(req: &FetchRequest) -> Result<FetchResponse, String> {
         .ok_or("no stdin")?
         .write_all(&body)
         .map_err(|e| e.to_string())?;
-    let deadline = Instant::now() + Duration::from_secs(30);
+    // Read stdout while the helper runs: a response larger than the pipe buffer (the
+    // rosdistro index) would otherwise block the helper until the deadline.
+    let mut stdout = child.stdout.take().ok_or("no stdout")?;
+    let reader = std::thread::spawn(move || {
+        let mut out = String::new();
+        stdout.read_to_string(&mut out).map(|_| out)
+    });
+    let deadline = Instant::now() + timeout;
     loop {
         match child.try_wait() {
             Ok(Some(_)) => break,
             Ok(None) if Instant::now() > deadline => {
                 let _ = child.kill();
+                let _ = child.wait();
                 return Err("online helper timed out".into());
             }
             Ok(None) => std::thread::sleep(Duration::from_millis(50)),
             Err(e) => return Err(e.to_string()),
         }
     }
-    let mut out = String::new();
-    child
-        .stdout
-        .take()
-        .ok_or("no stdout")?
-        .read_to_string(&mut out)
+    let out = reader
+        .join()
+        .map_err(|_| "online helper reader failed".to_string())?
         .map_err(|e| e.to_string())?;
     serde_json::from_str(&out).map_err(|e| format!("online helper returned invalid data: {e}"))
 }
@@ -238,6 +274,14 @@ pub fn allowed(url: &str, searxng: Option<&str>) -> bool {
     if url.starts_with("https://") && ALLOWED_HOSTS.contains(&host) {
         return true;
     }
+    // Sources for local knowledge packs: the rosdistro index and GitHub source archives.
+    let path = &url[url.find(host).map_or(0, |i| i + host.len())..];
+    if url.starts_with("https://")
+        && ((host == "raw.githubusercontent.com" && path.starts_with("/ros/rosdistro/"))
+            || (host == "codeload.github.com" && path.contains("/tar.gz/")))
+    {
+        return true;
+    }
     // A user-configured SearXNG instance (http allowed only for localhost).
     if let Some(sx) = searxng.and_then(host_of) {
         if host == sx && (url.starts_with("https://") || matches!(host, "localhost" | "127.0.0.1"))
@@ -279,8 +323,91 @@ fn get_json(_url: &str, _searxng: Option<&str>) -> Result<serde_json::Value, Str
     Err("this rosfix build has no online support (feature `online`)".into())
 }
 
+#[cfg(feature = "online")]
+/// Largest rosdistro index accepted (Rolling's is about 1.5 MiB).
+const MAX_TEXT: u64 = 16 * 1024 * 1024;
+#[cfg(feature = "online")]
+/// Largest compressed source archive accepted.
+const MAX_ARCHIVE: u64 = 128 * 1024 * 1024;
+
+#[cfg(feature = "online")]
+fn source_agent(timeout: Duration) -> ureq::Agent {
+    ureq::Agent::config_builder()
+        .timeout_global(Some(timeout))
+        .max_redirects(0)
+        .https_only(true)
+        .user_agent("rosfix")
+        .build()
+        .into()
+}
+
+#[cfg(feature = "online")]
+fn get_text(url: &str) -> Result<String, String> {
+    if !allowed(url, None) {
+        return Err(format!("blocked (not allowlisted): {url}"));
+    }
+    let mut resp = source_agent(Duration::from_secs(60))
+        .get(url)
+        .call()
+        .map_err(|e| e.to_string())?;
+    resp.body_mut()
+        .with_config()
+        .limit(MAX_TEXT)
+        .read_to_string()
+        .map_err(|e| e.to_string())
+}
+
+#[cfg(not(feature = "online"))]
+fn get_text(_url: &str) -> Result<String, String> {
+    Err("this rosfix build has no online support (feature `online`)".into())
+}
+
+#[cfg(feature = "online")]
+fn get_tarball(t: &TarballRequest) -> TarballResult {
+    let run = || -> Result<TarballResult, String> {
+        if !allowed(&t.url, None) {
+            return Err(format!("blocked (not allowlisted): {}", t.url));
+        }
+        let mut resp = source_agent(Duration::from_secs(300))
+            .get(&t.url)
+            .call()
+            .map_err(|e| e.to_string())?;
+        let reader = resp.body_mut().with_config().limit(MAX_ARCHIVE).reader();
+        std::fs::create_dir_all(&t.dest).map_err(|e| e.to_string())?;
+        let (files, commit) = crate::fetch::extract_tar_gz(reader, &t.dest, &crate::fetch::LIMITS)?;
+        Ok(TarballResult {
+            files,
+            commit,
+            error: None,
+        })
+    };
+    run().unwrap_or_else(|e| TarballResult {
+        error: Some(e),
+        ..Default::default()
+    })
+}
+
+#[cfg(not(feature = "online"))]
+fn get_tarball(_t: &TarballRequest) -> TarballResult {
+    TarballResult {
+        error: Some("this rosfix build has no online support (feature `online`)".into()),
+        ..Default::default()
+    }
+}
+
 fn fetch_all(req: &FetchRequest) -> FetchResponse {
     let mut resp = FetchResponse::default();
+    for url in req.texts.iter().take(4) {
+        match get_text(url) {
+            Ok(t) => {
+                resp.texts.insert(url.clone(), t);
+            }
+            Err(e) => resp.errors.push(format!("{url}: {e}")),
+        }
+    }
+    for t in req.tarballs.iter().take(16) {
+        resp.tarballs.insert(t.url.clone(), get_tarball(t));
+    }
     let sx = req.searxng_url.as_deref();
     for q in req.queries.iter().take(MAX_QUERIES) {
         let qe = url_encode(q);
@@ -371,6 +498,25 @@ mod tests {
             "https://searx.example.org/search",
             Some("https://searx.example.org")
         ));
+        // Pack sources: only the rosdistro index and GitHub source archives.
+        assert!(allowed(
+            "https://raw.githubusercontent.com/ros/rosdistro/master/jazzy/distribution.yaml",
+            None
+        ));
+        assert!(!allowed(
+            "https://raw.githubusercontent.com/evil/repo/main/x.yaml",
+            None
+        ));
+        assert!(!allowed(
+            "https://evil.com/ros/rosdistro/raw.githubusercontent.com",
+            None
+        ));
+        assert!(allowed(
+            "https://codeload.github.com/ros-navigation/navigation2/tar.gz/jazzy",
+            None
+        ));
+        assert!(!allowed("https://codeload.github.com/a/b/zip/main", None));
+        assert!(!allowed("http://codeload.github.com/a/b/tar.gz/main", None));
     }
 
     #[test]
