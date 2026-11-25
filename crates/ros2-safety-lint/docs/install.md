@@ -1,12 +1,19 @@
 # Installing rosfix
 
-rosfix is a single executable. Pick whichever channel suits the machine.
+rosfix is a single executable. Pick whichever channel suits the machine. crates.io works
+today; PyPI, the release archives and the Docker images are published from v0.2.3 on.
 
-## From PyPI
+## From crates.io
+
+    cargo install rosfix
+
+Rust 1.88 or newer is required (see "From source" below).
+
+## From PyPI (from v0.2.3)
 
     pip install rosfix
 
-Prebuilt wheels exist for Linux (x86_64 and aarch64), macOS and Windows. The wheel also
+Prebuilt wheels are built for Linux (x86_64 and aarch64), macOS and Windows. The wheel also
 registers a ros2 command, so in a sourced ROS 2 shell
 
     ros2 rosfix src
@@ -14,13 +21,13 @@ registers a ros2 command, so in a sourced ROS 2 shell
 
 forwards its arguments to rosfix.
 
-## From a GitHub release
+## From a GitHub release (from v0.2.3)
 
 Each release has a standalone archive per platform, about 15 MB, plus a SHA256SUMS file.
 Unpack it and put the bin directory on PATH. The fix ranker used by `--assist` is built
 in; there are no other files.
 
-## With Docker
+## With Docker (from v0.2.3)
 
     docker run --rm -v "$PWD:/ws" ghcr.io/sohamwalam11/rosfix:jazzy-lite /ws
 

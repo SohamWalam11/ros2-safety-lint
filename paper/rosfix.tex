@@ -422,8 +422,9 @@ are cached.
 rosfix is written in Rust (about 16{,}700 lines) and runs single-threaded by default. It reports
 text, JSON and SARIF~2.1.0~\cite{sarif} with exact regions, rule metadata and fixes. It supports
 inline suppressions and baselines for gradual adoption, and it exits with a non-zero code at a
-configurable severity. It is distributed as Python wheels (with a \code{ros2 rosfix} command),
-standalone archives, container images, a GitHub Action and pre-commit hooks.
+configurable severity. It is published on crates.io. The release workflow also builds Python
+wheels (with a \code{ros2 rosfix} command), standalone archives and container images, which are
+published from version 0.2.3 on, and the repository provides a GitHub Action and pre-commit hooks.
 
 The command line is organised as subcommands (\code{check}, \code{fix}, \code{graph},
 \code{watch}, \code{lsp}, \code{baseline}, \code{init}, \code{doctor}, \code{migrate}, \code{triage},

@@ -6,7 +6,7 @@ results are the same as `rosfix check` on the command line.
 
 ## Requirements
 
-rosfix on PATH, installed with `cargo install rosfix` or `pip install rosfix`. To use a
+rosfix on PATH, installed with `cargo install rosfix` (or, from v0.2.3, `pip install rosfix`). To use a
 different executable, set `rosfix.path`.
 
 ## What you get

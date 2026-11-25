@@ -71,14 +71,13 @@ is kept as *unknown*, since the middleware decides it. Each distribution also em
 ## Install
 
 ```bash
-pip install rosfix                 # prebuilt wheels: Linux x86_64/aarch64, macOS, Windows
-ros2 rosfix src                    # also available as a ros2 command after pip install
-docker run --rm -v "$PWD:/ws" ghcr.io/sohamwalam11/rosfix:jazzy-lite /ws
-cargo install rosfix               # from source (Rust 1.88 or newer)
+cargo install rosfix               # from crates.io (Rust 1.88 or newer)
 ```
 
-Standalone single-file archives for every platform are attached to each GitHub release
-(about 15 MB; the fix ranker is built in).
+From v0.2.3 on, each tagged release also publishes Python wheels (`pip install rosfix`, which
+adds a `ros2 rosfix` command), a standalone archive per platform (about 15 MB; the fix ranker is
+built in) and Docker images (`ghcr.io/sohamwalam11/rosfix:<distro>-lite`). Until that release is
+out, install with cargo.
 
 ## Usage
 

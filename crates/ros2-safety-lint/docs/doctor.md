@@ -70,7 +70,7 @@ Zenoh router
 
 ## Inside ros2 doctor
 
-When rosfix is installed from PyPI (`pip install rosfix`), the same checks also run as part of
+When rosfix is installed from PyPI (`pip install rosfix`, from v0.2.3), the same checks also run as part of
 `ros2 doctor`: an error here counts as a failed ros2doctor check, a warning as a warning, and
 `ros2 doctor --report` gets a ROSFIX ENVIRONMENT section listing every check. The Python
 package registers them through ros2doctor's `ros2doctor.checks` and `ros2doctor.report` entry

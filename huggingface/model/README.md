@@ -193,7 +193,7 @@ value when the intended name isn't among them (it abstains instead).
 ## Use
 
 ```bash
-cargo install rosfix         # or: pip install rosfix
+cargo install rosfix         # Rust 1.88+; PyPI wheels follow with v0.2.3
 rosfix fix --assist          # preview assisted fixes
 ```
 

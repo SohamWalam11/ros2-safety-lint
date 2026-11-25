@@ -35,7 +35,7 @@ function start(context) {
   client.start().catch((err) => {
     vscode.window.showErrorMessage(
       `rosfix: could not start \`${command} lsp\` (${err.message}). ` +
-        'Install rosfix (cargo install rosfix, or pip install rosfix) or set rosfix.path.'
+        'Install rosfix (cargo install rosfix) or set rosfix.path.'
     );
   });
   context.subscriptions.push(client);
