@@ -193,6 +193,32 @@ path, node or package name leaves your machine (`--show-queries` prints them). T
 in a separate helper process restricted to an allowlist of HTTPS hosts, with no redirects,
 short timeouts and size limits. Results are cached locally.
 
+**Beyond the embedded packs.** The embedded knowledge packs describe the nodes of a fixed set
+of repositories. With `--online` and a known distribution, rosfix also covers launched
+packages outside that set. It looks each one up in the public rosdistro index of the
+distribution and downloads the source of its repository at the distribution's branch. It then
+runs its own extractors over that source once and stores the result as a *local pack*
+(`<cache>/rosfix/packs/<distro>/`, or `$ROSFIX_CACHE_DIR`). Later runs use the local packs
+without any network access.
+
+For example, a typo in a `joy_node` parameter file is found only after `joy` has been fetched:
+
+```
+$ rosfix . --distro jazzy --online --show-queries
+rosfix: online request: https://raw.githubusercontent.com/ros/rosdistro/master/jazzy/distribution.yaml
+rosfix: online request: https://codeload.github.com/ros-drivers/joystick_drivers/tar.gz/ros2
+rosfix: online: built a local pack from ros-drivers/joystick_drivers@ros2 (3 package(s) with nodes)
+rosfix: online: now covered: joy
+warning[P003]: `deadzon` is not declared by node `/joy_node` … help: Did you mean `deadzone`?
+```
+
+Package names are matched against the downloaded index locally, so names of private packages
+never leave the machine. The requests do show GitHub which public repositories you use.
+Archives are unpacked with path checks and size limits. Only source, build and manifest files
+are kept, nothing is executed, and the unpacked sources are deleted after the pack is built. A
+local pack only adds packages; it never replaces what an embedded pack says. Delete the
+directory to drop the local packs.
+
 ### Build check (`--verify-build`)
 
 `--fix --verify-build` copies the workspace to a temporary directory and builds it before and

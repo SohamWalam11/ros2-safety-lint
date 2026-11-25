@@ -29,7 +29,8 @@ Analyses the workspace and prints the findings.
     --agents a,b               run only these agents (core always runs)
     --config FILE              configuration file (default: PATH/rosfix.toml)
     --assist                   let the fix assistant pick repairs (see assist)
-    --online                   attach references from public sources (see assist)
+    --online                   attach references from public sources, and build local packs
+                               for launched packages no pack covers (see assist)
     --show-queries             with --online, print each query before sending it
     --stats                    per-agent timing and indexing statistics on stderr
     --jobs N                   index on N threads (needs the parallel feature)
