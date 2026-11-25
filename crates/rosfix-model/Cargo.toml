@@ -12,3 +12,7 @@ description = "Runtime for rosfix's downloadable assist models: .rfm format, byt
 [[bin]]
 name = "rosfix-model-bench"
 path = "src/bin/bench.rs"
+
+[[bin]]
+name = "rosfix-model-bpe"
+path = "src/bin/bpe.rs"
