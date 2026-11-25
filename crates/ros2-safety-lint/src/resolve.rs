@@ -211,6 +211,17 @@ impl Graph {
 
 type Env = HashMap<String, Option<String>>;
 
+/// A launch condition's value as ROS 2 launch reads it (`evaluate_condition_expression`):
+/// `true`/`1` or `false`/`0`, case-insensitive. Anything else makes launch fail, so the
+/// condition is treated as unknown here.
+fn launch_bool(s: &str) -> Option<bool> {
+    match s.trim().to_ascii_lowercase().as_str() {
+        "true" | "1" => Some(true),
+        "false" | "0" => Some(false),
+        _ => None,
+    }
+}
+
 /// Resolves a launch value to a string. Paths get `@share:pkg/…` / `@ws:…` markers.
 pub fn resolve_lval(v: &LVal, env: &Env) -> Option<String> {
     match v {
@@ -553,6 +564,23 @@ impl<'a> Builder<'a> {
                 LaunchItem::Node(d) => {
                     let inst = self.instance(d, env, scope);
                     self.root.nodes.push(inst);
+                }
+                LaunchItem::Cond {
+                    cond,
+                    unless,
+                    items,
+                    ..
+                } => {
+                    // Taken with the values of this graph: the items run like any other. Not
+                    // taken, or unknown: keep them (a launch argument's default can be
+                    // overridden on the command line) but as conditional, so checks that
+                    // compare nodes of one graph skip them.
+                    let taken =
+                        resolve_lval(cond, env).as_deref().and_then(launch_bool) == Some(!*unless);
+                    let was = scope.conditional;
+                    scope.conditional = was || !taken;
+                    self.items(items, env, scope);
+                    scope.conditional = was;
                 }
             }
         }

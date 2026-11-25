@@ -161,4 +161,43 @@ mod tests {
         ), ("p/package.xml", "<package format=\"3\"><name>p</name></package>")]);
         assert!(d.iter().any(|x| x.rule == "S002"), "{d:#?}");
     }
+
+    /// rmf_demos fleet_adapter.launch.xml: an includer passes `use_sim_time:=false`, so the
+    /// `unless` branch runs on wall-clock time beside a sim-time node (S001), while the `if`
+    /// branch is not taken and must not be reported.
+    #[test]
+    fn if_unless_branches_follow_the_passed_argument() {
+        let inner = r#"<launch>
+  <arg name="use_sim_time" default="true"/>
+  <group>
+    <group if="$(var use_sim_time)">
+      <node pkg="p" exec="a" name="in_if"><param name="use_sim_time" value="$(var use_sim_time)"/></node>
+    </group>
+    <group unless="$(var use_sim_time)">
+      <node pkg="p" exec="a" name="in_unless"><param name="use_sim_time" value="$(var use_sim_time)"/></node>
+    </group>
+  </group>
+</launch>"#;
+        let top = r#"<launch>
+  <node pkg="p" exec="b" name="sim_node"><param name="use_sim_time" value="true"/></node>
+  <include file="$(find-pkg-share p)/launch/inner.launch.xml">
+    <arg name="use_sim_time" value="false"/>
+  </include>
+</launch>"#;
+        let d = analyze_files(&[
+            ("p/package.xml", "<package format=\"3\"><name>p</name></package>"),
+            ("p/CMakeLists.txt", "project(p)\nadd_executable(a src/a.cpp)\nadd_executable(b src/b.cpp)\ninstall(TARGETS a b DESTINATION lib/${PROJECT_NAME})\ninstall(DIRECTORY launch DESTINATION share/${PROJECT_NAME})\n"),
+            ("p/src/a.cpp", "int main() { auto n = std::make_shared<rclcpp::Node>(\"a\"); }\n"),
+            ("p/src/b.cpp", "int main() { auto n = std::make_shared<rclcpp::Node>(\"b\"); }\n"),
+            ("p/launch/inner.launch.xml", inner),
+            ("p/launch/top.launch.xml", top),
+        ]);
+        let s001: Vec<&str> = d
+            .iter()
+            .filter(|x| x.rule == "S001")
+            .map(|x| x.message.as_str())
+            .collect();
+        assert!(s001.iter().any(|m| m.contains("in_unless")), "{s001:#?}");
+        assert!(s001.iter().all(|m| !m.contains("in_if")), "{s001:#?}");
+    }
 }

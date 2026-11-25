@@ -641,7 +641,9 @@ fn referenced_packages(ix: &Index) -> HashSet<String> {
                     n.arguments.iter().for_each(|a| walk_lval(a, out));
                 }
                 LaunchItem::Include { path, .. } => walk_lval(path, out),
-                LaunchItem::Group { items, .. } => walk(items, out),
+                LaunchItem::Group { items, .. } | LaunchItem::Cond { items, .. } => {
+                    walk(items, out)
+                }
                 _ => {}
             }
         }

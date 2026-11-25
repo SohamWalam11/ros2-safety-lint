@@ -741,6 +741,15 @@ pub enum LaunchItem {
         conditional: bool,
         loc: Loc,
     },
+    /// An element with `if=`/`unless=` (XML and YAML launch files): `items` run only when `cond`
+    /// is true (false for `unless`). The resolver evaluates `cond` with the launch arguments in
+    /// scope; when the value is unknown, `items` are treated as conditional.
+    Cond {
+        cond: LVal,
+        unless: bool,
+        items: Vec<LaunchItem>,
+        loc: Loc,
+    },
     /// A group scope (namespace push / scoped parameters / remaps).
     Group {
         namespace: Option<LVal>,

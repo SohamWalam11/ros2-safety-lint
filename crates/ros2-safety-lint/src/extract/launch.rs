@@ -159,7 +159,12 @@ fn xml_children(
     for n in parent.children().filter(|n| n.is_element()) {
         let r = n.range();
         let loc = Loc::new(file, r.start, r.end);
-        let conditional = n.attribute("if").is_some() || n.attribute("unless").is_some();
+        // `if=`/`unless=`: the items this element produces are wrapped in a `Cond` below.
+        let cond = n
+            .attribute("if")
+            .map(|c| (c, false))
+            .or(n.attribute("unless").map(|c| (c, true)));
+        let first = items.len();
         match n.tag_name().name() {
             "arg" => items.push(LaunchItem::Arg {
                 name: n.attribute("name").unwrap_or_default().to_string(),
@@ -182,12 +187,12 @@ fn xml_children(
                     "node_container" => LaunchNodeKind::Container,
                     _ => LaunchNodeKind::Node,
                 };
-                let mut decl = xml_node_decl(file, dir, n, kind, conditional);
+                let mut decl = xml_node_decl(file, dir, n, kind, false);
                 items.push(LaunchItem::Node(decl.clone()));
                 if kind == LaunchNodeKind::Container {
                     for c in n.children().filter(|c| c.has_tag_name("composable_node")) {
                         let cr = c.range();
-                        decl = xml_node_decl(file, dir, c, LaunchNodeKind::Composable, conditional);
+                        decl = xml_node_decl(file, dir, c, LaunchNodeKind::Composable, false);
                         decl.loc = Loc::new(file, cr.start, cr.end);
                         items.push(LaunchItem::Node(decl));
                     }
@@ -207,7 +212,7 @@ fn xml_children(
                 items.push(LaunchItem::Include {
                     path: sub(n.attribute("file").unwrap_or_default()),
                     args,
-                    conditional,
+                    conditional: false,
                     loc,
                 });
             }
@@ -218,12 +223,6 @@ fn xml_children(
                     .attribute("scoped")
                     .is_none_or(|s| s != "false" && s != "False");
                 let inner = xml_children(file, dir, n, partial);
-                // `<group if=…>` / `unless=…`: everything inside runs only on that branch.
-                let inner = if conditional {
-                    mark_conditional(inner)
-                } else {
-                    inner
-                };
                 items.push(LaunchItem::Group {
                     namespace: ns,
                     items: inner,
@@ -260,8 +259,24 @@ fn xml_children(
             "executable" | "load_composable_node" | "timer" | "opaque_function" => *partial = true,
             _ => {}
         }
+        if let Some((c, unless)) = cond {
+            wrap_cond(&mut items, first, sub(c), unless, loc);
+        }
     }
     items
+}
+
+/// Moves `items[first..]` (what one `if=`/`unless=` element produced) into a `Cond`.
+fn wrap_cond(items: &mut Vec<LaunchItem>, first: usize, cond: LVal, unless: bool, loc: Loc) {
+    if items.len() > first {
+        let inner = items.split_off(first);
+        items.push(LaunchItem::Cond {
+            cond,
+            unless,
+            items: inner,
+            loc,
+        });
+    }
 }
 
 fn xml_node_decl(
@@ -364,7 +379,11 @@ fn yaml_items(file: FileId, dir: &str, list: &YNode, partial: &mut bool) -> Vec<
     for entry in list.items() {
         for (k, v) in entry.entries() {
             let loc = Loc::new(file, k.start(), v.end());
-            let conditional = v.get("if").is_some() || v.get("unless").is_some();
+            // `if:`/`unless:`: the items this entry produces are wrapped in a `Cond` below.
+            let cond = ystr(v.get("if"), dir)
+                .map(|c| (c, false))
+                .or(ystr(v.get("unless"), dir).map(|c| (c, true)));
+            let first = items.len();
             match k.as_str().unwrap_or("") {
                 "arg" | "let" => items.push(LaunchItem::Arg {
                     name: v
@@ -419,7 +438,7 @@ fn yaml_items(file: FileId, dir: &str, list: &YNode, partial: &mut bool) -> Vec<
                         remaps,
                         enclave: None,
                         arguments: Vec::new(),
-                        conditional,
+                        conditional: false,
                         loc,
                     }));
                 }
@@ -439,7 +458,7 @@ fn yaml_items(file: FileId, dir: &str, list: &YNode, partial: &mut bool) -> Vec<
                     items.push(LaunchItem::Include {
                         path: ystr(v.get("file"), dir).unwrap_or(LVal::Unknown),
                         args,
-                        conditional,
+                        conditional: false,
                         loc,
                     });
                 }
@@ -457,9 +476,6 @@ fn yaml_items(file: FileId, dir: &str, list: &YNode, partial: &mut bool) -> Vec<
                         children = yaml_items(file, dir, ch, partial);
                     }
                     let scoped = v.get("scoped").and_then(|s| s.as_str()) != Some("false");
-                    if conditional {
-                        children = mark_conditional(children);
-                    }
                     items.push(LaunchItem::Group {
                         namespace: ns,
                         items: children,
@@ -483,6 +499,9 @@ fn yaml_items(file: FileId, dir: &str, list: &YNode, partial: &mut bool) -> Vec<
                 }),
                 "push-ros-namespace" | "push_ros_namespace" => {}
                 _ => *partial = true,
+            }
+            if let Some((c, unless)) = cond {
+                wrap_cond(&mut items, first, c, unless, loc);
             }
         }
     }
@@ -1315,6 +1334,17 @@ fn mark_conditional(items: Vec<LaunchItem>) -> Vec<LaunchItem> {
                 scoped,
                 loc,
             },
+            LaunchItem::Cond {
+                cond,
+                unless,
+                items,
+                loc,
+            } => LaunchItem::Cond {
+                cond,
+                unless,
+                items: mark_conditional(items),
+                loc,
+            },
             other => other,
         })
         .collect()
@@ -1481,7 +1511,9 @@ mod tests {
         for i in items {
             match i {
                 LaunchItem::Node(n) => out.push(n),
-                LaunchItem::Group { items, .. } => out.extend(nodes(items)),
+                LaunchItem::Group { items, .. } | LaunchItem::Cond { items, .. } => {
+                    out.extend(nodes(items))
+                }
                 _ => {}
             }
         }

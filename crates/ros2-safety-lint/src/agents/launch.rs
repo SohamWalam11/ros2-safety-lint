@@ -58,7 +58,9 @@ fn collect(items: &[LaunchItem], decls: &mut Vec<(String, Loc)>, passed: &mut BT
         match it {
             LaunchItem::Arg { name, loc, .. } => decls.push((name.clone(), *loc)),
             LaunchItem::Include { args, .. } => passed.extend(args.iter().map(|(n, _)| n.clone())),
-            LaunchItem::Group { items, .. } => collect(items, decls, passed),
+            LaunchItem::Group { items, .. } | LaunchItem::Cond { items, .. } => {
+                collect(items, decls, passed)
+            }
             _ => {}
         }
     }
@@ -69,7 +71,9 @@ fn count_includes(items: &[LaunchItem]) -> usize {
         .iter()
         .map(|i| match i {
             LaunchItem::Include { .. } => 1,
-            LaunchItem::Group { items, .. } => count_includes(items),
+            LaunchItem::Group { items, .. } | LaunchItem::Cond { items, .. } => {
+                count_includes(items)
+            }
             _ => 0,
         })
         .sum()

@@ -531,7 +531,9 @@ fn collect_launch_refs(items: &[LaunchItem], out: &mut Vec<PackageUse>) {
                 }
             }
             LaunchItem::Include { path, loc, .. } => shares(path, *loc, out),
-            LaunchItem::Group { items, .. } => collect_launch_refs(items, out),
+            LaunchItem::Group { items, .. } | LaunchItem::Cond { items, .. } => {
+                collect_launch_refs(items, out)
+            }
             _ => {}
         }
     }
