@@ -21,6 +21,11 @@ path = "src/bin/rosfix_train.rs"
 name = "rosfix-history"
 path = "src/bin/rosfix_history.rs"
 
+[[bin]]
+name = "rosfix-tier"
+path = "src/bin/rosfix_tier.rs"
+
 [dependencies]
 rosfix = { path = "../ros2-safety-lint" }
+rosfix-model = { path = "../rosfix-model" }
 serde_json = "1.0"
