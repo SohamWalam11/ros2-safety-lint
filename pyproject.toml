@@ -17,7 +17,7 @@ classifiers = [
   "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Rust",
   "Topic :: Software Development :: Quality Assurance",
-  "Topic :: Scientific/Engineering :: Robotics"
+  "Topic :: Scientific/Engineering"
 ]
 dynamic = ["version"]
 
