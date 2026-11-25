@@ -91,7 +91,7 @@ impl Default for Adam {
     }
 }
 
-/// Seeded xorshift64* with Box–Muller normals.
+/// Seeded xorshift64* with approximately normal samples.
 pub struct Rng(pub u64);
 
 impl Rng {
@@ -106,9 +106,12 @@ impl Rng {
     pub fn unit(&mut self) -> f32 {
         ((self.next_u64() >> 40) as f32 + 0.5) / (1u64 << 24) as f32
     }
+    /// N(0, 1) approximated by the sum of 12 uniforms minus 6 (Irwin–Hall: mean 0, variance 1).
+    /// Only exact operations: Box–Muller's `ln` and `cos` come from the platform math library,
+    /// whose last bit differs between operating systems, so the same seed gave different initial
+    /// weights (and different trained models) on Linux, Windows and macOS.
     pub fn normal(&mut self) -> f32 {
-        let (u, v) = (self.unit(), self.unit());
-        (-2.0 * u.ln()).sqrt() * (std::f32::consts::TAU * v).cos()
+        (0..12).map(|_| self.unit()).sum::<f32>() - 6.0
     }
     pub fn below(&mut self, n: usize) -> usize {
         (self.next_u64() % n.max(1) as u64) as usize
