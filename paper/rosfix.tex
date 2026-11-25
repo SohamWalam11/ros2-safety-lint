@@ -425,6 +425,23 @@ the rule that fired, so no file content, path or name leaves the machine. A sepa
 process sends the requests to an HTTPS allowlist with timeouts and size limits, and the results
 are cached.
 
+\textbf{Local packs.} The embedded packs cover the nodes of nine repositories
+(Table~\ref{tab:packs}). For other launched packages, \code{--online} builds a \emph{local pack}
+on the user's machine. It downloads the distribution's public rosdistro index and looks up each
+package that neither the workspace nor a pack describes. The match is done locally, so names of
+private packages are never sent. It then downloads the source archive of the package's
+repository at the distribution's branch and runs the extractors of Section~\ref{sec:facts} over
+it, exactly as when the embedded packs are built. The result is stored per repository, together
+with the commit, and later runs use it offline. Archives are unpacked with path and size limits
+and only source, build and manifest files are kept. Nothing downloaded is executed, and the
+sources are deleted once the pack is built. A local pack only adds packages; checks that
+compare distributions use only the embedded packs, so that every distribution has the same
+coverage. In a test workspace that launches \code{joy} and \code{teleop\_twist\_joy}, which no
+embedded pack describes, the first run fetched two repositories and built their packs in
+1.9\,s. After that, a misspelled \code{deadzone} (P003) and an integer \code{autorepeat\_rate}
+(P004) were reported, which rosfix could not see before. \code{teleop\_twist\_joy} declares
+some parameters dynamically, so its parameter names stay unchecked, as for an embedded pack.
+
 \subsection{Implementation and Distribution}
 
 rosfix is written in Rust (about 16{,}700 lines) and runs single-threaded by default. It reports
