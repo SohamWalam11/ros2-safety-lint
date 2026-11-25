@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.88"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/SohamWalam11/ros2-safety-lint"
 description = "Runtime for rosfix's downloadable assist models: .rfm format, byte-level BPE, int8 transformer encoder (CPU, deterministic, no dependencies)"
 
 [dependencies]
