@@ -62,13 +62,19 @@ reported as a startup crash without having Nav2's source. The distribution comes
 used (parameter names differ between distributions). `--ros-prefix` points at another install;
 `--no-ros` ignores it.
 
+Each pack records every node's declared parameters (with type and default) and its topic
+endpoints with the QoS its source requests; an endpoint that asks for the system-default profile
+is kept as *unknown*, since the middleware decides it. Each distribution also embeds the keys
+`rosdep` can resolve (4,590 Humble, 4,696 Jazzy, 3,990 Kilted). The packs are published as a
+[dataset](https://huggingface.co/datasets/SohamW11/rosfix-knowledge-packs).
+
 ## Install
 
 ```bash
 pip install rosfix                 # prebuilt wheels: Linux x86_64/aarch64, macOS, Windows
 ros2 rosfix src                    # also available as a ros2 command after pip install
 docker run --rm -v "$PWD:/ws" ghcr.io/sohamwalam11/rosfix:jazzy-lite /ws
-cargo install rosfix               # from source
+cargo install rosfix               # from source (Rust 1.88 or newer)
 ```
 
 Standalone single-file archives for every platform are attached to each GitHub release
@@ -258,6 +264,41 @@ U002: MoveIt's PRBT test robot really gives `prbt_flange` (revolute joint) zero 
 The full evaluation (precision on a hand-labelled sample, cross-file drift, incremental
 re-analysis, fix verification on real repositories) is in the [paper](paper/rosfix.tex).
 
+## Milestones
+
+Each milestone is also described, with its measurements, in the [paper](paper/rosfix.tex).
+
+**25 November 2026**
+- **Assist tiers: runtime and trainer** ([`crates/rosfix-model`](crates/rosfix-model)). An int8
+  transformer that scores the same closed candidate set as the built-in ranker, with the rule
+  and the surrounding source as extra input, and gives bit-identical scores on every machine.
+  `--model` selects it; only checksum-verified released files load. No tier is trained yet.
+- **Training is bit-identical across operating systems.** Weight initialisation used the
+  platform's `ln`/`cos`, so one seed trained different models on Linux, Windows and macOS (CI
+  caught int8 export changing 34 of 300 decisions on Linux). It now uses exact operations only;
+  300/300 decisions survive int8 export on all three.
+- **CI green on Linux, Windows and macOS**, with `cargo fmt` and `clippy -D warnings` enforced
+  and the minimum Rust version raised to 1.88 (what the dependencies require).
+
+**24 November 2026**
+- **93 rules in 18 agents**, including the new A003 (duplicate node name), F005 (tf cycle),
+  L011 (`install()` of a missing path) and L012 (Python subpackage not installed).
+- **Knowledge packs rebuilt** from the Humble, Jazzy and Kilted branches. Two defects fixed:
+  system-default QoS endpoints are now *unknown* (4, 6 and 8 endpoints were treated as the ROS
+  default), and Nav2 AMCL's `add_parameter` declarations are now extracted (0/7/8 parameters
+  became 45/53/54). Before, every AMCL parameter was reported as undeclared when Nav2 was
+  installed from binaries.
+- **Fewer false positives for undeclared parameters (P003): 46 → 3** on the 12 benchmark
+  repositories. Parameter libraries generated in CMake subdirectories and in workspace
+  dependencies (MoveIt's smoothing filters) now count as declarations. The 3 that remain are
+  real.
+- **Fix ranker retrained and evaluated honestly**: held-out cases must come from unseen packages
+  *and* unseen names, over 5 folds. Shipped model: 69.5% correct vs. 54.1% lexical, 7 wrong
+  picks vs. 30.
+- **Mutation benchmark 161/161** on 12 repositories at current revisions, and a hand review of
+  every finding of the new rules on them (all accurate).
+- **Published on Hugging Face** (ranker and knowledge packs); tagged releases update both.
+
 ## Hugging Face
 
 | Repository | Content |
@@ -274,6 +315,8 @@ Both are updated by the release workflow on every tagged release (when the repos
   knowledge packs and rosdep keys.
 - `crates/ros2-safety-mutate` — `rosfix-bench` (mutation benchmark), `rosfix-train` (fix
   ranker), `rosfix-pack` (knowledge-pack builder), `rosfix-history` (replays real fix commits).
+- `crates/rosfix-model` — runtime and trainer for the optional assist tiers (`--model`), and
+  `rosfix-model-bench` for their timings.
 - `scripts/` — `build_packs.sh`, `build_rosdep_keys.py`, `publish_hf.sh`.
 - `paper/` — the paper and the raw data behind its numbers.
 - `CONTRIBUTING.md` — architecture and how to add a rule.
