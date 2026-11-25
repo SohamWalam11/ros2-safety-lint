@@ -37,18 +37,18 @@ Email: soham.walam2005@gmail.com}}
 A ROS 2 system is configured in four languages at once: XML launch files, YAML parameter files,
 Python launch scripts and C++ node code. Existing analysis tools check each file type on its own,
 so they miss errors that only appear when the files are read together. We call these errors
-\emph{Shadow Configuration Drift} and present rosfix, a static analyzer that parses all four
+\emph{Shadow Configuration Drift}. We present rosfix, a static analyzer that parses all four
 languages with Tree-sitter and related parsers and checks them against one shared model. On
 38,917 files from 12 ROS 2 repositories, rosfix reported 2,405 configuration issues with 87.3\%
 precision on a manually validated sample. Of these issues, 13.0\% cannot be found by analyzing
 any single file. The current version of rosfix resolves launch graphs the way the ROS 2 launch
-system and \code{rcl} do, uses per-distribution knowledge packs for installed packages, and keeps
-a repair only if re-analysis shows that it removes the finding. In a mutation benchmark on the
-same 12 repositories, it detected all 161 injected faults at the mutated line. Its repair
-assistant, a 289-weight ranker compiled into the binary, picks the intended value in 69.5\% of
-held-out cases from unseen packages and names, against 54.1\% for lexical ranking, with 7
-wrong edits in 1,791 cases against 30; across five package folds, however, it does not make
-fewer wrong edits in every fold.
+system and \code{rcl} do. It uses per-distribution knowledge packs for installed packages, and it
+keeps a repair only if re-analysis shows that the repair removes the finding. In a mutation
+benchmark on the same 12 repositories, it detected all 161 injected faults at the mutated line.
+Its repair assistant is a 289-weight ranker compiled into the binary. On held-out cases from
+unseen packages and names, it picks the intended value in 69.5\% of cases against 54.1\% for
+lexical ranking, with 7 wrong edits in 1,791 cases against 30. Across five package folds,
+however, it does not make fewer wrong edits than lexical ranking in every fold.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -59,8 +59,8 @@ Static analysis, robotics middleware, configuration management, cross-language a
 \section{Introduction}
 
 ROS 2 is built on the Data Distribution Service (DDS) and ships with a security framework
-(SROS2), and it is now used for safety-critical robots. Its configuration, however, is spread
-over several languages. Launch files in XML or Python start nodes and pass them YAML parameter
+(SROS2). It runs physical robots, where a configuration error can become a safety problem. Its
+configuration, however, is spread over several languages. Launch files in XML or Python start nodes and pass them YAML parameter
 files, and the nodes themselves are written in C++ or Python. Each layer can change what the
 others set.
 
@@ -73,25 +73,27 @@ runtime behavior \emph{Shadow Configuration Drift}.
 Existing ROS 2 tools each cover one file type. QoS Guard~\cite{lee2025qosguard} checks DDS XML
 profiles, LiSA4ROS2~\cite{zanatta2024lisa4ros2} analyzes C++ source to generate security
 policies, and HAROS~\cite{santos2021haros} computes code-quality metrics for ROS 1. None of
-them checks that configuration stays consistent across files. The need is documented: Canelas
-et al.\ found that 27 of 50 sub-categories of ROS misconfiguration were not addressed by any of
-18 surveyed techniques~\cite{canelas2024misconfig}, and Chen et al.\ studied 121 interaction
-bugs across ten ROS projects~\cite{chen2025ibugs}.
+them checks that configuration stays consistent across files. Canelas et al.\ found that 27 of
+50 sub-categories of ROS misconfiguration were not addressed by any of 18 surveyed
+techniques~\cite{canelas2024misconfig}. Chen et al.\ studied 121 interaction bugs across ten ROS
+projects~\cite{chen2025ibugs}.
 
 This paper makes the following contributions:
 \begin{enumerate}
 \item A formal definition of Shadow Configuration Drift (Section~\ref{sec:problem}).
-\item rosfix, a cross-language static analyzer for ROS 2 configuration (Section~\ref{sec:design}).
+\item rosfix, a cross-language static analyzer for ROS 2 configuration with 93 rules in 18
+  agents (Section~\ref{sec:design}).
 \item An evaluation on 38,917 files from 12 repositories. It found 2,405 issues at 87.3\%
   precision, and 13.0\% of them (312) required cross-file analysis (Sections~\ref{sec:accuracy}
   and~\ref{sec:drift}).
 \item A resolved launch graph that matches parameter-file keys the way \code{rcl} does and links
   each launched node to its source code (Section~\ref{sec:graph}).
-\item Support for installed packages through the ament resource index and per-distribution
-  knowledge packs (Section~\ref{sec:installed}).
-\item A repair engine that re-analyzes the workspace before it keeps a fix, a repair assistant
-  that only chooses among values valid at the site, and an optional sandboxed build check
-  (Section~\ref{sec:repair}).
+\item Support for installed packages through the ament resource index and knowledge packs for
+  Humble, Jazzy and Kilted (Section~\ref{sec:installed}).
+\item A repair engine that re-analyzes the workspace before it keeps a fix, and an optional
+  sandboxed build check (Section~\ref{sec:repair}). Its repair assistant only chooses among values
+  valid at the site; it picks the intended value in 69.5\% of held-out cases, against 54.1\% for
+  lexical ranking (Section~\ref{sec:assistant}).
 \item A mutation benchmark that injects faults at real sites in the 12 repositories. All 161
   faults were detected (Section~\ref{sec:mutation}).
 \end{enumerate}
@@ -263,12 +265,12 @@ the distribution is known, because parameter names change between distributions.
 
 A pack also records each node's topic endpoints with the QoS its source requests. An endpoint
 created with \code{SystemDefaultsQoS} or \code{rmw\_qos\_profile\_system\_default} is stored as
-\emph{system default}, not as the ROS default profile: its reliability and durability are chosen
-by the middleware (and by a DDS profile file, if one is loaded), so the QoS agent treats them as
-unknown unless the launch environment names such a file. Each distribution also embeds the list
-of keys \code{rosdep} can resolve: the packages released in that distribution plus rosdep's
-system keys (4{,}590 for Humble, 4{,}696 for Jazzy, 3{,}990 for Kilted), which rule L009 checks
-against.
+\emph{system default}, not as the ROS default profile. Its reliability and durability are chosen
+by the middleware, or by a DDS profile file if one is loaded. The QoS agent therefore treats them
+as unknown unless the launch environment names such a file. Each distribution also embeds the
+keys \code{rosdep} can resolve, which rule L009 checks against: the packages released in that
+distribution plus rosdep's system keys (4{,}590 for Humble, 4{,}696 for Jazzy, 3{,}990 for
+Kilted).
 
 \begin{table}[t]
 \centering
@@ -293,9 +295,9 @@ Kilted & 47 &  97 & 40 & 2{,}985 & 232 & 8 & 16\\
 \label{sec:rules}
 
 Domain agents run over the facts and the launch graphs (Section~\ref{sec:incremental}). At the
-time of writing there are 18 agents (17 domain agents and \code{core}, which reports files that
-could not be parsed) and 93 rules, each with a stable identifier (Table~\ref{tab:rules};
-\code{rosfix rules} prints the current list). A finding carries an exact location, related
+time of writing there are 93 rules in 18 agents: 17 domain agents and \code{core}, which reports
+files that could not be parsed. Each rule has a stable identifier (Table~\ref{tab:rules});
+\code{rosfix rules} prints the current list. A finding carries an exact location, related
 locations, an explanation and, where possible, a fix. Rules T005 and S003 are off by default.
 
 \begin{table*}[t]
@@ -334,28 +336,28 @@ ros1      & O001--O003 & ROS 1 XML launch file, ROS 1 client-library code, or ca
 Agents are not invoked in a fixed sequence over everything. Each agent declares (i) the file
 kinds its findings depend on, directly or through the launch graph, and (ii) a cheap trigger
 predicate over the facts (the control agent has no work without a \code{<ros2\_control>} block
-or a controller-manager configuration). A re-analysis after an edit (fix verification, the
-mutation benchmark, \code{rosfix watch}, the language server) is treated as a \emph{change
-event}: the engine compares per-file content hashes with the previous run, re-parses only the
-edited files (a parse cache keyed by file and content hash; URDF/xacro is never cached because
-it includes other files), rebuilds only the launch graphs whose launch or parameter files
-changed, and runs only the agents whose declared inputs intersect the changed kinds. The others
-reuse their previous findings. Graph reuse is disabled when code, manifests or build files
+or a controller-manager configuration). A re-analysis after an edit is treated as a
+\emph{change event}; fix verification, the mutation benchmark, \code{rosfix watch} and the
+language server all produce such events. The engine compares per-file content hashes with the
+previous run and re-parses only the edited files, using a parse cache keyed by file and content
+hash. URDF/xacro is never cached because it includes other files. The engine then rebuilds only
+the launch graphs whose launch or parameter files changed, and runs only the agents whose
+declared inputs intersect the changed kinds. The others reuse their previous findings. Graph reuse is disabled when code, manifests or build files
 change, because node-to-source linking depends on them.
 
 The scheme is only as sound as the declared inputs. A differential test edits every file of a
 sandbox workspace in several ways (79 edits) and requires the incremental result to equal a
-fresh full analysis; removing a single declared input (URDF from the control agent) or not
-recording the parameter files a launch graph reads makes the test fail.
+fresh full analysis. The test fails if a single declared input is removed (URDF from the control
+agent), or if the parameter files a launch graph reads are not recorded.
 
 \subsection{Log Triage}
 \label{sec:triage}
 
 Static analysis runs before a launch; developers usually meet the same faults afterwards, as an
 error in a log. \code{rosfix triage <log>} recognises the runtime messages that the faults of
-Section~\ref{sec:rules} produce, using the message formats of pluginlib, rclcpp\_components,
+Section~\ref{sec:rules} produce. It knows the message formats of pluginlib, rclcpp\_components,
 launch, the Nav2 lifecycle manager, rosdep, rclcpp's QoS events, BehaviorTree.CPP and the
-controller manager, and links each recognised line to the findings that explain it (rule,
+controller manager. Each recognised line is linked to the findings that explain it (rule,
 location, message). For example, ``class \code{differential} with base class type
 \code{nav2\_amcl::MotionModel} does not exist'' is explained by N008 on the AMCL
 \code{robot\_model\_type} line that still uses the pre-Humble name.
@@ -424,10 +426,10 @@ The command line is organised as subcommands (\code{check}, \code{fix}, \code{gr
 \code{watch}, \code{lsp}, \code{baseline}, \code{init}, \code{doctor}, \code{migrate}, \code{triage},
 \code{docs}); the original single-command form still works unchanged. Two commands reuse the
 analysis in new ways. \code{migrate --to} analyzes a workspace with the knowledge packs of its
-current and of a target distribution and reports only the findings that are new on the target,
+current and of a target distribution. It reports only the findings that are new on the target,
 such as parameters that upstream renamed between releases. \code{doctor} checks the middleware
-environment of the user's shell (\code{RMW\_IMPLEMENTATION}, \code{ROS\_DOMAIN\_ID}, discovery
-settings, DDS profile files), which depends on the machine and is therefore kept out of
+environment of the user's shell: \code{RMW\_IMPLEMENTATION}, \code{ROS\_DOMAIN\_ID}, discovery
+settings and DDS profile files. This environment depends on the machine, so it is kept out of
 \code{check}. The manual is compiled into the binary (\code{rosfix docs}); its rule reference is
 generated from the rule registry, so it cannot drift from the implementation.
 
@@ -499,7 +501,8 @@ Warning (performance, consistency) & 1{,}387\\
 \label{sec:drift}
 
 Of the 2,405 issues, 312 (13.0\%) are shadow drift: they appear only when several files are
-analyzed together (Table~\ref{tab:drift}). Single-file analyzers found none of them.
+analyzed together (Table~\ref{tab:drift}). An analyzer that reads one file at a time cannot
+report them.
 
 \begin{table}[t]
 \centering
@@ -552,10 +555,9 @@ clones of the same 12 repositories. Table~\ref{tab:current} gives the median of 
 one warm-up run and the peak memory. The machine was shared with other work during the runs, so
 the times are indicative; repeated runs differed by up to a factor of two. The file counts are
 lower than in Table~\ref{tab:dataset} because rosfix now parses only files that belong to a ROS
-package (a directory with a \code{package.xml}) and that pass a check of type and content:
-manifests, build files, launch, parameter, URDF and source files. The Autoware
-repository is a meta-repository whose packages are fetched separately, so the clone contains no
-ROS package.
+package, that is, a directory with a \code{package.xml}. Those files must also pass a check of
+type and content: manifests, build files, launch, parameter, URDF and source files. Autoware is a
+meta-repository whose packages are fetched separately, so its clone contains no ROS package.
 
 \begin{table}[t]
 \centering
@@ -639,11 +641,11 @@ site is real code: for example, a parameter that a node declares and a launch fi
 mutation counts as detected only if the expected rule fires at the mutated line, or, for a
 removed dependency, names that dependency. At most 20 sites per operator and repository were
 used. We re-ran the benchmark on 24 November 2026 with the current rule set and packs, on
-shallow clones of the 12 repositories at their default branches (the revisions are listed in
-\code{paper/data/mutation\_bench\_revisions.txt}). All 161 mutations were detected
-(Table~\ref{tab:mut}); an earlier run on older revisions had found 165 sites, all detected. The
-site counts change with the code of the repositories, not with rosfix. We also injected three faults by
-hand into Nav2's default parameter file: a misspelled \code{controller\_frequency}, an integer
+shallow clones of the 12 repositories at their default branches. The revisions are listed in
+\code{paper/data/mutation\_bench\_revisions.txt}. All 161 mutations were detected
+(Table~\ref{tab:mut}). An earlier run on older revisions had found 165 sites, all detected; the
+site counts change with the code of the repositories, not with rosfix. We also injected three
+faults by hand into Nav2's default parameter file: a misspelled \code{controller\_frequency}, an integer
 where a double is expected, and a misspelled \code{ros\_\_parameters}. rosfix detected each one
 and produced a verified fix for it.
 
@@ -677,8 +679,8 @@ executables in the knowledge packs (Table~\ref{tab:packs}): typos, double typos,
 abbreviation plus typo, dropped or swapped words, camelCase and plurals. A further set of
 \emph{answer-absent} cases removes the intended name from the candidates; any pick there is a
 wrong edit, so these cases teach abstention. Cases are assigned to five folds by package. A run
-holds out one fold for testing, uses the next for calibration and trains on the other three, and
-a held-out case is dropped if its name also occurs in training: packages share many names (for
+holds out one fold for testing, uses the next for calibration and trains on the other three. A
+held-out case is dropped if its name also occurs in training. Packages share many names (for
 example the parameters of Nav2's base classes), so a split by package alone lets the ranker see
 most test names during training. Training takes 40 epochs of Adam on a listwise loss;
 calibration then lowers all scores until the learned ranker makes no more wrong edits than the
@@ -688,22 +690,22 @@ lexical ranker \emph{and} makes no more wrong edits. Training and evaluation run
 a CPU and are deterministic for a given seed (two runs wrote identical weights).
 
 Table~\ref{tab:assistheld} gives the shipped model (fold~0; 5,619 training and 1,370 calibration
-cases) on its 1,791 name-disjoint held-out cases, with the packs rebuilt on 24 November 2026;
-4,671 further held-out cases shared their name with training and were excluded. The learned
-ranker chose the correct value in 738 of 1,062 cases where it was offered, against 575 for the
-lexical ranker (69.5\% vs.\ 54.1\%), and made 7 wrong edits in all 1,791 cases, against 30
-(0.39\% vs.\ 1.68\%). On answer-absent cases it abstained 724 times out of 729 (99.3\%), against
+cases) on its 1,791 name-disjoint held-out cases, with the packs rebuilt on 24 November 2026.
+Another 4,671 held-out cases shared their name with training and were excluded. Where the correct
+value was offered, the learned ranker chose it in 738 of 1,062 cases, against 575 for the lexical
+ranker (69.5\% vs.\ 54.1\%). Over all 1,791 cases it made 7 wrong edits, against 30 (0.39\%
+vs.\ 1.68\%). On answer-absent cases it abstained 724 times out of 729 (99.3\%), against
 704 (96.6\%). The lexical ranker is better on dropped words (63 vs.\ 9 correct), where the
 learned ranker abstains instead, and slightly better on camelCase (105 vs.\ 102).
 
 The fold-0 result depends on which packages fall into the test fold. Table~\ref{tab:assistcv}
 repeats training and evaluation for all five folds. Pooled over the 3,005 name-disjoint held-out
 cases, the learned ranker was correct 1,298 times against 801 (43.2\% vs.\ 26.7\%) and made 48
-wrong edits against 59 (1.60\% vs.\ 1.96\%). It is correct more often in every fold, but in folds
-1, 2 and 4 it makes \emph{more} wrong edits than the lexical ranker; its overall advantage on
-wrong edits comes from fold~0, the largest. Folds 2 and 3 are small (140 and 38 cases), so their
-rates are noisy. Reducing wrong edits on unseen packages, rather than raising accuracy, is
-therefore the open problem for the assistant; every edit is still verified by re-analysis and
+wrong edits against 59 (1.60\% vs.\ 1.96\%). It is correct more often in every fold. In folds 1,
+2 and 4, however, it makes \emph{more} wrong edits than the lexical ranker, and its overall
+advantage on wrong edits comes from fold~0, the largest. Folds 2 and 3 are small (140 and 38
+cases), so their rates are noisy. The open problem for the assistant is therefore to reduce wrong
+edits on unseen packages, not to raise accuracy. Every edit is still verified by re-analysis and
 written only on request.
 
 \begin{table}[t]
@@ -795,15 +797,15 @@ candidate set against a fixed ``none of these'' score, never generates text, and
 verified by re-analysis. Table~\ref{tab:tiers} gives the shapes.
 
 The runtime (crate \code{rosfix-model}) is plain Rust without dependencies. Weights are int8 with
-one scale per row; weights and activations meet in int8$\times$int8$\to$i32 dot products, which
-are exact, so the AVX2 path and the scalar path give identical bits (tested). Floating-point
-code runs in a fixed order, and \code{exp} and \code{tanh} are computed from IEEE-exact
-operations instead of the platform math library, whose last bit differs between operating
-systems; a model therefore gives bit-identical scores on every machine. A model file carries a
-SHA-256 trailer and every tensor shape is checked on load. A tier \emph{name} loads only a file
-whose hash is in the release list compiled into rosfix, and any failure falls back to the built-in
-ranker. That list is empty: no tier has been trained yet, so the tiers do not yet improve the
-assistant, and this section reports their cost and the training machinery only.
+one scale per row. Weights and activations meet in int8$\times$int8$\to$i32 dot products, which
+are exact, so the AVX2 path and the scalar path give identical bits (tested). Floating-point code
+runs in a fixed order. \code{exp} and \code{tanh} are computed from IEEE-exact operations instead
+of the platform math library, whose last bit differs between operating systems. A model therefore
+gives bit-identical scores on every machine. A model file carries a SHA-256 trailer, and every
+tensor shape is checked on load. A tier \emph{name} loads only a file whose hash is in the release
+list compiled into rosfix, and any failure falls back to the built-in ranker. That list is empty:
+no tier has been trained yet. The tiers therefore do not yet improve the assistant, and this
+section reports only their cost and the training machinery.
 
 \begin{table}[t]
 \centering
@@ -831,7 +833,7 @@ full context (ms) & & 9.9 (7.6) & 117.9 (85.2) & 874.3 (548.8)\\
 
 A tier scores each of up to eight candidates separately, so a finding costs up to eight queries.
 At a realistic query length of about 64 tokens, nano and mini stay in tens of milliseconds per
-finding on this laptop; base needs about a second per finding and is worthwhile only if it is
+finding on this laptop. Base needs about a second per finding, so it is worthwhile only if it is
 clearly more accurate. Two implementation steps mattered most: the AVX2 integer dot product
 (4$\times$ faster matrix products) and a fixed-order 8-lane float dot product in attention.
 Processing all tokens per weight row instead of all rows per token did not help at these sizes.
@@ -842,16 +844,15 @@ is an f32 twin of the runtime encoder with a hand-written backward pass and Adam
 the same listwise loss with a fixed ``none'' score. Its gradients agree with central finite
 differences for every parameter group, it learns a toy ranking task, and training is
 bit-reproducible for a seed, on every operating system. The last property needed a fix found by
-continuous integration: weights were initialised with Box--Muller normals, whose \code{ln} and
-\code{cos} come from the platform math library, so the same seed gave different initial weights on
-Linux, Windows and macOS. On Linux the toy model then ended near the abstention boundary and int8
+continuous integration. Weights were initialised with Box--Muller normals, whose \code{ln} and
+\code{cos} come from the platform math library. The same seed therefore gave different initial
+weights on Linux, Windows and macOS. On Linux the toy model then ended near the abstention boundary and int8
 export changed 34 of 300 decisions. Initialisation now sums twelve uniform samples (Irwin--Hall),
 which uses exact operations only. After int8 export, the trained toy model makes the same decision
 (candidate or abstain) as its f32 original in 300 of 300 cases, and the test passes on all three
-operating systems. A tier will be released only if,
-on the name-disjoint folds of Section~\ref{sec:assistant}, it is correct more often than the
-built-in ranker and makes no more wrong edits \emph{in every fold}, which the built-in ranker
-itself does not yet achieve (Table~\ref{tab:assistcv}). Raw measurements are in
+operating systems. A tier will be released only if it is correct more often than the built-in
+ranker and makes no more wrong edits \emph{in every fold} of Section~\ref{sec:assistant}. The
+built-in ranker itself does not yet meet this bar (Table~\ref{tab:assistcv}). Raw measurements are in
 \code{paper/data/tier\_runtime\_trials\_2026-11-24.txt}.
 
 \subsection{Fix Verification Sandbox}
@@ -862,16 +863,16 @@ file is still what the user expects. We therefore test \code{rosfix fix} end to 
 binary, in two settings.
 
 \textbf{Planted workspace.} A test workspace contains one mechanically fixable mistake for each
-of the 12 rules that have safe fixes (P001--P004, L002--L004, N002, N003, N006, C003, F003), 17
-fixes in 11 files, plus traps that must stay untouched: a finding hidden by a suppression
-comment, an ambiguous misspelling with two close candidates, a one-line \code{package.xml}, and
-a \code{package.xml} with Windows line endings. Eleven tests check that a dry run writes
-nothing; that \code{--write} produces exactly the hand-reviewed file contents, byte for byte,
-and changes no other file; that the printed diff equals the change on disk; that every fixed
-finding is gone and no new finding appears; that a second run finds nothing to fix; that the
-old flag form and the \code{fix} command write identical files; that with a machine-readable
-report the diff goes to stderr; that the exit code counts only findings left after writing; and
-that findings hidden by a baseline or needing the assistant are not written.
+of the 12 rules that have safe fixes (P001--P004, L002--L004, N002, N003, N006, C003, F003): 17
+fixes in 11 files. It also contains traps that must stay untouched: a finding hidden by a
+suppression comment, an ambiguous misspelling with two close candidates, a one-line
+\code{package.xml}, and a \code{package.xml} with Windows line endings. Eleven tests check the following properties.
+A dry run writes nothing. \code{--write} produces exactly the hand-reviewed file contents, byte
+for byte, and changes no other file. The printed diff equals the change on disk. Every fixed
+finding is gone and no new finding appears, and a second run finds nothing to fix. The old flag
+form and the \code{fix} command write identical files. With a machine-readable report, the diff
+goes to stderr. The exit code counts only findings left after writing. Findings hidden by a
+baseline, or that need the assistant, are not written.
 
 Building this workspace exposed four defects, all fixed. (1) In a \code{package.xml} written on
 one line, an added dependency was inserted after \code{</package>}, outside the root element.
@@ -879,12 +880,12 @@ Verification accepted it, because a file that does not parse is reported only at
 level; the fix itself had made the dependency finding disappear. Fixes now insert inside the
 element, and a new parse failure in a touched file rejects the fix. (2) A parameter file whose
 only node section misspells \code{ros\_\_parameters} was not recognised as a parameter file, so
-P002 never fired; because the file was then unread, the loading node's parameter sources counted
-as incomplete, which silently turned off P001 for every file that node loads. (3) A trailing
-suppression comment also hid findings on the following line; it now applies to its own line
-only, while a comment on a line of its own still covers the next line. (4) A dependency added by
-an L002 fix can itself be reported, for example as a package that \code{rosdep} cannot resolve;
-a fix is now also rejected when any new finding, of any severity, points at the text it wrote.
+P002 never fired. The file was then unread, so the loading node's parameter sources counted as
+incomplete, and P001 was silently turned off for every file that node loads. (3) A trailing
+suppression comment also hid findings on the following line. It now applies to its own line
+only; a comment on a line of its own still covers the next line. (4) A dependency added by an
+L002 fix can itself be reported, for example as a package that \code{rosdep} cannot resolve. A
+fix is now also rejected when any new finding, of any severity, points at the text it wrote.
 
 \textbf{Real repositories.} We ran \code{rosfix fix --write} on copies of the 12 repositories of
 Table~\ref{tab:dataset} with the Jazzy pack and checked the same properties on each.
@@ -894,10 +895,9 @@ appeared, every changed XML file parsed, every printed diff equalled the change 
 second run found nothing to fix. All 90 written fixes add a missing dependency declaration
 (L002); the other fixable rules had no occurrences in these repositories. The counts are higher
 than in Table~\ref{tab:current} because this run uses the Jazzy pack and the current rule set.
-These checks establish that each written file is well formed and that the edit does what the
-finding asks; they do not establish that every added dependency is what the maintainers would
-have written, which the hand review in Section~\ref{sec:current} covers for the 80 L002 findings
-reviewed there. A dry run took at most 2.2\,s per repository.
+These checks show that each written file is well formed and that the edit does what the finding
+asks. They do not show that every added dependency is what the maintainers would have written;
+for the 80 L002 findings reviewed in Section~\ref{sec:current}, the hand review covers that. A dry run took at most 2.2\,s per repository.
 
 \begin{table}[t]
 \centering
@@ -943,11 +943,11 @@ ros2\_control\_demos, ros2\_controllers, turtlebot3, slam\_toolbox, robot\_local
   (baselines, \code{rosfix migrate}) do not change with \code{ROS\_DISTRO}.
 \end{enumerate}
 
-Table~\ref{tab:protocol} summarises the outcome. Gate 1 caught real problems in the checks
-themselves: tf2 accepts a leading slash on published transforms but rejects it in lookups (F003
-was restricted to lookup frames); rclpy runs an action server's execute callback as an executor
-task (E002 is not reported under a multi-threaded executor); parameters in Python launch files
-may be unevaluated dictionaries, unlike XML values (P003). It also exposed extractor gaps that
+Table~\ref{tab:protocol} summarises the outcome. Gate 1 caught three problems in the checks
+themselves. tf2 accepts a leading slash on published transforms but rejects it in lookups, so F003
+was restricted to lookup frames. rclpy runs an action server's execute callback as an executor
+task, so E002 is not reported under a multi-threaded executor. Parameters in Python launch files
+may be unevaluated dictionaries, unlike XML values (P003). Gate 1 also exposed extractor gaps that
 the new checks depend on: \code{PathSubstitution(...) / "x"} paths, \code{ThisLaunchFileDir()},
 imports in Python launch files, plugin descriptions exported from CMake, and C++ files that use
 \code{nav2\_util::LifecycleNode} without mentioning \code{rclcpp}.
@@ -992,16 +992,16 @@ Besides the three problems noted in Table~\ref{tab:protocol}, the checks found t
 configuration files referenced by ros2\_control\_demos example 15 that do not exist (L005,
 visible after the \code{PathSubstitution} fix).
 
-\paragraph{Replaying real fixes.} \code{rosfix-history} replays fix commits: for every non-merge
-commit whose message reads like a fix and which only modifies configuration files, the parent is
-analysed, then the same tree with the commit's versions of those files supplied in memory; a fix
-counts as detected when a finding in a modified package disappears. Matching by package rather
-than by file matters, because a fix often edits \code{package.xml} while the finding is reported
-where the dependency is used. On six repositories (224 candidate commits) the replay detected 9
-fixes, each consistent with its commit message (six missing dependencies, an uninstalled launch
-directory, a controller never spawned, a parameter typo). The candidate filter admits every
-fix-worded configuration change, so this is a lower bound; recall on labelled commits is
-measured by the larger study reported separately.
+\paragraph{Replaying real fixes.} \code{rosfix-history} replays fix commits. It selects every
+non-merge commit whose message reads like a fix and which only modifies configuration files. It
+analyses the parent, then the same tree with the commit's versions of those files supplied in
+memory. A fix counts as detected when a finding in a modified package disappears. Matching by
+package rather than by file matters, because a fix often edits \code{package.xml} while the
+finding is reported where the dependency is used. On six repositories (224 candidate commits) the
+replay detected 9 fixes, each consistent with its commit message: six missing dependencies, an
+uninstalled launch directory, a controller never spawned and a parameter typo. The candidate
+filter admits every fix-worded configuration change, not only real configuration bugs, so 9 is a
+lower bound on what rosfix detects. Recall on labelled commits is not measured here.
 
 \subsection{Incremental Re-analysis}
 \label{sec:incremental-eval}
@@ -1010,9 +1010,10 @@ measured by the larger study reported separately.
 cache only; cache with agent and launch-graph reuse) and compares the findings.
 Table~\ref{tab:ablation} gives median wall times. All 54 re-analyses gave identical findings. The
 parse cache accounts for most of the gain on small workspaces, where resolution and agents take
-0--30\,ms; launch-graph reuse matters on large ones: on navigation2 (732 files, 50 launch graphs,
-1,161 node instances) the median resolution time after an edit fell from 531 to 242\,ms for a
-parameter file read by most graphs and from 422 to 88\,ms for a launch file read by one graph.
+0--30\,ms. Launch-graph reuse matters on large workspaces. On navigation2 (732 files, 50 launch
+graphs, 1,161 node instances), the median resolution time after an edit fell from 531 to
+242\,ms for a parameter file read by most graphs, and from 422 to 88\,ms for a launch file read
+by one graph.
 
 \begin{table}[t]
 \centering
@@ -1039,22 +1040,25 @@ reported as a type error that makes the node fail at startup (fix: \code{20.0}),
 
 \textbf{Rebuilding the packs.} Rebuilding the packs from the current upstream branches
 (Table~\ref{tab:packs}) exposed two defects in the shipped packs. First, endpoints that request
-the system-default QoS profile were stored as if they used the ROS default profile (0 such
-endpoints in the old packs, 4, 6 and 8 now), which could make the QoS agent assume a reliability
-the middleware does not guarantee. Second, Nav2's AMCL declares all of its parameters through
-\code{nav2\_util::LifecycleNode::add\_parameter}, a member wrapper over
+the system-default QoS profile were stored as if they used the ROS default profile. The old packs
+marked 0 such endpoints; the rebuilt ones mark 4, 6 and 8. The QoS agent could therefore assume a
+reliability that the middleware does not guarantee. Second, Nav2's AMCL declares all of its
+parameters through \code{nav2\_util::LifecycleNode::add\_parameter}, a member wrapper over
 \code{declare\_parameter} that the C++ extractor did not recognise. The AMCL node in the packs
-had 0 (Humble), 7 (Jazzy) and 8 (Kilted) declared parameters instead of 45, 53 and 54, so every
-AMCL entry of a parameter file was reported as undeclared (P003) when Nav2 was installed from
-binaries, and 37 times in Nav2's own repository (e.g.\ \code{nav2\_bringup/params/nav2\_params.yaml}). The extractor now treats
-\code{add\_parameter(name, default, \dots)} as a declaration; on the 12 repositories, P003
-findings fell from 46 to 9. Six of the 9, in the MoveIt Servo demos, were false positives:
-\code{update\_period} and \code{planning\_group\_name} are declared by moveit\_core's
-acceleration filter, a plugin that \code{moveit\_servo} loads into the demo node, through a
-generate\_parameter\_library listener (\code{ParamListener(node)}) whose specification lives in
-a CMake subdirectory. rosfix now reads parameter-library specifications from subdirectory
-\code{CMakeLists.txt} files and accepts the specifications of a node's workspace dependencies as
-declarations, as it already did for their literal declarations. The remaining 3 findings, in
+had 0 (Humble), 7 (Jazzy) and 8 (Kilted) declared parameters instead of 45, 53 and 54. Every AMCL
+entry of a parameter file was therefore reported as undeclared (P003) when Nav2 was installed
+from binaries. In Nav2's own repository the same defect produced 37 findings, for example in
+\code{nav2\_bringup/params/nav2\_params.yaml}. The extractor now treats
+\code{add\_parameter(name, default, \dots)} as a declaration, and P003 findings on the 12
+repositories fell from 46 to 9.
+
+Six of the 9, in the MoveIt Servo demos, were false positives. \code{update\_period} and
+\code{planning\_group\_name} are declared by moveit\_core's acceleration filter, a plugin that
+\code{moveit\_servo} loads into the demo node. The filter declares them through a
+generate\_parameter\_library listener (\code{ParamListener(node)}) whose specification lives in a
+CMake subdirectory. rosfix now reads parameter-library specifications from subdirectory
+\code{CMakeLists.txt} files. It also accepts the specifications of a node's workspace
+dependencies as declarations, as it already did for their literal declarations. The remaining 3 findings, in
 rmf\_ros2, are real: the composition launch file sets \code{subns}, \code{verbose} and
 \code{run\_composition\_command}, which the node never declares.
 
@@ -1123,7 +1127,9 @@ and verifies every choice by re-analysis.
   transitive relationships may be missed.
 \item[Ground truth.] The manual validation of the earlier version covers a sample of 312 issues,
   not all 2,405.
-\item[Platform.] All measurements were taken on one Windows machine.
+\item[Platform.] All timings were taken on Windows: the earlier runs on the machine of
+  Section~\ref{sec:dataset}, the tier timings on the laptop of Table~\ref{tab:tiers}. The test
+  suite also runs on Linux and macOS in continuous integration, but no timing was measured there.
 \item[Interpreters.] The Python launch and xacro interpreters cover common subsets. Other
   constructs are marked partial, and checks that depend on them are skipped.
 \item[Synthetic mutations.] The mutation operators were written together with the tool. The
@@ -1145,11 +1151,11 @@ We defined Shadow Configuration Drift, a class of configuration errors in ROS 2 
 when files in different languages are read together, and presented rosfix to detect it. On
 38,917 files from 12 repositories, rosfix reported 2,405 issues with 87.3\% precision, and
 13.0\% of them could not have been found by single-file analysis. ROS 2 configuration is written
-in four languages, and our results indicate that it has to be checked across all four.
+in four languages, and our results indicate that it should be checked across all four.
 
 The current implementation adds a resolved launch graph, knowledge packs for installed packages
-and verified repair, so that rosfix can run in continuous integration on ROS 2 workspaces it has
-not seen before. Future work includes dynamic analysis for runtime-only problems, learned models
+and verified repair. With these, rosfix can run in continuous integration on ROS 2 workspaces it
+has not seen before. Future work includes dynamic analysis for runtime-only problems, learned models
 for more complex drift patterns, and evaluation in more robotics domains. We also plan a
 benchmark of real fixes mined from permissively licensed repositories, and to train the learned
 ranker on it.
@@ -1160,11 +1166,12 @@ and the benchmarks. The repair ranker is published at
 \url{https://huggingface.co/SohamW11/rosfix-assist} and the knowledge packs and rosdep key lists
 at \url{https://huggingface.co/datasets/SohamW11/rosfix-knowledge-packs}. The raw outputs of the
 re-run benchmark and training are in \code{paper/data/}. Continuous integration runs formatting
-and lint checks, all tests on Linux, Windows and macOS, a build with the minimum supported Rust
-version (1.88, set by the dependencies' own requirements) and a smoke run with the mutation
+and lint checks and all tests on Linux, Windows and macOS. It also builds with the minimum
+supported Rust version (1.88, set by the dependencies' own requirements) and runs the mutation
 benchmark on three real repositories. A tagged release publishes binaries for five platforms with
-build-provenance attestations, Python wheels, per-distribution container images, and the ranker and knowledge packs
-to Hugging Face, so the published model always matches the released binaries.
+build-provenance attestations, Python wheels and per-distribution container images. The same
+release uploads the ranker and the knowledge packs to Hugging Face, so the published model always
+matches the released binaries.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
