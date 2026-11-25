@@ -162,6 +162,9 @@ struct ReportArgs {
     /// Let the fix assistant choose repairs among each finding's valid options (offline)
     #[arg(long)]
     assist: bool,
+    /// Model for --assist: builtin (default), a tier (nano, mini, base) or a path to a .rfm file
+    #[arg(long, value_name = "MODEL")]
+    model: Option<String>,
     /// Look up background references on allowlisted public sources (queries contain only the rule that fired)
     #[arg(long)]
     online: bool,
@@ -443,6 +446,11 @@ struct Run {
     #[arg(long)]
     assist: bool,
 
+    /// Model for --assist: builtin (default), a tier (nano, mini, base) or a path to a
+    /// .rfm file. Tier names load only released, checksum-verified files.
+    #[arg(long, value_name = "MODEL")]
+    model: Option<String>,
+
     /// Look up background references for findings on allowlisted public sources
     /// (Robotics Stack Exchange, GitHub issues, your SearXNG). Queries contain only the
     /// rule that fired — never your files, paths or names. Off unless requested.
@@ -535,6 +543,7 @@ impl Run {
         self.fail_on = p.fail_on;
         self.baseline = p.baseline.clone();
         self.assist = p.assist;
+        self.model = p.model.clone();
         self.online = p.online;
         self.show_queries = p.show_queries;
         self.stats = p.stats;
@@ -1384,7 +1393,10 @@ fn run(cli: Run) -> Result<ExitCode, String> {
 
     // Fix assistant: pick repairs from each finding's closed candidate set.
     if cli.assist {
-        let model = rosfix::assist::load_model();
+        let model = rosfix::assist::registry::load(cli.model.as_deref()).unwrap_or_else(|e| {
+            eprintln!("rosfix: --model: {e}; using the built-in ranker");
+            rosfix::assist::load_model()
+        });
         let proposals = rosfix::assist::propose(&analysis, Some(model.as_ref()));
         rosfix::assist::attach(&mut analysis, proposals);
     }

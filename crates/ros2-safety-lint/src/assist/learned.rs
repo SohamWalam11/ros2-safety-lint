@@ -80,12 +80,13 @@ impl Default for LearnedRanker {
 }
 
 impl Ranker for LearnedRanker {
-    fn name(&self) -> &'static str {
-        "learned"
+    fn name(&self) -> String {
+        "learned".to_string()
     }
 
-    fn score(&self, current: &str, candidates: &[String]) -> Option<Vec<f32>> {
-        (!candidates.is_empty()).then(|| self.0.score_all(current, candidates))
+    /// The built-in model looks at the strings only; rule and context are ignored.
+    fn score(&self, q: &super::Query) -> Option<Vec<f32>> {
+        (!q.candidates.is_empty()).then(|| self.0.score_all(q.current, q.candidates))
     }
 }
 
@@ -240,7 +241,13 @@ mod tests {
     /// What `assist::propose` would choose (None = abstain).
     fn pick(current: &str, cands: &[&str]) -> Option<String> {
         let c: Vec<String> = cands.iter().map(|s| s.to_string()).collect();
-        let s = LearnedRanker::new().score(current, &c).unwrap();
+        let q = super::super::Query {
+            rule: "P003",
+            current,
+            candidates: &c,
+            context: "",
+        };
+        let s = LearnedRanker::new().score(&q).unwrap();
         super::super::decide(&s).map(|(i, _)| c[i].clone())
     }
 

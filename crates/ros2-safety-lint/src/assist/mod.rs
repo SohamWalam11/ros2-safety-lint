@@ -15,15 +15,31 @@
 pub mod learned;
 pub mod lexical;
 pub mod online;
+pub mod registry;
 
 use crate::diag::{Fix, FixSafety, TextEdit};
 use crate::engine::Analysis;
 
+/// What a ranker sees for one finding: the closed candidate set plus its context.
+#[derive(Debug, Clone, Copy)]
+pub struct Query<'a> {
+    /// Rule id, e.g. `P003`.
+    pub rule: &'a str,
+    /// The wrong text at the repair site.
+    pub current: &'a str,
+    /// The top lexical candidates (at most [`TOP_K`]); a ranker picks among these only.
+    pub candidates: &'a [String],
+    /// A few source lines around the repair site (empty when unavailable).
+    pub context: &'a str,
+}
+
 /// Something that can score candidates for the wrong text of a finding (higher is better).
 pub trait Ranker {
-    fn name(&self) -> &'static str;
-    /// One score per candidate (compared through a softmax), or None on failure.
-    fn score(&self, current: &str, candidates: &[String]) -> Option<Vec<f32>>;
+    /// Shown in fix descriptions, e.g. `learned` or `mini@1a2b3c4d`.
+    fn name(&self) -> String;
+    /// One score per candidate (compared through a softmax against "none of these"), or
+    /// None on failure.
+    fn score(&self, q: &Query) -> Option<Vec<f32>>;
 }
 
 /// How many lexical candidates are passed on to the ranker.
@@ -34,7 +50,7 @@ pub struct Proposal {
     /// Index into `Analysis::diagnostics`.
     pub diag: usize,
     pub value: String,
-    pub by: &'static str,
+    pub by: String,
     /// Confidence in [0, 1].
     pub confidence: f32,
     pub fix: Fix,
@@ -55,7 +71,14 @@ pub fn propose(a: &Analysis, model: Option<&dyn Ranker>) -> Vec<Proposal> {
         let choice = match model {
             Some(m) => {
                 let top: Vec<String> = ranked.iter().take(TOP_K).map(|(c, _)| c.clone()).collect();
-                match m.score(&r.current, &top) {
+                let context = context_lines(a, r.span.file, r.span.start, CONTEXT_LINES);
+                let q = Query {
+                    rule: d.rule,
+                    current: &r.current,
+                    candidates: &top,
+                    context: &context,
+                };
+                match m.score(&q) {
                     Some(s) => decide(&s).map(|(best, pb)| (top[best].clone(), m.name(), pb)),
                     None => lexical_choice(&ranked),
                 }
@@ -72,7 +95,7 @@ pub fn propose(a: &Analysis, model: Option<&dyn Ranker>) -> Vec<Proposal> {
         out.push(Proposal {
             diag: i,
             value: value.clone(),
-            by,
+            by: by.clone(),
             confidence: conf,
             fix: Fix {
                 description: format!(
@@ -93,10 +116,31 @@ pub fn propose(a: &Analysis, model: Option<&dyn Ranker>) -> Vec<Proposal> {
     out
 }
 
-fn lexical_choice(ranked: &[(String, f32)]) -> Option<(String, &'static str, f32)> {
+/// Lines of source on each side of the repair site given to rankers.
+pub const CONTEXT_LINES: usize = 3;
+
+/// The repair site's line with `n` lines before and after (at most 600 bytes).
+pub fn context_lines(a: &Analysis, file: crate::source::FileId, byte: usize, n: usize) -> String {
+    let f = a.index.file(file);
+    let (line, _) = f.line_col(byte.min(f.text.len()));
+    let lines: Vec<&str> = f.text.lines().collect();
+    let lo = line.saturating_sub(1 + n);
+    let hi = (line + n).min(lines.len());
+    let mut s = lines.get(lo..hi).unwrap_or_default().join("\n");
+    if s.len() > 600 {
+        let mut cut = 600;
+        while !s.is_char_boundary(cut) {
+            cut -= 1;
+        }
+        s.truncate(cut);
+    }
+    s
+}
+
+fn lexical_choice(ranked: &[(String, f32)]) -> Option<(String, String, f32)> {
     let (best, s1) = ranked.first()?;
     let s2 = ranked.get(1).map_or(0.0, |x| x.1);
-    (*s1 >= 0.55 && s1 - s2 >= 0.15).then(|| (best.clone(), "lexical", *s1))
+    (*s1 >= 0.55 && s1 - s2 >= 0.15).then(|| (best.clone(), "lexical".to_string(), *s1))
 }
 
 pub fn softmax(x: &[f32]) -> Vec<f32> {

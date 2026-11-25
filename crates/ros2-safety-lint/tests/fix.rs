@@ -533,6 +533,43 @@ fn baseline_hidden_findings_are_not_fixed() {
 }
 
 #[test]
+fn assist_uses_a_model_file_given_by_path_and_refuses_unreleased_tiers() {
+    let ws = workspace();
+    let before = snapshot(ws.path());
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("t.rfm");
+    let c = rosfix_model::Config {
+        vocab: 300,
+        d: 16,
+        layers: 1,
+        heads: 2,
+        ffn: 32,
+        ctx: 64,
+    };
+    let m = rosfix_model::net::random(
+        "test",
+        c,
+        rosfix_model::Tokenizer::new(Vec::new()),
+        &["rank"],
+        5,
+    );
+    rosfix_model::format::save(&path, &m).unwrap();
+    let model = path.to_str().unwrap();
+    // The file is loaded and used: no fallback message, and the same output every run.
+    let (_, out1, err) = rosfix(ws.path(), &["fix", "--assist", "--model", model]);
+    assert!(!err.contains("--model:"), "{err}");
+    let (_, out2, _) = rosfix(ws.path(), &["fix", "--assist", "--model", model]);
+    assert_eq!(out1, out2);
+    // Nothing is released yet: a tier name is refused and the built-in ranker is used.
+    let (_, out3, err) = rosfix(ws.path(), &["fix", "--assist", "--model", "mini"]);
+    assert!(err.contains("using the built-in ranker"), "{err}");
+    let (_, builtin, _) = rosfix(ws.path(), &["fix", "--assist"]);
+    assert_eq!(out3, builtin);
+    // A preview never writes.
+    assert_eq!(snapshot(ws.path()), before);
+}
+
+#[test]
 fn assisted_fixes_need_accept_assist() {
     let ws = workspace();
     let before = text(&snapshot(ws.path()), "fx/config/driver.yaml");
