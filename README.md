@@ -173,6 +173,17 @@ until a tier is trained and beats the built-in ranker with no more wrong picks i
 evaluation fold, rosfix uses the built-in ranker. The runtime and trainer live in
 [`crates/rosfix-model`](crates/rosfix-model); `rosfix-model-bench` reproduces the timings.
 
+Training data so far (all built in plain Rust, reproducible byte for byte):
+
+- **Tokenizer:** 8,192-token byte-level BPE learned from the config files (YAML, launch,
+  URDF/xacro, `package.xml`) of 830 public ROS 2 repositories in 10.9 s; 2.71 bytes per token
+  on 74 held-out repositories (`rosfix-model-bpe`).
+- **Ranking cases:** the built-in ranker's 16,456 cases (same corruptions, folds and
+  name-disjoint split), plus the rule and the surrounding source lines, written as the exact
+  inputs the runtime scores (`rosfix-train --dump-tier`). Inputs average 65 tokens (max 151), so
+  nano's 128-token context truncates only 0.1% of them. `rosfix-tier stats` prints these checks,
+  including that no context gives away the answer.
+
 ### Online references (`--online`)
 
 Off by default. With `--online` (or `online = true`), rosfix attaches links to related
