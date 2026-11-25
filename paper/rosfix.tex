@@ -116,29 +116,32 @@ Shadow Configuration Drift occurs when source code silently overrides the intent
 higher-level configuration. Given a dependency relation $D \subseteq C \times C$, it is the set
 of inconsistencies that can be detected only through the transitive closure $D^*$:
 \begin{equation}
-\mathit{ShadowDrift} = \Big\{ d \in \mathit{ConfigDrift} : d \notin \bigcup_i \mathit{SingleFile}(C_i)
-\wedge d \in \mathit{CrossFile}(D^*) \Big\}
+\begin{split}
+\mathit{ShadowDrift} = \Big\{ d \in \mathit{ConfigDrift} :{}
+  & d \notin {\textstyle\bigcup_i} \mathit{SingleFile}(C_i)\\
+  & \wedge\, d \in \mathit{CrossFile}(D^*) \Big\}
+\end{split}
 \end{equation}
 
 \subsection{Motivating Examples}
 
-\begin{description}
-\item[QoS override.] The YAML file sets \code{reliability: RELIABLE} for a sensor topic, but the
+\begin{itemize}
+\item \textbf{QoS override.} The YAML file sets \code{reliability: RELIABLE} for a sensor topic, but the
   C++ node creates it with \code{rclcpp::QoS(10).best\_effort()}. Under network load, messages
   are dropped without any warning.
-\item[Security bypass.] The XML governance file requires \code{ENCRYPT} protection, but a Python
+\item \textbf{Security bypass.} The XML governance file requires \code{ENCRYPT} protection, but a Python
   launch script binds the node to \code{127.0.0.1}, which bypasses the network-level policy.
-\item[Lifecycle violation.] The launch file sets up a managed lifecycle for a motor controller,
+\item \textbf{Lifecycle violation.} The launch file sets up a managed lifecycle for a motor controller,
   but the C++ code publishes commands before the node has gone through its state transitions.
-\item[Ignored QoS override.] A parameter file sets
+\item \textbf{Ignored QoS override.} A parameter file sets
   \code{qos\_overrides./scan.subscription.reliability: best\_effort}, but the subscription was
   created without \code{QosOverridingOptions}. The override is ignored and the QoS in the code
   applies. Finding this needs three inputs: the parameter file, the launch graph that binds it
   to the node, and the node's source.
-\item[Namespaced parameter keys.] \code{rcl} matches parameter-file keys against fully
+\item \textbf{Namespaced parameter keys.} \code{rcl} matches parameter-file keys against fully
   qualified node names. A section keyed \code{amcl} therefore does not apply to an AMCL node
   launched in namespace \code{robot1} (\code{/robot1/amcl}), and its values are silently lost.
-\end{description}
+\end{itemize}
 
 % ===========================================================================
 \section{Design of rosfix}
@@ -177,15 +180,15 @@ location in each file involved.
 \subsection{Drift Patterns}
 
 rosfix detects seven drift patterns:
-\begin{description}
-\item[QoS override:] QoS hardcoded in source code that contradicts the configuration files.
-\item[Security policy bypass:] source code that circumvents the SROS2 security configuration.
-\item[Parameter conflict:] different values for one parameter in different layers.
-\item[Lifecycle violation:] code that does not follow the managed lifecycle it is launched with.
-\item[Topic type mismatch:] publishers and subscribers with incompatible message types.
-\item[Executor safety:] blocking calls inside callbacks of a single-threaded executor.
-\item[Physical safety:] URDF joint limits and navigation footprints.
-\end{description}
+\begin{itemize}
+\item \textbf{QoS override:} QoS hardcoded in source code that contradicts the configuration files.
+\item \textbf{Security policy bypass:} source code that circumvents the SROS2 security configuration.
+\item \textbf{Parameter conflict:} different values for one parameter in different layers.
+\item \textbf{Lifecycle violation:} code that does not follow the managed lifecycle it is launched with.
+\item \textbf{Topic type mismatch:} publishers and subscribers with incompatible message types.
+\item \textbf{Executor safety:} blocking calls inside callbacks of a single-threaded executor.
+\item \textbf{Physical safety:} URDF joint limits and navigation footprints.
+\end{itemize}
 
 \subsection{Fact Extraction}
 \label{sec:facts}
@@ -564,6 +567,7 @@ meta-repository whose packages are fetched separately, so its clone contains no 
 \caption{Current implementation: one thread, median of three runs}
 \label{tab:current}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lrrrl@{}}
 \toprule
 Repository & Files & Time (ms) & Memory (MB) & Findings\\
@@ -581,7 +585,7 @@ rmw\_fastrtps  &  17 &      61 & 10 & none\\
 rmw\_cyclonedds &  1 &     130 & 14 & none\\
 Autoware       &   0 &      24 &  6 & none\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 We reviewed all 96 findings by hand (Table~\ref{tab:precision}) and found no false positive. All 80 L002 findings are
@@ -654,6 +658,7 @@ and produced a verified fix for it.
 \caption{Mutation benchmark on the 12 repositories}
 \label{tab:mut}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llrr@{}}
 \toprule
 Mutation & Rule & Injected & Detected\\
@@ -668,7 +673,7 @@ parameter key abbreviated            & P003 &   3 &   3\\
 \midrule
 Total                                &      & 161 & 161\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Repair Assistant}
@@ -773,6 +778,7 @@ assistant.
 \caption{Repair choices on benchmark mutations (correct / abstained / wrong)}
 \label{tab:assist}
 \footnotesize
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lrrcc@{}}
 \toprule
 Mutation & Cases & In set & Lexical & Learned\\
@@ -781,7 +787,7 @@ executable name misspelled & 28 & 28 & 12\,/\,16\,/\,0 & 28\,/\,0\,/\,0\\
 parameter key misspelled   & 20 & 19 &  0\,/\,20\,/\,0 &  0\,/\,20\,/\,0\\
 parameter key abbreviated  &  3 &  3 &  3\,/\,0\,/\,0  &  3\,/\,0\,/\,0\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Downloadable Assist Tiers}
@@ -815,6 +821,7 @@ Full context = 128/256/384 tokens.}
 \label{tab:tiers}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
  & \multicolumn{1}{c}{built-in} & \multicolumn{1}{c}{nano} & \multicolumn{1}{c}{mini} & \multicolumn{1}{c}{base}\\
@@ -828,7 +835,7 @@ File (int8) & in binary & 1.6\,MB & 5.5\,MB & 23.6\,MB\\
 128 tokens (ms) & & 10.5 (7.5) & 58.0 (36.5) & 175.4 (153.9)\\
 full context (ms) & & 9.9 (7.6) & 117.9 (85.2) & 874.3 (548.8)\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 A tier scores each of up to eight candidates separately, so a finding costs up to eight queries.
@@ -854,6 +861,36 @@ operating systems. A tier will be released only if it is correct more often than
 ranker and makes no more wrong edits \emph{in every fold} of Section~\ref{sec:assistant}. The
 built-in ranker itself does not yet meet this bar (Table~\ref{tab:assistcv}). Raw measurements are in
 \code{paper/data/tier\_runtime\_trials\_2026-11-24.txt}.
+
+\textbf{Tokenizer.} The BPE vocabulary is learned, also in plain Rust, from the configuration
+files rosfix reads (YAML, launch, URDF/xacro/SRDF, \code{package.xml}; at most 256\,KiB each) in
+830 public ROS~2 repositories listed for Jazzy in rosdistro. One repository in ten, chosen by name
+hash, is held out. Training keeps pair counts up to date incrementally: a merge re-counts only the
+words that contain the merged pair. A test checks that the merges are identical to recounting
+every pair at every step. Learning all 7,935 merges from 29.2\,MB (11,049 files, 756 repositories)
+takes 10.9\,s on one thread, and the merge list is the same byte for byte on every run. On the 74
+held-out repositories (1.5\,MB), a token covers 2.71 bytes on average. Words are cut into pieces of
+at most 48 bytes, in training and in encoding alike, so encoding is linear in the text length.
+Without the cut in encoding, a few very long words made encoding the held-out files take about
+2.5 minutes. With it, the whole run takes 16.5\,s.
+
+\textbf{Training data.} A tier is trained and evaluated on exactly the cases of the built-in
+ranker: the same corruptions of real parameter and executable names, the same options, the same
+package folds and the same name-disjoint filter. Only the input differs. \code{rosfix-train
+--dump-tier} adds the rule and the source lines around the repair site and writes the input text
+of each option. That text comes from the function the runtime uses (\code{input\_text}). Unknown
+parameters (P003) get a parameter-file block. It holds up to three other parameters of the same
+node, with values of their declared types. Following rosfix's own candidate filter, these are never
+names that are offered as options. Unknown executables (L001) get a launch \code{Node(...)} call
+with the package name. Context comes from a separate random stream seeded per case, so the
+built-in ranker's training data are unchanged. Retraining it reproduces the shipped weights file
+byte for byte. The dump has 16,456 cases (16,118 P003, 338 L001; the answer is offered in 59.5\%)
+with 129,488 option inputs. Inputs average 165 bytes and 64.9 tokens (95th percentile 89, maximum
+151). So 0.1\% of inputs exceed nano's 128-token context, and none exceed mini's or base's. No
+context contains the intended name where the user wrote something else, except four L001 cases
+of \code{nav2\_costmap\_2d}. That package has an executable of the same name, which a real launch
+file would show too. Real findings exported with \code{rosfix --assist-cases} now carry the same
+context field. Data and statistics are in \code{research/data/tiers/}.
 
 \subsection{Fix Verification Sandbox}
 \label{sec:fixsandbox}
@@ -1120,29 +1157,29 @@ and verifies every choice by re-analysis.
 % ===========================================================================
 \section{Limitations}
 
-\begin{description}
-\item[Static analysis.] rosfix cannot detect configuration problems that appear only at runtime,
+\begin{itemize}
+\item \textbf{Static analysis.} rosfix cannot detect configuration problems that appear only at runtime,
   such as parameters changed while the system runs.
-\item[Dependency resolution.] The earlier version handles direct dependencies, and complex
+\item \textbf{Dependency resolution.} The earlier version handles direct dependencies, and complex
   transitive relationships may be missed.
-\item[Ground truth.] The manual validation of the earlier version covers a sample of 312 issues,
+\item \textbf{Ground truth.} The manual validation of the earlier version covers a sample of 312 issues,
   not all 2,405.
-\item[Platform.] All timings were taken on Windows: the earlier runs on the machine of
+\item \textbf{Platform.} All timings were taken on Windows: the earlier runs on the machine of
   Section~\ref{sec:dataset}, the tier timings on the laptop of Table~\ref{tab:tiers}. The test
   suite also runs on Linux and macOS in continuous integration, but no timing was measured there.
-\item[Interpreters.] The Python launch and xacro interpreters cover common subsets. Other
+\item \textbf{Interpreters.} The Python launch and xacro interpreters cover common subsets. Other
   constructs are marked partial, and checks that depend on them are skipped.
-\item[Synthetic mutations.] The mutation operators were written together with the tool. The
+\item \textbf{Synthetic mutations.} The mutation operators were written together with the tool. The
   benchmark shows that the checks work on real code layouts. It does not measure recall on faults
   that occur in practice.
-\item[Plugins.] Parameters that a dependency's plugin declares on its hosting node are accepted
+\item \textbf{Plugins.} Parameters that a dependency's plugin declares on its hosting node are accepted
   when the dependency is in the workspace. For a binary-installed dependency, only the knowledge
   packs' nodes are known, not the parameter libraries of their plugins.
-\item[Packs and assistant.] Knowledge packs reflect the branches they were built from. The
+\item \textbf{Packs and assistant.} Knowledge packs reflect the branches they were built from. The
   learned ranker was trained and evaluated on synthetic misspellings, not on fixes from real
   project histories. The sandboxed build check was not part of the evaluation because it needs
   Docker or colcon.
-\end{description}
+\end{itemize}
 
 % ===========================================================================
 \section{Conclusion}
