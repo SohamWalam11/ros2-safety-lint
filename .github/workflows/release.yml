@@ -106,8 +106,14 @@ jobs:
     runs-on: ubuntu-22.04
     environment: release
     steps:
+      # Named patterns only: docker/build-push-action also uploads *.dockerbuild records,
+      # which are not zip archives and make an unfiltered download fail.
       - uses: actions/download-artifact@v4
-        with: { path: artifacts, merge-multiple: true }
+        with: { path: artifacts, pattern: "bin-*", merge-multiple: true }
+      - uses: actions/download-artifact@v4
+        with: { path: artifacts, pattern: "wheels-*", merge-multiple: true }
+      - uses: actions/download-artifact@v4
+        with: { path: artifacts, name: sdist }
       - name: Checksums
         run: cd artifacts && sha256sum * > SHA256SUMS
       - uses: actions/attest-build-provenance@v2
