@@ -1,0 +1,13 @@
+[package]
+name = "rosfix-model"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+description = "Runtime for rosfix's downloadable assist models: .rfm format, byte-level BPE, int8 transformer encoder (CPU, deterministic, no dependencies)"
+
+[dependencies]
+
+[[bin]]
+name = "rosfix-model-bench"
+path = "src/bin/bench.rs"

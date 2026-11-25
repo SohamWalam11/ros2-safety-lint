@@ -2,5 +2,6 @@
 resolver = "2"
 members = [
     "crates/ros2-safety-lint",
-    "crates/ros2-safety-mutate"
+    "crates/ros2-safety-mutate",
+    "crates/rosfix-model"
 ]
