@@ -841,8 +841,14 @@ input format and the model code, as \code{rosfix-train} does for the built-in ra
 is an f32 twin of the runtime encoder with a hand-written backward pass and Adam, optimised for
 the same listwise loss with a fixed ``none'' score. Its gradients agree with central finite
 differences for every parameter group, it learns a toy ranking task, and training is
-bit-reproducible for a seed. After int8 export, a trained toy model made the same decision
-(candidate or abstain) as its f32 original in 300 of 300 cases. A tier will be released only if,
+bit-reproducible for a seed, on every operating system. The last property needed a fix found by
+continuous integration: weights were initialised with Box--Muller normals, whose \code{ln} and
+\code{cos} come from the platform math library, so the same seed gave different initial weights on
+Linux, Windows and macOS. On Linux the toy model then ended near the abstention boundary and int8
+export changed 34 of 300 decisions. Initialisation now sums twelve uniform samples (Irwin--Hall),
+which uses exact operations only. After int8 export, the trained toy model makes the same decision
+(candidate or abstain) as its f32 original in 300 of 300 cases, and the test passes on all three
+operating systems. A tier will be released only if,
 on the name-disjoint folds of Section~\ref{sec:assistant}, it is correct more often than the
 built-in ranker and makes no more wrong edits \emph{in every fold}, which the built-in ranker
 itself does not yet achieve (Table~\ref{tab:assistcv}). Raw measurements are in
@@ -1153,7 +1159,12 @@ ranker on it.
 and the benchmarks. The repair ranker is published at
 \url{https://huggingface.co/SohamW11/rosfix-assist} and the knowledge packs and rosdep key lists
 at \url{https://huggingface.co/datasets/SohamW11/rosfix-knowledge-packs}. The raw outputs of the
-re-run benchmark and training are in \code{paper/data/}.
+re-run benchmark and training are in \code{paper/data/}. Continuous integration runs formatting
+and lint checks, all tests on Linux, Windows and macOS, a build with the minimum supported Rust
+version (1.88, set by the dependencies' own requirements) and a smoke run with the mutation
+benchmark on three real repositories. A tagged release publishes binaries for five platforms with
+build-provenance attestations, Python wheels, per-distribution container images, and the ranker and knowledge packs
+to Hugging Face, so the published model always matches the released binaries.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
