@@ -278,6 +278,15 @@ Each milestone is also described, with its measurements, in the [paper](paper/ro
   300/300 decisions survive int8 export on all three.
 - **CI green on Linux, Windows and macOS**, with `cargo fmt` and `clippy -D warnings` enforced
   and the minimum Rust version raised to 1.88 (what the dependencies require).
+- **Field study re-run on 826 rosdistro Jazzy repositories**, at the same commits as on 20
+  November ([`research/data/s2_rerun_2026-11-25_fix.md`](research/data/s2_rerun_2026-11-25_fix.md)).
+  Findings went from 3,307 to 4,295, mostly from rules added since (L009 292, O002 96, N008 82,
+  O001 55, U002 53) and 373 more L002 for launch files that import `launch_ros` without
+  declaring it. A hand check of about 40 new findings found them correct, except U004 firing on
+  URDF test fixtures that are broken on purpose. The re-run exposed one regression, now fixed:
+  `if=`/`unless=` were not evaluated, so a confirmed S001 in rmf_demos was lost. rosfix now
+  evaluates conditions with the arguments the launch graph passes, and no confirmed true
+  positive is lost.
 
 **24 November 2026**
 - **93 rules in 18 agents**, including the new A003 (duplicate node name), F005 (tf cycle),

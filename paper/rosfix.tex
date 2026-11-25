@@ -1116,6 +1116,20 @@ of a CMake target, so they are dead code rather than build failures. The one U00
 also accurate: MoveIt's PRBT test robot gives \code{prbt\_flange}, the child of a revolute joint,
 a mass of 0.02\,kg and an all-zero inertia tensor.
 
+\textbf{Ecosystem re-run.} We re-ran rosfix on the 826 analysable Jazzy repositories of rosdistro
+at the same commits as an earlier run, and compared findings by fingerprint. Findings rose from
+3{,}307 to 4{,}295. Most new findings come from rules added in between (L009 292, O002 96, N008
+82, O001 55, U002 53), and 373 are L002 findings for launch files that import \code{launch\_ros}
+without declaring it. A hand check of about 40 new findings, spread over these rules, found them
+correct, except U004 on URDF test fixtures that are broken on purpose. The earlier run had a
+triaged sample of findings labelled true or false positive. Comparing against it exposed one
+regression: \code{if=} and \code{unless=} attributes were reduced to a flag, so a node in a branch
+that the includer selects explicitly was skipped, and a confirmed S001 in rmf\_demos was lost.
+rosfix now evaluates such a condition with the arguments of the launch graph. A branch that is
+taken runs normally; a branch that is not taken, or whose value is unknown, stays conditional,
+because a default can be overridden on the command line. After the fix, every triaged true
+positive is still reported. The raw comparison is in \code{research/data/}.
+
 \subsection{Coverage}
 \label{sec:coverage}
 
